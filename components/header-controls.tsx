@@ -2,22 +2,24 @@
 
 import { Button } from "@/components/ui/button"
 import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu"
+import {
   Save,
   Upload,
-  Download,
+  ClipboardList,
   FileDown,
   FileUp,
-  ZoomIn,
-  ZoomOut,
   Maximize,
   Trash2,
   FilePlus,
   Library,
   AlignHorizontalDistributeCenter,
-  Loader2,
   Play,
   Pause,
-  FileSpreadsheet,
   Activity,
   Undo,
   Redo,
@@ -25,15 +27,15 @@ import {
   Clipboard,
   Info,
 } from "lucide-react"
+import ThemePicker from "./theme-picker"
+import { DownloadImageMenuItems } from "./download-button"
+import ExportReportButton from "./export-report-button"
 
 interface HeaderControlsProps {
   onSave: () => void
   onLoad: () => void
   onSaveAsJSON: () => void
   onImportJSON: () => void
-  onExportCompromisedHosts: () => void
-  onZoomIn: () => void
-  onZoomOut: () => void
   onFitView: () => void
   onToggleTemplates: () => void
   onToggleTimeline: () => void
@@ -46,8 +48,10 @@ interface HeaderControlsProps {
   onCopy: () => void
   onPaste: () => void
   onShowDataHandling: () => void
+  onToggleIncidentLog: () => void
   showTemplates: boolean
   showTimeline: boolean
+  showIncidentLog: boolean
   hasSelection: boolean
   isExporting?: boolean
   animationsEnabled: boolean
@@ -62,9 +66,6 @@ export default function HeaderControls({
   onLoad,
   onSaveAsJSON,
   onImportJSON,
-  onExportCompromisedHosts,
-  onZoomIn,
-  onZoomOut,
   onFitView,
   onToggleTemplates,
   onToggleTimeline,
@@ -77,8 +78,10 @@ export default function HeaderControls({
   onCopy,
   onPaste,
   onShowDataHandling,
+  onToggleIncidentLog,
   showTemplates,
   showTimeline,
+  showIncidentLog,
   hasSelection,
   isExporting = false,
   animationsEnabled,
@@ -88,13 +91,13 @@ export default function HeaderControls({
   canPaste,
 }: HeaderControlsProps) {
   return (
-    <header className="flex h-14 items-center justify-between border-b border-gray-700 bg-gray-900 px-4 text-white">
+    <header className="ip-header flex h-14 items-center justify-between border-b px-4">
       <div className="flex items-center gap-4">
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-3">
           <div className="text-xl font-bold text-blue-400">Compromise Canvas</div>
-          <div className="text-sm text-gray-400">Attack Path Designer</div>
+          <div className="text-xs text-gray-500">by SagaLabs</div>
         </div>
-        <div className="h-6 w-px bg-gray-600"></div>
+        <div className="ip-divider h-6 w-px"></div>
         <div className="flex items-center gap-2">
           <Button
             variant="ghost"
@@ -102,8 +105,9 @@ export default function HeaderControls({
             onClick={onStartFromScratch}
             className="text-gray-300 hover:bg-gray-700"
             title="Start from scratch"
+            aria-label="Start from scratch"
           >
-            <FilePlus className="h-5 w-5" />
+            <FilePlus className="h-5 w-5" aria-hidden="true" />
             <span className="sr-only">Start from scratch</span>
           </Button>
           <Button
@@ -112,8 +116,9 @@ export default function HeaderControls({
             onClick={onToggleTemplates}
             className={`${showTemplates ? "bg-gray-700 text-blue-400" : "text-gray-300"} hover:bg-gray-700`}
             title="Open templates"
+            aria-label="Open templates"
           >
-            <Library className="h-5 w-5" />
+            <Library className="h-5 w-5" aria-hidden="true" />
             <span className="sr-only">Open templates</span>
           </Button>
           <Button
@@ -122,11 +127,12 @@ export default function HeaderControls({
             onClick={onToggleTimeline}
             className={`${showTimeline ? "bg-gray-700 text-blue-400" : "text-gray-300"} hover:bg-gray-700`}
             title="Show attack timeline"
+            aria-label="Show attack timeline"
           >
-            <Activity className="h-5 w-5" />
+            <Activity className="h-5 w-5" aria-hidden="true" />
             <span className="sr-only">Show attack timeline</span>
           </Button>
-          <div className="h-6 w-px bg-gray-600"></div>
+          <div className="ip-divider h-6 w-px"></div>
           <Button
             variant="ghost"
             size="icon"
@@ -134,8 +140,9 @@ export default function HeaderControls({
             disabled={!canUndo}
             className={`${canUndo ? "text-gray-300 hover:bg-gray-700" : "text-gray-500 cursor-not-allowed"}`}
             title="Undo (Ctrl+Z)"
+            aria-label="Undo"
           >
-            <Undo className="h-5 w-5" />
+            <Undo className="h-5 w-5" aria-hidden="true" />
             <span className="sr-only">Undo</span>
           </Button>
           <Button
@@ -145,11 +152,12 @@ export default function HeaderControls({
             disabled={!canRedo}
             className={`${canRedo ? "text-gray-300 hover:bg-gray-700" : "text-gray-500 cursor-not-allowed"}`}
             title="Redo (Ctrl+Y)"
+            aria-label="Redo"
           >
-            <Redo className="h-5 w-5" />
+            <Redo className="h-5 w-5" aria-hidden="true" />
             <span className="sr-only">Redo</span>
           </Button>
-          <div className="h-6 w-px bg-gray-600"></div>
+          <div className="ip-divider h-6 w-px"></div>
           <Button
             variant="ghost"
             size="icon"
@@ -157,8 +165,9 @@ export default function HeaderControls({
             disabled={!canCopy}
             className={`${canCopy ? "text-gray-300 hover:bg-gray-700" : "text-gray-500 cursor-not-allowed"}`}
             title="Copy (Ctrl+C)"
+            aria-label="Copy"
           >
-            <Copy className="h-5 w-5" />
+            <Copy className="h-5 w-5" aria-hidden="true" />
             <span className="sr-only">Copy</span>
           </Button>
           <Button
@@ -168,19 +177,21 @@ export default function HeaderControls({
             disabled={!canPaste}
             className={`${canPaste ? "text-gray-300 hover:bg-gray-700" : "text-gray-500 cursor-not-allowed"}`}
             title="Paste (Ctrl+V)"
+            aria-label="Paste"
           >
-            <Clipboard className="h-5 w-5" />
+            <Clipboard className="h-5 w-5" aria-hidden="true" />
             <span className="sr-only">Paste</span>
           </Button>
-          <div className="h-6 w-px bg-gray-600"></div>
+          <div className="ip-divider h-6 w-px"></div>
           <Button
             variant="ghost"
             size="icon"
             onClick={onSave}
             className="text-gray-300 hover:bg-gray-700"
             title="Save to browser storage"
+            aria-label="Save to browser storage"
           >
-            <Save className="h-5 w-5" />
+            <Save className="h-5 w-5" aria-hidden="true" />
             <span className="sr-only">Save to browser storage</span>
           </Button>
           <Button
@@ -189,79 +200,114 @@ export default function HeaderControls({
             onClick={onLoad}
             className="text-gray-300 hover:bg-gray-700"
             title="Load from browser storage"
+            aria-label="Load from browser storage"
           >
-            <Upload className="h-5 w-5" />
+            <Upload className="h-5 w-5" aria-hidden="true" />
             <span className="sr-only">Load from browser storage</span>
           </Button>
-          <div className="h-6 w-px bg-gray-600"></div>
-          <Button
-            variant="ghost"
-            size="icon"
-            onClick={onSaveAsJSON}
-            className="text-gray-300 hover:bg-gray-700"
-            title="Save as JSON file"
-          >
-            <FileDown className="h-5 w-5" />
-            <span className="sr-only">Save as JSON file</span>
-          </Button>
+          <div className="ip-divider h-6 w-px"></div>
           <Button
             variant="ghost"
             size="icon"
             onClick={onImportJSON}
             className="text-gray-300 hover:bg-gray-700"
             title="Import JSON file"
+            aria-label="Import JSON file"
           >
-            <FileUp className="h-5 w-5" />
+            <FileUp className="h-5 w-5" aria-hidden="true" />
             <span className="sr-only">Import JSON file</span>
-          </Button>
-          <div className="h-6 w-px bg-gray-600"></div>
-          <Button
-            variant="ghost"
-            size="icon"
-            onClick={onExportCompromisedHosts}
-            className="text-gray-300 hover:bg-gray-700"
-            title="Export compromised hosts to CSV"
-          >
-            <FileSpreadsheet className="h-5 w-5" />
-            <span className="sr-only">Export compromised hosts</span>
           </Button>
         </div>
       </div>
 
       <div className="flex items-center gap-2">
-        <Button 
-          variant="ghost" 
-          size="icon" 
-          onClick={onToggleAnimations} 
+        <Button
+          variant="ghost"
+          size="sm"
+          onClick={onToggleIncidentLog}
+          className="bg-blue-600 text-white shadow-lg shadow-blue-600/30 hover:bg-blue-500 hover:text-white"
+          title="Open Incident Log"
+        >
+          <ClipboardList className="h-4 w-4 mr-2" aria-hidden="true" />
+          Incident Log
+        </Button>
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <Button
+              variant="ghost"
+              size="sm"
+              className="bg-blue-600 text-white shadow-lg shadow-blue-600/30 hover:bg-blue-500 hover:text-white"
+              title="Export"
+            >
+              <FileDown className="mr-2 h-4 w-4" aria-hidden="true" />
+              Export
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="end" className="w-48">
+            <DropdownMenuItem onClick={onSaveAsJSON}>
+              <FileDown className="mr-2 h-4 w-4" aria-hidden="true" />
+              Export JSON
+            </DropdownMenuItem>
+            <DownloadImageMenuItems />
+          </DropdownMenuContent>
+        </DropdownMenu>
+        <ExportReportButton
+          label="Create report"
+          variant="ghost"
+          size="sm"
+          className="bg-blue-600 text-white shadow-lg shadow-blue-600/30 hover:bg-blue-500 hover:text-white"
+        />
+        <ThemePicker />
+        <Button
+          variant="ghost"
+          size="icon"
+          onClick={onToggleAnimations}
           className={`${animationsEnabled ? "text-gray-400" : "text-green-400"} hover:bg-gray-700`}
           title={animationsEnabled ? "Disable animations" : "Enable animations"}
+          aria-label={animationsEnabled ? "Disable animations" : "Enable animations"}
         >
-          {animationsEnabled ? <Pause className="h-5 w-5" /> : <Play className="h-5 w-5" />}
+          {animationsEnabled ? <Pause className="h-5 w-5" aria-hidden="true" /> : <Play className="h-5 w-5" aria-hidden="true" />}
           <span className="sr-only">{animationsEnabled ? "Disable animations" : "Enable animations"}</span>
         </Button>
 
-        <Button variant="ghost" size="icon" onClick={onAutoAlign} className="text-gray-300 hover:bg-gray-700">
-          <AlignHorizontalDistributeCenter className="h-5 w-5" />
+        <Button
+          variant="ghost"
+          size="icon"
+          onClick={onAutoAlign}
+          className="text-gray-300 hover:bg-gray-700"
+          aria-label="Auto-align nodes"
+        >
+          <AlignHorizontalDistributeCenter className="h-5 w-5" aria-hidden="true" />
           <span className="sr-only">Auto-align nodes</span>
         </Button>
-        <Button variant="ghost" size="icon" onClick={onZoomIn} className="text-gray-300 hover:bg-gray-700">
-          <ZoomIn className="h-5 w-5" />
-          <span className="sr-only">Zoom In</span>
-        </Button>
-        <Button variant="ghost" size="icon" onClick={onZoomOut} className="text-gray-300 hover:bg-gray-700">
-          <ZoomOut className="h-5 w-5" />
-          <span className="sr-only">Zoom Out</span>
-        </Button>
-        <Button variant="ghost" size="icon" onClick={onFitView} className="text-gray-300 hover:bg-gray-700">
-          <Maximize className="h-5 w-5" />
+        <Button
+          variant="ghost"
+          size="icon"
+          onClick={onFitView}
+          className="text-gray-300 hover:bg-gray-700"
+          aria-label="Fit view"
+        >
+          <Maximize className="h-5 w-5" aria-hidden="true" />
           <span className="sr-only">Fit View</span>
         </Button>
-        <Button variant="ghost" size="icon" onClick={onShowDataHandling} className="text-blue-400 hover:bg-gray-700">
-          <Info className="h-5 w-5" />
+        <Button
+          variant="ghost"
+          size="icon"
+          onClick={onShowDataHandling}
+          className="text-blue-400 hover:bg-gray-700"
+          aria-label="Data handling information"
+        >
+          <Info className="h-5 w-5" aria-hidden="true" />
           <span className="sr-only">Data Handling Information</span>
         </Button>
-        <Button variant="ghost" size="icon" onClick={onClear} className="text-red-400 hover:bg-gray-700">
-          <Trash2 className="h-5 w-5" />
+        <Button
+          variant="ghost"
+          size="icon"
+          onClick={onClear}
+          className="text-red-400 hover:bg-gray-700"
+          aria-label="Clear canvas"
+        >
+          <Trash2 className="h-5 w-5" aria-hidden="true" />
           <span className="sr-only">Clear</span>
         </Button>
       </div>

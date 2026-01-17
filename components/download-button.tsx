@@ -2,7 +2,7 @@ import { useCallback, useState } from 'react';
 import { useReactFlow } from 'reactflow';
 import { toPng } from 'html-to-image';
 import { getNodesBounds } from 'reactflow';
-import { ChevronDown, Download } from 'lucide-react';
+import { ChevronDown, Download, Image as ImageIcon } from 'lucide-react';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -15,8 +15,8 @@ interface DownloadButtonProps {
   canvasTitle?: string;
 }
 
-export default function DownloadButton({ canvasTitle }: DownloadButtonProps) {
-  const { getNodes, getViewport } = useReactFlow();
+const useDownloadImage = () => {
+  const { getNodes } = useReactFlow();
   const [backgroundType, setBackgroundType] = useState<'dark' | 'transparent'>('dark');
 
   const addWatermark = (dataUrl: string, width: number, height: number, bgType: 'dark' | 'transparent'): Promise<string> => {
@@ -72,43 +72,32 @@ export default function DownloadButton({ canvasTitle }: DownloadButtonProps) {
       return;
     }
 
-    // Calculate the bounds of all nodes
     const nodesBounds = getNodesBounds(nodes);
-    const viewport = getViewport();
-    
-    // Add margin around the nodes (10% of the diagram size)
-    const margin = Math.max(nodesBounds.width, nodesBounds.height) * 0.1;
-    const exportBounds = {
-      x: nodesBounds.x - margin,
-      y: nodesBounds.y - margin,
-      width: nodesBounds.width + margin * 2,
-      height: nodesBounds.height + margin * 2,
-    };
-
-    // Calculate the crop area in viewport coordinates
-    const cropX = (exportBounds.x - viewport.x) / viewport.zoom;
-    const cropY = (exportBounds.y - viewport.y) / viewport.zoom;
-    const cropWidth = exportBounds.width / viewport.zoom;
-    const cropHeight = exportBounds.height / viewport.zoom;
+    const padding = Math.max(40, Math.min(nodesBounds.width, nodesBounds.height) * 0.1);
+    const imageWidth = Math.max(1, Math.ceil(nodesBounds.width + padding * 2));
+    const imageHeight = Math.max(1, Math.ceil(nodesBounds.height + padding * 2));
+    const translateX = -nodesBounds.x + padding;
+    const translateY = -nodesBounds.y + padding;
 
     toPng(reactFlowElement, {
       backgroundColor: bgType === 'dark' ? '#1a1a1a' : undefined,
-      width: exportBounds.width,
-      height: exportBounds.height,
+      width: imageWidth,
+      height: imageHeight,
       style: {
-        width: `${exportBounds.width}px`,
-        height: `${exportBounds.height}px`,
-        transform: `translate(${-exportBounds.x}px, ${-exportBounds.y}px)`,
+        width: `${imageWidth}px`,
+        height: `${imageHeight}px`,
+        transform: `translate(${translateX}px, ${translateY}px) scale(1)`,
+        transformOrigin: '0 0',
       },
     })
       .then((dataUrl) => {
         // Add watermark to the image with the correct background type
-        return addWatermark(dataUrl, exportBounds.width, exportBounds.height, bgType);
+        return addWatermark(dataUrl, imageWidth, imageHeight, bgType);
       })
       .then((watermarkedDataUrl) => {
         const link = document.createElement('a');
         const bgSuffix = bgType === 'transparent' ? '-transparent' : '';
-        link.download = `compromise-canvas${bgSuffix}-${new Date().toISOString().split('T')[0]}.png`;
+        link.download = `compromise-canvas-export${bgSuffix}-${new Date().toISOString().split('T')[0]}.png`;
         link.href = watermarkedDataUrl;
         document.body.appendChild(link);
         link.click();
@@ -118,7 +107,30 @@ export default function DownloadButton({ canvasTitle }: DownloadButtonProps) {
         console.error('Export failed:', error);
         alert('Export failed. Please try again.');
       });
-  }, [getNodes, canvasTitle]);
+  }, [getNodes]);
+
+  return { onDownloadClick };
+};
+
+export function DownloadImageMenuItems() {
+  const { onDownloadClick } = useDownloadImage();
+
+  return (
+    <>
+      <DropdownMenuItem onClick={() => onDownloadClick('dark')}>
+        <ImageIcon className="mr-2 h-4 w-4" aria-hidden="true" />
+        Download Image (Dark)
+      </DropdownMenuItem>
+      <DropdownMenuItem onClick={() => onDownloadClick('transparent')}>
+        <ImageIcon className="mr-2 h-4 w-4" aria-hidden="true" />
+        Download Image (Transparent)
+      </DropdownMenuItem>
+    </>
+  );
+}
+
+export default function DownloadButton({ canvasTitle }: DownloadButtonProps) {
+  const { onDownloadClick } = useDownloadImage();
 
   return (
     <DropdownMenu>
@@ -129,9 +141,9 @@ export default function DownloadButton({ canvasTitle }: DownloadButtonProps) {
           title="Download as PNG"
           style={{ position: 'relative', zIndex: 1000 }}
         >
-          <Download className="h-4 w-4 mr-2" />
+          <Download className="h-4 w-4 mr-2" aria-hidden="true" />
           Download Image
-          <ChevronDown className="h-4 w-4 ml-2" />
+          <ChevronDown className="h-4 w-4 ml-2" aria-hidden="true" />
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end" className="w-48">
@@ -150,4 +162,4 @@ export default function DownloadButton({ canvasTitle }: DownloadButtonProps) {
       </DropdownMenuContent>
     </DropdownMenu>
   );
-} 
+}

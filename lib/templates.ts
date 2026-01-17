@@ -62,6 +62,14 @@ export const builtInTemplates: Template[] = [
     tags: ["web", "sql-injection", "database", "beginner"],
     createdAt: "2024-01-01T00:00:00Z",
     isBuiltIn: true,
+    incidentLog: [
+      {
+        id: "incident-simple-web-attack-1",
+        timestamp: "2024-01-15T08:15:00Z",
+        description: "Initial triage completed; scoped affected assets and logged findings.",
+        category: "Observation",
+      },
+    ],
     nodes: [
       {
         id: "web-server-1",
@@ -144,6 +152,14 @@ export const builtInTemplates: Template[] = [
     tags: ["ransomware", "lateral-movement", "exfiltration", "privilege-escalation", "advanced", "cloud"],
     createdAt: "2024-01-01T00:00:00Z",
     isBuiltIn: true,
+    incidentLog: [
+      {
+        id: "incident-advanced-ransomware-1",
+        timestamp: "2024-01-15T08:15:00Z",
+        description: "Initial triage completed; scoped affected assets and logged findings.",
+        category: "Observation",
+      },
+    ],
     nodes: [
       {
         id: "attacker-1",
@@ -359,6 +375,14 @@ export const builtInTemplates: Template[] = [
     tags: ["supply-chain", "ci-cd", "development", "malware", "intermediate", "cloud"],
     createdAt: "2024-01-01T00:00:00Z",
     isBuiltIn: true,
+    incidentLog: [
+      {
+        id: "incident-supply-chain-attack-1",
+        timestamp: "2024-01-15T08:15:00Z",
+        description: "Initial triage completed; scoped affected assets and logged findings.",
+        category: "Observation",
+      },
+    ],
      nodes: [
        {
          id: "attacker-2",
@@ -561,6 +585,14 @@ export const builtInTemplates: Template[] = [
     tags: ["apt", "command-control", "persistence", "advanced", "nation-state", "cloud"],
     createdAt: "2024-01-01T00:00:00Z",
     isBuiltIn: true,
+    incidentLog: [
+      {
+        id: "incident-apt-c2-attack-1",
+        timestamp: "2024-01-15T08:15:00Z",
+        description: "Initial triage completed; scoped affected assets and logged findings.",
+        category: "Observation",
+      },
+    ],
      nodes: [
        {
          id: "attacker-3",
@@ -813,8 +845,16 @@ export const builtInTemplates: Template[] = [
      description: "Attack targeting cloud infrastructure through misconfigured services",
      category: "Cloud Security",
      tags: ["cloud", "aws", "misconfiguration", "privilege-escalation", "intermediate"],
-     createdAt: "2024-01-01T00:00:00Z",
+    createdAt: "2024-01-01T00:00:00Z",
      isBuiltIn: true,
+     incidentLog: [
+       {
+         id: "incident-cloud-infrastructure-attack-1",
+         timestamp: "2024-01-15T08:15:00Z",
+         description: "Initial triage completed; scoped affected assets and logged findings.",
+         category: "Observation",
+       },
+     ],
      nodes: [
        {
          id: "attacker-4",
@@ -1025,6 +1065,14 @@ export const builtInTemplates: Template[] = [
     tags: ["insider", "data-theft", "privilege-abuse", "intermediate", "cloud"],
     createdAt: "2024-01-01T00:00:00Z",
     isBuiltIn: true,
+    incidentLog: [
+      {
+        id: "incident-insider-threat-1",
+        timestamp: "2024-01-15T08:15:00Z",
+        description: "Initial triage completed; scoped affected assets and logged findings.",
+        category: "Observation",
+      },
+    ],
      nodes: [
        {
          id: "insider-1",
@@ -1205,8 +1253,16 @@ export const builtInTemplates: Template[] = [
      description: "Basic phishing attack targeting user credentials through email compromise",
      category: "Social Engineering",
      tags: ["phishing", "email", "credentials", "beginner"],
-     createdAt: "2024-01-01T00:00:00Z",
+    createdAt: "2024-01-01T00:00:00Z",
      isBuiltIn: true,
+     incidentLog: [
+       {
+         id: "incident-simple-phishing-attack-1",
+         timestamp: "2024-01-15T08:15:00Z",
+         description: "Initial triage completed; scoped affected assets and logged findings.",
+         category: "Observation",
+       },
+     ],
      nodes: [
        {
          id: "user-identity-1",
@@ -1295,8 +1351,16 @@ export const builtInTemplates: Template[] = [
      description: "Attack targeting M365/Google Workspace through credential theft and API abuse",
      category: "Cloud Security",
      tags: ["m365", "google-workspace", "api-abuse", "credential-theft", "intermediate"],
-     createdAt: "2024-01-01T00:00:00Z",
+    createdAt: "2024-01-01T00:00:00Z",
      isBuiltIn: true,
+     incidentLog: [
+       {
+         id: "incident-cloud-productivity-attack-1",
+         timestamp: "2024-01-15T08:15:00Z",
+         description: "Initial triage completed; scoped affected assets and logged findings.",
+         category: "Observation",
+       },
+     ],
      nodes: [
        {
          id: "attacker-5",
@@ -1684,8 +1748,16 @@ export const builtInTemplates: Template[] = [
      description: "Attack targeting modern cloud-native infrastructure with containers and serverless",
      category: "Cloud Security",
      tags: ["cloud-native", "containers", "serverless", "kubernetes", "advanced"],
-     createdAt: "2024-01-01T00:00:00Z",
+    createdAt: "2024-01-01T00:00:00Z",
      isBuiltIn: true,
+     incidentLog: [
+       {
+         id: "incident-cloud-native-attack-1",
+         timestamp: "2024-01-15T08:15:00Z",
+         description: "Initial triage completed; scoped affected assets and logged findings.",
+         category: "Observation",
+       },
+     ],
      nodes: [
        {
          id: "attacker-6",
@@ -1998,6 +2070,20 @@ export const builtInTemplates: Template[] = [
      tags: ["multi-tenant", "identity", "cloud", "oauth", "advanced"],
      createdAt: "2024-01-01T00:00:00Z",
      isBuiltIn: true,
+     incidentLog: [
+       {
+         id: "incident-mt-1",
+         timestamp: "2024-01-16T08:30:00Z",
+         description: "Detected anomalous OAuth token usage across tenants; initiated triage with identity team.",
+         category: "Observation",
+       },
+       {
+         id: "incident-mt-2",
+         timestamp: "2024-01-16T10:15:00Z",
+         description: "Revoked suspicious OAuth app grants and forced re-consent for affected tenants.",
+         category: "Containment",
+       },
+     ],
      nodes: [
        {
          id: "attacker-7",

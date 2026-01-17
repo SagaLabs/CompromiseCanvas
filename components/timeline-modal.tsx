@@ -1,46 +1,37 @@
 "use client"
 
-import { useState, useMemo } from "react"
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog"
-import { Badge } from "@/components/ui/badge"
-import { Button } from "@/components/ui/button"
+import { useMemo, useState } from "react"
+import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetDescription } from "@/components/ui/sheet"
 import { ScrollArea } from "@/components/ui/scroll-area"
+import { Button } from "@/components/ui/button"
+import { Input } from "@/components/ui/input"
+import { Switch } from "@/components/ui/switch"
 import {
-  Clock,
-  Calendar,
-  Filter,
-  ArrowRight,
-  User,
-  Wrench,
-  Hash,
-  FileText,
   Activity,
-  ChevronDown,
-  ChevronRight,
-  Zap,
-  Shield,
-  Target,
-  AlertTriangle,
-  Eye,
-  Upload,
-  Terminal,
+  ArrowRight,
+  Clock,
+  Filter,
+  Search,
+  StickyNote,
   X,
 } from "lucide-react"
-import type { CustomEdge, EdgeActionType } from "@/lib/types"
+import type { CustomEdge, EdgeActionType, IncidentLogEntry } from "@/lib/types"
 
 interface TimelineEvent {
   id: string
   timestamp: string
   parsedDate: Date
-  actionType: EdgeActionType
-  toolUsed: string
-  userUsed: string
+  kind: "edge" | "incident"
+  actionType?: EdgeActionType
+  toolUsed?: string
+  userUsed?: string
   mitreAttackId?: string
   description: string
-  sourceId: string
-  targetId: string
+  sourceId?: string
+  targetId?: string
   c2Channel?: string
   c2Framework?: string
+  incidentCategory?: IncidentLogEntry["category"]
 }
 
 interface TimelineModalProps {
@@ -48,505 +39,450 @@ interface TimelineModalProps {
   onClose: () => void
   edges: CustomEdge[]
   nodes: any[]
+  incidentLog?: IncidentLogEntry[]
   onHighlightEdge?: (edgeId: string) => void
   onSelectEdge?: (edgeId: string) => void
+  onUpdateEdge?: (edgeId: string, data: Partial<CustomEdge["data"]>) => void
 }
 
-// Enhanced action type styling with icons and gradients
-const actionTypeConfig: Record<EdgeActionType, { 
-  color: string, 
-  icon: React.ElementType,
-  gradient: string,
-  description: string 
-}> = {
-  "Initial Access": { 
-    color: "bg-red-500/10 text-red-300 border-red-500/30", 
-    icon: Target,
-    gradient: "from-red-500/20 to-red-600/10",
-    description: "Entry point into target system"
-  },
-  "Lateral Movement": { 
-    color: "bg-blue-500/10 text-blue-300 border-blue-500/30", 
-    icon: ArrowRight,
-    gradient: "from-blue-500/20 to-blue-600/10",
-    description: "Movement between systems"
-  },
-  "Privilege Escalation": { 
-    color: "bg-purple-500/10 text-purple-300 border-purple-500/30", 
-    icon: ArrowRight,
-    gradient: "from-purple-500/20 to-purple-600/10",
-    description: "Elevation of access rights"
-  },
-  "Persistence": { 
-    color: "bg-orange-500/10 text-orange-300 border-orange-500/30", 
-    icon: Shield,
-    gradient: "from-orange-500/20 to-orange-600/10",
-    description: "Maintaining access"
-  },
-  "Defense Evasion": { 
-    color: "bg-yellow-500/10 text-yellow-300 border-yellow-500/30", 
-    icon: Eye,
-    gradient: "from-yellow-500/20 to-yellow-600/10",
-    description: "Avoiding detection"
-  },
-  "Credential Access": { 
-    color: "bg-green-500/10 text-green-300 border-green-500/30", 
-    icon: User,
-    gradient: "from-green-500/20 to-green-600/10",
-    description: "Obtaining credentials"
-  },
-  "Discovery": { 
-    color: "bg-cyan-500/10 text-cyan-300 border-cyan-500/30", 
-    icon: Eye,
-    gradient: "from-cyan-500/20 to-cyan-600/10",
-    description: "System reconnaissance"
-  },
-  "Collection": { 
-    color: "bg-indigo-500/10 text-indigo-300 border-indigo-500/30", 
-    icon: FileText,
-    gradient: "from-indigo-500/20 to-indigo-600/10",
-    description: "Data gathering"
-  },
-  "Exfiltration": { 
-    color: "bg-pink-500/10 text-pink-300 border-pink-500/30", 
-    icon: Upload,
-    gradient: "from-pink-500/20 to-pink-600/10",
-    description: "Data extraction"
-  },
-  "Command & Control": { 
-    color: "bg-gray-500/10 text-gray-300 border-gray-500/30", 
-    icon: Terminal,
-    gradient: "from-gray-500/20 to-gray-600/10",
-    description: "Remote control channel"
-  },
-  "Impact": { 
-    color: "bg-red-600/10 text-red-300 border-red-600/30", 
-    icon: Zap,
-    gradient: "from-red-600/20 to-red-700/10",
-    description: "System disruption"
-  },
-  "Reconnaissance": { 
-    color: "bg-slate-500/10 text-slate-300 border-slate-500/30", 
-    icon: Eye,
-    gradient: "from-slate-500/20 to-slate-600/10",
-    description: "Information gathering"
-  },
-  "Weaponization": { 
-    color: "bg-amber-500/10 text-amber-300 border-amber-500/30", 
-    icon: Wrench,
-    gradient: "from-amber-500/20 to-amber-600/10",
-    description: "Exploit preparation"
-  },
-  "Delivery": { 
-    color: "bg-lime-500/10 text-lime-300 border-lime-500/30", 
-    icon: ArrowRight,
-    gradient: "from-lime-500/20 to-lime-600/10",
-    description: "Payload delivery"
-  },
-  "Exploitation": { 
-    color: "bg-emerald-500/10 text-emerald-300 border-emerald-500/30", 
-    icon: AlertTriangle,
-    gradient: "from-emerald-500/20 to-emerald-600/10",
-    description: "Vulnerability exploitation"
-  },
-  "Installation": { 
-    color: "bg-teal-500/10 text-teal-300 border-teal-500/30", 
-    icon: Shield,
-    gradient: "from-teal-500/20 to-teal-600/10",
-    description: "Malware installation"
-  },
-  "Data Theft": { 
-    color: "bg-fuchsia-500/10 text-fuchsia-300 border-fuchsia-500/30", 
-    icon: Upload,
-    gradient: "from-fuchsia-500/20 to-fuchsia-600/10",
-    description: "Data stealing"
-  },
-  "Data Manipulation": { 
-    color: "bg-violet-500/10 text-violet-300 border-violet-500/30", 
-    icon: FileText,
-    gradient: "from-violet-500/20 to-violet-600/10",
-    description: "Data modification"
-  },
-  "Service Abuse": { 
-    color: "bg-rose-500/10 text-rose-300 border-rose-500/30", 
-    icon: AlertTriangle,
-    gradient: "from-rose-500/20 to-rose-600/10",
-    description: "Service misuse"
-  },
-  "Network Scanning": { 
-    color: "bg-sky-500/10 text-sky-300 border-sky-500/30", 
-    icon: Eye,
-    gradient: "from-sky-500/20 to-sky-600/10",
-    description: "Network discovery"
-  },
-  "Vulnerability Exploitation": { 
-    color: "bg-red-400/10 text-red-300 border-red-400/30", 
-    icon: AlertTriangle,
-    gradient: "from-red-400/20 to-red-500/10",
-    description: "Exploiting vulnerabilities"
-  },
-  "Social Engineering": { 
-    color: "bg-orange-400/10 text-orange-300 border-orange-400/30", 
-    icon: User,
-    gradient: "from-orange-400/20 to-orange-500/10",
-    description: "Human manipulation"
-  },
-  "Physical Access": { 
-    color: "bg-amber-600/10 text-amber-300 border-amber-600/30", 
-    icon: Shield,
-    gradient: "from-amber-600/20 to-amber-700/10",
-    description: "Physical intrusion"
-  },
-  "Supply Chain Attack": { 
-    color: "bg-neutral-500/10 text-neutral-300 border-neutral-500/30", 
-    icon: ArrowRight,
-    gradient: "from-neutral-500/20 to-neutral-600/10",
-    description: "Third-party compromise"
-  },
-  "Other": { 
-    color: "bg-gray-400/10 text-gray-300 border-gray-400/30", 
-    icon: AlertTriangle,
-    gradient: "from-gray-400/20 to-gray-500/10",
-    description: "Other activities"
-  },
+const actionTypeTone: Record<EdgeActionType, string> = {
+  "Initial Access": "text-red-400 border-red-400/40 bg-red-500/10",
+  "Lateral Movement": "text-blue-400 border-blue-400/40 bg-blue-500/10",
+  "Privilege Escalation": "text-red-400 border-red-400/40 bg-red-500/10",
+  "Persistence": "text-amber-400 border-amber-400/40 bg-amber-500/10",
+  "Defense Evasion": "text-amber-400 border-amber-400/40 bg-amber-500/10",
+  "Credential Access": "text-purple-400 border-purple-400/40 bg-purple-500/10",
+  "Discovery": "text-cyan-400 border-cyan-400/40 bg-cyan-500/10",
+  "Collection": "text-cyan-400 border-cyan-400/40 bg-cyan-500/10",
+  "Exfiltration": "text-pink-400 border-pink-400/40 bg-pink-500/10",
+  "Command & Control": "text-gray-300 border-gray-400/40 bg-gray-500/10",
+  "Impact": "text-red-400 border-red-400/40 bg-red-500/10",
+  "Reconnaissance": "text-cyan-400 border-cyan-400/40 bg-cyan-500/10",
+  "Weaponization": "text-amber-400 border-amber-400/40 bg-amber-500/10",
+  "Delivery": "text-blue-400 border-blue-400/40 bg-blue-500/10",
+  "Exploitation": "text-red-400 border-red-400/40 bg-red-500/10",
+  "Installation": "text-amber-400 border-amber-400/40 bg-amber-500/10",
+  "Data Theft": "text-pink-400 border-pink-400/40 bg-pink-500/10",
+  "Data Manipulation": "text-purple-400 border-purple-400/40 bg-purple-500/10",
+  "Service Abuse": "text-orange-400 border-orange-400/40 bg-orange-500/10",
+  "Network Scanning": "text-cyan-400 border-cyan-400/40 bg-cyan-500/10",
+  "Vulnerability Exploitation": "text-red-400 border-red-400/40 bg-red-500/10",
+  "Social Engineering": "text-orange-400 border-orange-400/40 bg-orange-500/10",
+  "Physical Access": "text-orange-400 border-orange-400/40 bg-orange-500/10",
+  "Supply Chain Attack": "text-gray-300 border-gray-400/40 bg-gray-500/10",
+  "Other": "text-gray-300 border-gray-400/40 bg-gray-500/10",
 }
 
-export default function TimelineModal({ isOpen, onClose, edges, nodes, onHighlightEdge, onSelectEdge }: TimelineModalProps) {
+const normalizeText = (value: string) => value.toLowerCase().trim()
+
+export default function TimelineModal({
+  isOpen,
+  onClose,
+  edges,
+  nodes,
+  incidentLog = [],
+  onHighlightEdge,
+  onSelectEdge,
+  onUpdateEdge,
+}: TimelineModalProps) {
   const [selectedActionTypes, setSelectedActionTypes] = useState<EdgeActionType[]>([])
-  const [showFilters, setShowFilters] = useState(false)
-  const [groupByDay, setGroupByDay] = useState(false)
+  const [query, setQuery] = useState("")
+  const [includeIncidentLog, setIncludeIncidentLog] = useState(false)
+  const [editingEventId, setEditingEventId] = useState<string | null>(null)
+  const [editTimestamp, setEditTimestamp] = useState("")
 
-  // Only process data when modal is open - major performance optimization
+  const toLocalInputValue = (isoString: string) => {
+    const date = new Date(isoString)
+    if (Number.isNaN(date.getTime())) return ""
+    const pad = (value: number) => String(value).padStart(2, "0")
+    return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}T${pad(
+      date.getHours(),
+    )}:${pad(date.getMinutes())}`
+  }
+
+  const startEdit = (event: TimelineEvent) => {
+    setEditingEventId(event.id)
+    setEditTimestamp(toLocalInputValue(event.timestamp))
+  }
+
+  const cancelEdit = () => {
+    setEditingEventId(null)
+    setEditTimestamp("")
+  }
+
+  const saveEdit = (eventId: string) => {
+    if (!onUpdateEdge) {
+      cancelEdit()
+      return
+    }
+    if (!editTimestamp) {
+      onUpdateEdge(eventId, { timestamp: "" })
+      cancelEdit()
+      return
+    }
+    const parsedDate = new Date(editTimestamp)
+    if (Number.isNaN(parsedDate.getTime())) return
+    onUpdateEdge(eventId, { timestamp: parsedDate.toISOString() })
+    cancelEdit()
+  }
+
   const nodeLabels = useMemo(() => {
     if (!isOpen) return {}
     const labelMap: Record<string, string> = {}
-    nodes.forEach(node => {
+    nodes.forEach((node) => {
       labelMap[node.id] = node.data?.label || node.id
     })
     return labelMap
   }, [nodes, isOpen])
 
-  // Process edges into timeline events only when modal is open
   const timelineEvents = useMemo(() => {
     if (!isOpen) return []
-    
     const events: TimelineEvent[] = []
-    
-    edges.forEach(edge => {
+
+    edges.forEach((edge) => {
       if (edge.data?.timestamp) {
-        try {
-          const parsedDate = new Date(edge.data.timestamp)
-          if (!isNaN(parsedDate.getTime())) {
-            events.push({
-              id: edge.id,
-              timestamp: edge.data.timestamp,
-              parsedDate,
-              actionType: edge.data.actionType,
-              toolUsed: edge.data.toolUsed,
-              userUsed: edge.data.userUsed,
-              mitreAttackId: edge.data.mitreAttackId,
-              description: edge.data.description,
-              sourceId: edge.source,
-              targetId: edge.target,
-              c2Channel: edge.data.c2Channel,
-              c2Framework: edge.data.c2Framework,
-            })
-          }
-        } catch (error) {
-          console.warn(`Invalid timestamp format for edge ${edge.id}: ${edge.data.timestamp}`)
+        const parsedDate = new Date(edge.data.timestamp)
+        if (!isNaN(parsedDate.getTime())) {
+          events.push({
+            id: edge.id,
+            timestamp: edge.data.timestamp,
+            parsedDate,
+            kind: "edge",
+            actionType: edge.data.actionType,
+            toolUsed: edge.data.toolUsed,
+            userUsed: edge.data.userUsed,
+            mitreAttackId: edge.data.mitreAttackId,
+            description: edge.data.description,
+            sourceId: edge.source,
+            targetId: edge.target,
+            c2Channel: edge.data.c2Channel,
+            c2Framework: edge.data.c2Framework,
+          })
         }
       }
     })
 
-    return events.sort((a, b) => a.parsedDate.getTime() - b.parsedDate.getTime())
-  }, [edges, isOpen])
-
-  // Filter events only when modal is open
-  const filteredEvents = useMemo(() => {
-    if (!isOpen) return []
-    if (selectedActionTypes.length === 0) return timelineEvents
-    return timelineEvents.filter(event => selectedActionTypes.includes(event.actionType))
-  }, [timelineEvents, selectedActionTypes, isOpen])
-
-  // Group events by day only when modal is open
-  const groupedEvents = useMemo(() => {
-    if (!isOpen) return []
-    if (!groupByDay) {
-      return [{ date: null, events: filteredEvents }]
+    if (includeIncidentLog) {
+      incidentLog.forEach((entry) => {
+        if (!entry.timestamp) return
+        const parsedDate = new Date(entry.timestamp)
+        if (Number.isNaN(parsedDate.getTime())) return
+        events.push({
+          id: entry.id,
+          timestamp: entry.timestamp,
+          parsedDate,
+          kind: "incident",
+          description: entry.description,
+          incidentCategory: entry.category,
+        })
+      })
     }
 
-    const groups: Record<string, TimelineEvent[]> = {}
-    filteredEvents.forEach(event => {
-      const dateKey = event.parsedDate.toISOString().split('T')[0]
-      if (!groups[dateKey]) groups[dateKey] = []
-      groups[dateKey].push(event)
-    })
+    return [...events].sort((a, b) => a.parsedDate.getTime() - b.parsedDate.getTime())
+  }, [edges, incidentLog, includeIncidentLog, isOpen])
 
-    return Object.entries(groups)
-      .sort(([a], [b]) => a.localeCompare(b))
-      .map(([date, events]) => ({ date, events }))
-  }, [filteredEvents, groupByDay])
-
-  // Get unique action types for filtering
   const availableActionTypes = useMemo(() => {
     const types = new Set<EdgeActionType>()
-    timelineEvents.forEach(event => types.add(event.actionType))
+    timelineEvents.forEach((event) => {
+      if (event.kind === "edge" && event.actionType) {
+        types.add(event.actionType)
+      }
+    })
     return Array.from(types).sort()
   }, [timelineEvents])
 
-  const toggleActionTypeFilter = (actionType: EdgeActionType) => {
-    setSelectedActionTypes(prev => 
-      prev.includes(actionType) 
-        ? prev.filter(t => t !== actionType)
-        : [...prev, actionType]
+  const filteredEvents = useMemo(() => {
+    if (!isOpen) return []
+    const normalizedQuery = normalizeText(query)
+
+    return timelineEvents.filter((event) => {
+      if (
+        event.kind === "edge" &&
+        selectedActionTypes.length > 0 &&
+        event.actionType &&
+        !selectedActionTypes.includes(event.actionType)
+      ) {
+        return false
+      }
+
+      if (!normalizedQuery) return true
+
+      const sourceLabel = event.sourceId ? nodeLabels[event.sourceId] || event.sourceId : ""
+      const targetLabel = event.targetId ? nodeLabels[event.targetId] || event.targetId : ""
+
+      const haystack = [
+        event.actionType || "",
+        event.toolUsed || "",
+        event.userUsed || "",
+        event.mitreAttackId || "",
+        event.incidentCategory || "",
+        event.description,
+        sourceLabel,
+        targetLabel,
+      ]
+        .join(" ")
+        .toLowerCase()
+
+      return haystack.includes(normalizedQuery)
+    })
+  }, [timelineEvents, selectedActionTypes, query, nodeLabels, isOpen])
+
+  const formatIsoSeconds = (value: Date) => {
+    return value.toISOString().replace(/\.\d{3}Z$/, "Z")
+  }
+
+  const formatDelta = (start: Date, current: Date) => {
+    const deltaMs = current.getTime() - start.getTime()
+    if (deltaMs <= 0) return "T+0"
+    const totalSeconds = Math.floor(deltaMs / 1000)
+    const days = Math.floor(totalSeconds / 86400)
+    const hours = Math.floor((totalSeconds % 86400) / 3600)
+    const minutes = Math.floor((totalSeconds % 3600) / 60)
+    const seconds = totalSeconds % 60
+    if (days > 0) return `T+${days}d ${hours}h`
+    if (hours > 0) return `T+${hours}h ${minutes}m`
+    if (minutes > 0) return `T+${minutes}m ${seconds}s`
+    return `T+${seconds}s`
+  }
+
+  const toggleActionType = (actionType: EdgeActionType) => {
+    setSelectedActionTypes((prev) =>
+      prev.includes(actionType) ? prev.filter((t) => t !== actionType) : [...prev, actionType],
     )
   }
 
-
-
-      const handleEventClick = (eventId: string) => {
-      onSelectEdge?.(eventId)
-      // Don't close modal automatically - let user see the highlighting
-    }
-
-  if (timelineEvents.length === 0) {
-    return (
-      <Dialog open={isOpen} onOpenChange={onClose}>
-        <DialogContent className="max-w-4xl max-h-[90vh] bg-gray-900 border-gray-700">
-          <DialogHeader>
-            <DialogTitle className="text-2xl font-bold text-white flex items-center gap-3">
-              <div className="p-3 bg-gradient-to-br from-blue-500/20 to-purple-500/20 rounded-xl">
-                <Activity className="h-8 w-8 text-blue-400" />
-              </div>
-              Attack Timeline
-            </DialogTitle>
-          </DialogHeader>
-          
-          <div className="flex items-center justify-center py-20">
-            <div className="text-center text-gray-400">
-              <div className="p-6 bg-gray-800/50 rounded-full w-24 h-24 mx-auto mb-6 flex items-center justify-center">
-                <Clock className="h-12 w-12 text-gray-500" />
-              </div>
-              <h3 className="text-xl font-medium text-gray-300 mb-3">No Timeline Events</h3>
-              <p className="text-gray-500 max-w-md mx-auto">
-                Add timestamps to edges to visualize the attack timeline. Load a template or create connections with timestamps to get started.
-              </p>
-            </div>
-          </div>
-        </DialogContent>
-      </Dialog>
-    )
+  const clearFilters = () => {
+    setSelectedActionTypes([])
+    setQuery("")
   }
+
+  const handleEventClick = (eventId: string) => {
+    onSelectEdge?.(eventId)
+  }
+
+  const hasEvents = timelineEvents.length > 0
 
   return (
-    <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="max-w-6xl h-[85vh] bg-gray-900 border border-gray-700 p-0 overflow-hidden">
-        <DialogHeader className="px-6 py-4 border-b border-gray-700 shrink-0">
-          <div className="flex items-center justify-between">
-            <DialogTitle className="text-xl font-semibold text-white flex items-center gap-3">
-              <div className="p-2 bg-blue-500/20 rounded-lg">
-                <Activity className="h-5 w-5 text-blue-400" />
+    <Sheet open={isOpen} onOpenChange={(open) => !open && onClose()}>
+      <SheetContent side="bottom" className="ip-panel ip-text border-t ip-border p-0">
+        <SheetHeader className="ip-panel-muted px-6 py-4 border-b ip-border">
+          <div className="flex flex-wrap items-center justify-between gap-4">
+            <div className="flex items-center gap-3">
+              <div className="rounded-lg border ip-border p-2">
+                <Activity className="h-5 w-5 ip-accent" aria-hidden="true" />
               </div>
-              Attack Timeline
-              <Badge variant="secondary" className="bg-gray-700 text-gray-300 text-sm px-3 py-1">
-                {filteredEvents.length} events
-              </Badge>
-            </DialogTitle>
-            
-            <div className="flex items-center gap-2">
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={() => setGroupByDay(!groupByDay)}
-                className="text-gray-300 hover:bg-gray-700 hover:text-white transition-all duration-200 ease-out text-sm hover:scale-105"
-              >
-                <Calendar className="h-4 w-4 mr-1" />
-                {groupByDay ? "Ungroup" : "Group"}
-              </Button>
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={() => setShowFilters(!showFilters)}
-                className="text-gray-300 hover:bg-gray-700 hover:text-white transition-all duration-200 ease-out text-sm hover:scale-105"
-              >
-                <Filter className="h-4 w-4 mr-1" />
-                Filters
-                {showFilters ? <ChevronDown className="h-4 w-4 ml-1" /> : <ChevronRight className="h-4 w-4 ml-1" />}
-              </Button>
+              <div>
+                <SheetTitle className="ip-text text-lg">Attack Timeline</SheetTitle>
+                <SheetDescription className="ip-text-muted">
+                  {hasEvents ? `${filteredEvents.length} of ${timelineEvents.length} events` : "No events yet"}
+                </SheetDescription>
+              </div>
+            </div>
+
+            <div className="flex flex-1 items-center gap-3 sm:justify-end">
+              <div className="relative w-full max-w-sm">
+                <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 ip-text-muted" aria-hidden="true" />
+                <Input
+                  value={query}
+                  onChange={(e) => setQuery(e.target.value)}
+                  aria-label="Search timeline events"
+                  name="timelineSearch"
+                  autoComplete="off"
+                  placeholder="Search technique, tool, asset…"
+                  className="ip-panel ip-border ip-text pl-9"
+                />
+              </div>
+              <div className="flex items-center gap-2 rounded-full border ip-border px-3 py-1 text-xs">
+                <Switch checked={includeIncidentLog} onCheckedChange={setIncludeIncidentLog} aria-label="Include incident log" />
+                <span className="ip-text-muted">Include incident log</span>
+              </div>
+              {(query || selectedActionTypes.length > 0) && (
+                <Button variant="ghost" size="sm" onClick={clearFilters} className="text-gray-300 hover:bg-gray-700">
+                  Clear
+                </Button>
+              )}
             </div>
           </div>
 
-          {/* Filters */}
-          {showFilters && (
-            <div className="mt-4 p-4 bg-gray-800/30 rounded-lg border border-gray-700/30">
-              <div className="flex items-center justify-between mb-3">
-                <h4 className="text-sm font-medium text-gray-200">Filter by Attack Technique</h4>
-                {selectedActionTypes.length > 0 && (
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={() => setSelectedActionTypes([])}
-                    className="text-xs text-gray-400 hover:text-gray-200 h-6 px-2 transition-all duration-200 ease-out hover:scale-105"
-                  >
-                    Clear ({selectedActionTypes.length})
-                  </Button>
-                )}
+          {availableActionTypes.length > 0 && (
+            <div className="mt-4 flex flex-wrap items-center gap-2">
+              <div className="flex items-center gap-2 text-xs ip-text-muted">
+                <Filter className="h-3 w-3" aria-hidden="true" />
+                Filter:
               </div>
-              <div className="flex flex-wrap gap-2">
-                {availableActionTypes.map(actionType => {
-                  const config = actionTypeConfig[actionType]
-                  const IconComponent = config.icon
-                  const isSelected = selectedActionTypes.includes(actionType)
-                  
+              {availableActionTypes.map((actionType) => {
+                const isActive = selectedActionTypes.includes(actionType)
+                const tone = actionTypeTone[actionType] || "text-gray-300 border-gray-400/40 bg-gray-500/10"
+
+                return (
+                  <button
+                    key={actionType}
+                    onClick={() => toggleActionType(actionType)}
+                    className={`rounded-full border px-3 py-1 text-xs transition ${
+                      isActive ? tone : "ip-panel-muted ip-border ip-text-muted hover:text-gray-200"
+                    }`}
+                  >
+                    {actionType}
+                  </button>
+                )
+              })}
+            </div>
+          )}
+        </SheetHeader>
+
+        <ScrollArea className="h-[60vh] px-6 py-4">
+            {!hasEvents ? (
+              <div className="flex flex-col items-center justify-center gap-3 py-16 ip-text-muted">
+                <Clock className="h-10 w-10 opacity-60" />
+                <div className="text-sm">Add timestamps to edges to build the timeline.</div>
+              </div>
+            ) : filteredEvents.length === 0 ? (
+              <div className="flex flex-col items-center justify-center gap-3 py-16 ip-text-muted">
+                <Filter className="h-10 w-10 opacity-60" />
+                <div className="text-sm">No events match the current filters.</div>
+              </div>
+            ) : (
+              <div className="space-y-3">
+                {filteredEvents.map((event, index) => {
+                  const sourceLabel = event.sourceId ? nodeLabels[event.sourceId] || event.sourceId : ""
+                  const targetLabel = event.targetId ? nodeLabels[event.targetId] || event.targetId : ""
+                  const tone =
+                    event.kind === "edge" && event.actionType
+                      ? actionTypeTone[event.actionType] || "text-gray-300 border-gray-400/40 bg-gray-500/10"
+                      : "text-gray-200 border-gray-400/40 bg-gray-500/10"
+                  const startDate = filteredEvents[0]?.parsedDate
+                  const deltaLabel = startDate ? formatDelta(startDate, event.parsedDate) : ""
+                  const isIncident = event.kind === "incident"
+
                   return (
-                    <button
-                      key={actionType}
-                      onClick={() => toggleActionTypeFilter(actionType)}
-                      className={`flex items-center gap-2 px-3 py-1.5 rounded-md border transition-all duration-200 ease-out text-xs hover:scale-105 ${
-                        isSelected 
-                          ? `${config.color} border-current` 
-                          : "bg-gray-800/50 text-gray-400 border-gray-700/50 hover:bg-gray-700/50 hover:text-gray-300"
-                      }`}
+                    <div
+                      key={event.id}
+                      className="ip-panel-muted border ip-border rounded-lg px-4 py-3 transition hover:bg-gray-700"
+                      onClick={() => {
+                        if (!isIncident) handleEventClick(event.id)
+                      }}
+                      onMouseEnter={() => {
+                        if (!isIncident) onHighlightEdge?.(event.id)
+                      }}
+                      onMouseLeave={() => {
+                        if (!isIncident) onHighlightEdge?.("")
+                      }}
+                      role={isIncident ? undefined : "button"}
+                      tabIndex={isIncident ? -1 : 0}
+                      onKeyDown={(e) => {
+                        if (isIncident) return
+                        if (e.key === "Enter" || e.key === " ") {
+                          handleEventClick(event.id)
+                        }
+                      }}
                     >
-                      <IconComponent className="h-3 w-3" />
-                      {actionType}
-                    </button>
+                      <div className="flex flex-wrap items-center justify-between gap-3">
+                        <div className="flex items-center gap-3">
+                          {isIncident ? (
+                            <span className={`rounded-full border px-2 py-0.5 text-xs ${tone}`}>
+                              Incident Log
+                            </span>
+                          ) : (
+                            <span className={`rounded-full border px-2 py-0.5 text-xs ${tone}`}>
+                              {event.actionType}
+                            </span>
+                          )}
+                          {isIncident && event.incidentCategory && (
+                            <span className="rounded-full border px-2 py-0.5 text-xs ip-text-muted">
+                              {event.incidentCategory}
+                            </span>
+                          )}
+                          <span className="text-xs ip-text-muted">{formatIsoSeconds(event.parsedDate)}</span>
+                        </div>
+                        <div className="flex items-center gap-3 text-xs ip-text-muted">
+                          <span>{deltaLabel}</span>
+                          <span>#{index + 1}</span>
+                        </div>
+                      </div>
+
+                      {isIncident ? (
+                        <div className="mt-2 flex flex-wrap items-center gap-2 text-sm">
+                          <StickyNote className="h-4 w-4 ip-text-muted" />
+                          <span className="font-medium ip-text">Incident Log Entry</span>
+                        </div>
+                      ) : (
+                        <div className="mt-2 flex flex-wrap items-center gap-2 text-sm">
+                          <span className="font-medium ip-text truncate">{sourceLabel}</span>
+                          <ArrowRight className="h-4 w-4 ip-text-muted" />
+                          <span className="font-medium ip-text truncate">{targetLabel}</span>
+                        </div>
+                      )}
+
+                      {!isIncident && editingEventId === event.id ? (
+                        <div className="mt-3 space-y-2">
+                          <Input
+                            type="datetime-local"
+                            value={editTimestamp}
+                            onChange={(e) => setEditTimestamp(e.target.value)}
+                            className="ip-panel ip-border ip-text"
+                          />
+                          <div className="flex items-center gap-2">
+                            <Button
+                              size="sm"
+                              className="bg-blue-600 hover:bg-blue-700 text-white"
+                              onClick={(e) => {
+                                e.stopPropagation()
+                                saveEdit(event.id)
+                              }}
+                            >
+                              Save
+                            </Button>
+                            <Button
+                              size="sm"
+                              variant="ghost"
+                              className="text-gray-300 hover:bg-gray-700"
+                              onClick={(e) => {
+                                e.stopPropagation()
+                                cancelEdit()
+                              }}
+                            >
+                              Cancel
+                            </Button>
+                          </div>
+                        </div>
+                      ) : (
+                        <>
+                          {!isIncident &&
+                            (event.toolUsed || event.userUsed || event.mitreAttackId || event.description) && (
+                            <div className="mt-2 grid gap-1 text-xs ip-text-muted">
+                              {event.toolUsed && <div>Tool: {event.toolUsed}</div>}
+                              {event.userUsed && <div>User: {event.userUsed}</div>}
+                              {event.mitreAttackId && <div>MITRE: {event.mitreAttackId}</div>}
+                              {event.description && <div className="ip-text">{event.description}</div>}
+                            </div>
+                          )}
+                          {event.description && isIncident && (
+                            <div className="mt-2 text-xs ip-text-muted">{event.description}</div>
+                          )}
+                          {!isIncident && (
+                            <div className="mt-2 flex items-center gap-2">
+                              <Button
+                                size="sm"
+                                variant="ghost"
+                                className="text-blue-400 hover:bg-gray-700"
+                                onClick={(e) => {
+                                  e.stopPropagation()
+                                  startEdit(event)
+                                }}
+                              >
+                                Edit Timestamp
+                              </Button>
+                            </div>
+                          )}
+                        </>
+                      )}
+                    </div>
                   )
                 })}
               </div>
-            </div>
-          )}
-        </DialogHeader>
-
-        <div className="flex-1 overflow-hidden">
-          <ScrollArea className="h-full px-6 py-4">
-            <div className="space-y-6">
-              {groupedEvents.map(({ date, events }, groupIndex) => (
-                <div key={date || 'ungrouped'} className="space-y-4">
-                  {date && (
-                    <div className="flex items-center gap-3 mb-4">
-                      <div className="p-1.5 bg-gray-800/50 rounded-lg">
-                        <Calendar className="h-4 w-4 text-gray-400" />
-                      </div>
-                      <h3 className="text-lg font-semibold text-gray-200">
-                        {new Date(date + 'T00:00:00Z').toLocaleDateString('en-US', { 
-                          year: 'numeric', 
-                          month: 'long', 
-                          day: 'numeric',
-                          weekday: 'long'
-                        })}
-                      </h3>
-                      <div className="flex-1 h-px bg-gradient-to-r from-gray-600 to-transparent" />
-                    </div>
-                  )}
-
-                  <div className="space-y-3 relative">
-                    {/* Timeline line */}
-                    <div className="absolute left-4 top-0 bottom-0 w-0.5 bg-gradient-to-b from-blue-500/40 via-purple-500/20 to-transparent" />
-                    
-                    {events.map((event, eventIndex) => {
-                      const config = actionTypeConfig[event.actionType]
-                      const IconComponent = config.icon
-                      
-                      return (
-                        <div
-                          key={event.id}
-                          className="relative pl-10 group cursor-pointer"
-                          onClick={() => handleEventClick(event.id)}
-                          onMouseEnter={() => onHighlightEdge?.(event.id)}
-                          onMouseLeave={() => onHighlightEdge?.("")}
-                        >
-                          {/* Timeline node */}
-                          <div className="absolute left-3 top-4 w-2 h-2 rounded-full bg-gradient-to-r from-blue-400 to-purple-400 group-hover:scale-150 transition-all duration-200 ease-out z-10" />
-
-                          {/* Event card */}
-                          <div className={`bg-gradient-to-r ${config.gradient} border border-gray-700/30 rounded-lg p-4 group-hover:border-gray-600/50 group-hover:shadow-lg transition-all duration-300 ease-out group-hover:scale-[1.01]`}>
-                            {/* Header */}
-                            <div className="flex items-center justify-between mb-3">
-                              <div className="flex items-center gap-3">
-                                <Clock className="h-4 w-4 text-gray-400" />
-                                <div>
-                                  <div className="text-sm font-mono text-gray-200">
-                                    {event.timestamp}
-                                  </div>
-                                </div>
-                              </div>
-                              
-                              <Badge className={`${config.color} border text-xs px-2 py-1 flex items-center gap-1.5`}>
-                                <IconComponent className="h-3 w-3" />
-                                {event.actionType}
-                              </Badge>
-                            </div>
-
-                            {/* Connection path */}
-                            <div className="flex items-center gap-2 mb-3 p-2 bg-gray-800/20 rounded-md">
-                              <span className="font-medium text-gray-200 text-sm truncate">
-                                {nodeLabels[event.sourceId] || event.sourceId}
-                              </span>
-                              <ArrowRight className="h-3 w-3 text-gray-500 flex-shrink-0" />
-                              <span className="font-medium text-gray-200 text-sm truncate">
-                                {nodeLabels[event.targetId] || event.targetId}
-                              </span>
-                            </div>
-
-                            {/* Details */}
-                            <div className="space-y-2">
-                              {event.actionType === "Command & Control" ? (
-                                <div className="flex flex-wrap gap-2">
-                                  {event.c2Channel && (
-                                    <div className="flex items-center gap-2 px-2 py-1 bg-gray-800/20 rounded text-xs">
-                                      <Hash className="h-3 w-3 text-gray-400" />
-                                      <span className="text-gray-300">{event.c2Channel}</span>
-                                    </div>
-                                  )}
-                                  {event.c2Framework && (
-                                    <div className="flex items-center gap-2 px-2 py-1 bg-gray-800/20 rounded text-xs">
-                                      <Terminal className="h-3 w-3 text-gray-400" />
-                                      <span className="text-gray-300">{event.c2Framework}</span>
-                                    </div>
-                                  )}
-                                </div>
-                              ) : (
-                                <div className="flex flex-wrap gap-2">
-                                  {event.toolUsed && (
-                                    <div className="flex items-center gap-2 px-2 py-1 bg-gray-800/20 rounded text-xs">
-                                      <Wrench className="h-3 w-3 text-gray-400" />
-                                      <span className="text-gray-300">{event.toolUsed}</span>
-                                    </div>
-                                  )}
-                                  {event.userUsed && (
-                                    <div className="flex items-center gap-2 px-2 py-1 bg-gray-800/20 rounded text-xs">
-                                      <User className="h-3 w-3 text-gray-400" />
-                                      <span className="text-gray-300">{event.userUsed}</span>
-                                    </div>
-                                  )}
-                                </div>
-                              )}
-                              
-                              {event.mitreAttackId && (
-                                <div className="flex items-center gap-2 px-2 py-1 bg-red-500/10 border border-red-500/20 rounded text-xs">
-                                  <Hash className="h-3 w-3 text-red-400" />
-                                  <span className="text-red-300 font-medium">{event.mitreAttackId}</span>
-                                </div>
-                              )}
-                              
-                              {event.description && (
-                                <div className="p-2 bg-blue-500/5 border border-blue-500/20 rounded text-xs">
-                                  <div className="text-blue-200 leading-relaxed">{event.description}</div>
-                                </div>
-                              )}
-                            </div>
-                          </div>
-                        </div>
-                      )
-                    })}
-                  </div>
-                </div>
-              ))}
-            </div>
-          </ScrollArea>
-        </div>
-      </DialogContent>
-    </Dialog>
+            )}
+        </ScrollArea>
+      </SheetContent>
+    </Sheet>
   )
 }

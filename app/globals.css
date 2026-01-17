@@ -44,6 +44,292 @@
     --sidebar-border: 220 13% 91%;
     --sidebar-ring: 217.2 91.2% 59.8%;
   }
+  [data-theme="dark"] {
+    color-scheme: dark;
+    --background: 0 0% 3.9%;
+    --foreground: 0 0% 98%;
+    --card: 0 0% 3.9%;
+    --card-foreground: 0 0% 98%;
+    --popover: 0 0% 3.9%;
+    --popover-foreground: 0 0% 98%;
+    --primary: 0 0% 98%;
+    --primary-foreground: 0 0% 9%;
+    --secondary: 0 0% 14.9%;
+    --secondary-foreground: 0 0% 98%;
+    --muted: 0 0% 14.9%;
+    --muted-foreground: 0 0% 63.9%;
+    --accent: 0 0% 14.9%;
+    --accent-foreground: 0 0% 98%;
+    --destructive: 0 62.8% 30.6%;
+    --destructive-foreground: 0 0% 98%;
+    --border: 0 0% 14.9%;
+    --input: 0 0% 14.9%;
+    --ring: 0 0% 83.1%;
+    --chart-1: 220 70% 50%;
+    --chart-2: 160 60% 45%;
+    --chart-3: 30 80% 55%;
+    --chart-4: 280 65% 60%;
+    --chart-5: 340 75% 55%;
+    --sidebar-background: 240 5.9% 10%;
+    --sidebar-foreground: 240 4.8% 95.9%;
+    --sidebar-primary: 224.3 76.3% 48%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 240 3.7% 15.9%;
+    --sidebar-accent-foreground: 240 4.8% 95.9%;
+    --sidebar-border: 240 3.7% 15.9%;
+    --sidebar-ring: 217.2 91.2% 59.8%;
+    --ip-bg: #0f1115;
+    --ip-surface-1: #171a21;
+    --ip-surface-2: #1f2430;
+    --ip-border: #2a303c;
+    --ip-text: #f8fafc;
+    --ip-text-muted: #cbd5f5;
+    --ip-accent: #7dd3fc;
+    --ip-accent-strong: #38bdf8;
+    --ip-danger: #f87171;
+    --ip-success: #86efac;
+    --ip-warning: #fde047;
+    --ip-info: #7dd3fc;
+    --ip-canvas: #121520;
+  }
+  [data-theme="nord"] {
+    --background: 220 16% 21%;
+    --foreground: 218 27% 94%;
+    --card: 220 16% 21%;
+    --card-foreground: 218 27% 94%;
+    --popover: 220 16% 21%;
+    --popover-foreground: 218 27% 94%;
+    --primary: 199 24% 68%;
+    --primary-foreground: 220 16% 21%;
+    --secondary: 221 16% 25%;
+    --secondary-foreground: 218 27% 94%;
+    --muted: 221 16% 25%;
+    --muted-foreground: 219 18% 74%;
+    --accent: 193 43% 67%;
+    --accent-foreground: 220 16% 21%;
+    --destructive: 354 42% 56%;
+    --destructive-foreground: 218 27% 94%;
+    --border: 220 16% 35%;
+    --input: 220 16% 35%;
+    --ring: 193 43% 67%;
+    --ip-bg: #2e3440;
+    --ip-surface-1: #3b4252;
+    --ip-surface-2: #434c5e;
+    --ip-border: #4c566a;
+    --ip-text: #eceff4;
+    --ip-text-muted: #d8dee9;
+    --ip-accent: #8fbcbb;
+    --ip-accent-strong: #5e81ac;
+    --ip-danger: #bf616a;
+    --ip-success: #a3be8b;
+    --ip-warning: #ebcb8b;
+    --ip-info: #88c0d0;
+    --ip-canvas: #2e3440;
+  }
+  [data-theme="gruvbox"] {
+    --background: 30 6% 16%;
+    --foreground: 40 30% 88%;
+    --card: 30 6% 16%;
+    --card-foreground: 40 30% 88%;
+    --popover: 30 6% 16%;
+    --popover-foreground: 40 30% 88%;
+    --primary: 35 84% 62%;
+    --primary-foreground: 30 6% 16%;
+    --secondary: 30 6% 22%;
+    --secondary-foreground: 40 30% 88%;
+    --muted: 30 6% 22%;
+    --muted-foreground: 36 16% 65%;
+    --accent: 180 18% 58%;
+    --accent-foreground: 30 6% 16%;
+    --destructive: 4 73% 58%;
+    --destructive-foreground: 40 30% 88%;
+    --border: 30 6% 30%;
+    --input: 30 6% 30%;
+    --ring: 180 18% 58%;
+    --ip-bg: #282828;
+    --ip-surface-1: #32302f;
+    --ip-surface-2: #3c3836;
+    --ip-border: #504945;
+    --ip-text: #ebdbb2;
+    --ip-text-muted: #d5c4a1;
+    --ip-accent: #83a598;
+    --ip-accent-strong: #fe8019;
+    --ip-danger: #fb4934;
+    --ip-success: #b8bb26;
+    --ip-warning: #fabd2f;
+    --ip-info: #83a598;
+    --ip-canvas: #1d2021;
+  }
+  [data-theme="catppuccin"] {
+    --background: 229 19% 14%;
+    --foreground: 226 64% 88%;
+    --card: 229 19% 14%;
+    --card-foreground: 226 64% 88%;
+    --popover: 229 19% 14%;
+    --popover-foreground: 226 64% 88%;
+    --primary: 222 89% 77%;
+    --primary-foreground: 229 19% 14%;
+    --secondary: 230 14% 20%;
+    --secondary-foreground: 226 64% 88%;
+    --muted: 230 14% 20%;
+    --muted-foreground: 227 18% 70%;
+    --accent: 222 89% 77%;
+    --accent-foreground: 229 19% 14%;
+    --destructive: 350 74% 72%;
+    --destructive-foreground: 226 64% 88%;
+    --border: 232 14% 31%;
+    --input: 232 14% 31%;
+    --ring: 222 89% 77%;
+    --ip-bg: #1e1e2e;
+    --ip-surface-1: #262737;
+    --ip-surface-2: #2f3142;
+    --ip-border: #45475a;
+    --ip-text: #cdd6f4;
+    --ip-text-muted: #a6adc8;
+    --ip-accent: #89b4fa;
+    --ip-accent-strong: #f5c2e7;
+    --ip-danger: #f38ba8;
+    --ip-success: #a6e3a1;
+    --ip-warning: #f9e2af;
+    --ip-info: #89b4fa;
+    --ip-canvas: #1e1e2e;
+  }
+  [data-theme="solarized"] {
+    --background: 193 82% 11%;
+    --foreground: 44 87% 92%;
+    --card: 193 82% 11%;
+    --card-foreground: 44 87% 92%;
+    --popover: 193 82% 11%;
+    --popover-foreground: 44 87% 92%;
+    --primary: 205 82% 47%;
+    --primary-foreground: 193 82% 11%;
+    --secondary: 192 30% 18%;
+    --secondary-foreground: 44 87% 92%;
+    --muted: 192 30% 18%;
+    --muted-foreground: 180 7% 60%;
+    --accent: 199 100% 36%;
+    --accent-foreground: 193 82% 11%;
+    --destructive: 1 79% 48%;
+    --destructive-foreground: 44 87% 92%;
+    --border: 193 24% 32%;
+    --input: 193 24% 32%;
+    --ring: 199 100% 36%;
+    --ip-bg: #002b36;
+    --ip-surface-1: #073642;
+    --ip-surface-2: #0b3b47;
+    --ip-border: #586e75;
+    --ip-text: #eee8d5;
+    --ip-text-muted: #93a1a1;
+    --ip-accent: #268bd2;
+    --ip-accent-strong: #2aa198;
+    --ip-danger: #dc322f;
+    --ip-success: #859900;
+    --ip-warning: #b58900;
+    --ip-info: #2aa198;
+    --ip-canvas: #002b36;
+  }
+  [data-theme="sagalabs"] {
+    --background: 252 10% 18%;
+    --foreground: 0 0% 96%;
+    --card: 252 10% 18%;
+    --card-foreground: 0 0% 96%;
+    --popover: 252 10% 18%;
+    --popover-foreground: 0 0% 96%;
+    --primary: 357 73% 60%;
+    --primary-foreground: 0 0% 96%;
+    --secondary: 30 32% 68%;
+    --secondary-foreground: 252 10% 18%;
+    --muted: 252 8% 24%;
+    --muted-foreground: 0 0% 78%;
+    --accent: 237 47% 70%;
+    --accent-foreground: 252 10% 18%;
+    --destructive: 18 77% 54%;
+    --destructive-foreground: 0 0% 96%;
+    --border: 252 8% 28%;
+    --input: 252 8% 28%;
+    --ring: 357 73% 60%;
+    --ip-bg: #1f1f28;
+    --ip-surface-1: #262632;
+    --ip-surface-2: #2f2f3d;
+    --ip-border: #3a3a4a;
+    --ip-text: #f2f2f4;
+    --ip-text-muted: #b8b8c6;
+    --ip-accent: #e46b82;
+    --ip-accent-strong: #d95b75;
+    --ip-danger: #dc6b4e;
+    --ip-success: #58b89c;
+    --ip-warning: #d7a453;
+    --ip-info: #6f8fd8;
+    --ip-canvas: #1c1c24;
+  }
+  [data-theme="monokai"] {
+    --background: 70 8% 15%;
+    --foreground: 60 30% 96%;
+    --card: 70 8% 15%;
+    --card-foreground: 60 30% 96%;
+    --popover: 70 8% 15%;
+    --popover-foreground: 60 30% 96%;
+    --primary: 331 92% 57%;
+    --primary-foreground: 70 8% 15%;
+    --secondary: 60 4% 20%;
+    --secondary-foreground: 60 30% 96%;
+    --muted: 60 4% 20%;
+    --muted-foreground: 60 6% 60%;
+    --accent: 65 77% 69%;
+    --accent-foreground: 70 8% 15%;
+    --destructive: 0 88% 62%;
+    --destructive-foreground: 60 30% 96%;
+    --border: 60 4% 28%;
+    --input: 60 4% 28%;
+    --ring: 65 77% 69%;
+    --ip-bg: #272822;
+    --ip-surface-1: #2f3030;
+    --ip-surface-2: #3a3b3b;
+    --ip-border: #49483e;
+    --ip-text: #f8f8f2;
+    --ip-text-muted: #a9a9a3;
+    --ip-accent: #f92672;
+    --ip-accent-strong: #a6e22e;
+    --ip-danger: #f92672;
+    --ip-success: #a6e22e;
+    --ip-warning: #e6db74;
+    --ip-info: #66d9ef;
+    --ip-canvas: #272822;
+  }
+  [data-theme="dracula"] {
+    --background: 231 15% 20%;
+    --foreground: 60 30% 96%;
+    --card: 231 15% 20%;
+    --card-foreground: 60 30% 96%;
+    --popover: 231 15% 20%;
+    --popover-foreground: 60 30% 96%;
+    --primary: 265 89% 78%;
+    --primary-foreground: 231 15% 20%;
+    --secondary: 232 13% 27%;
+    --secondary-foreground: 60 30% 96%;
+    --muted: 232 13% 27%;
+    --muted-foreground: 228 12% 70%;
+    --accent: 191 97% 77%;
+    --accent-foreground: 231 15% 20%;
+    --destructive: 0 100% 67%;
+    --destructive-foreground: 60 30% 96%;
+    --border: 232 14% 31%;
+    --input: 232 14% 31%;
+    --ring: 191 97% 77%;
+    --ip-bg: #282a36;
+    --ip-surface-1: #343746;
+    --ip-surface-2: #3b3f52;
+    --ip-border: #44475a;
+    --ip-text: #f8f8f2;
+    --ip-text-muted: #c8c2dc;
+    --ip-accent: #8be9fd;
+    --ip-accent-strong: #ff79c6;
+    --ip-danger: #ff5555;
+    --ip-success: #50fa7b;
+    --ip-warning: #f1fa8c;
+    --ip-info: #8be9fd;
+    --ip-canvas: #282a36;
+  }
   .dark {
     --background: 0 0% 3.9%;
     --foreground: 0 0% 98%;
@@ -89,6 +375,177 @@
   }
 }
 
+.ip-app {
+  background: var(--ip-bg);
+  color: var(--ip-text);
+}
+
+.ip-text {
+  color: var(--ip-text);
+}
+
+.ip-text-muted {
+  color: var(--ip-text-muted);
+}
+
+.ip-border {
+  border-color: var(--ip-border);
+}
+
+.ip-accent {
+  color: var(--ip-accent);
+}
+
+.ip-accent-strong {
+  color: var(--ip-accent-strong);
+}
+
+.ip-success {
+  color: var(--ip-success);
+}
+
+.ip-warning {
+  color: var(--ip-warning);
+}
+
+.ip-danger {
+  color: var(--ip-danger);
+}
+
+.ip-info {
+  color: var(--ip-info);
+}
+
+.ip-badge-success {
+  background: var(--ip-surface-2);
+  border-color: var(--ip-success);
+  color: var(--ip-success);
+}
+
+.ip-badge-warning {
+  background: var(--ip-surface-2);
+  border-color: var(--ip-warning);
+  color: var(--ip-warning);
+}
+
+.ip-badge-neutral {
+  background: var(--ip-surface-2);
+  border-color: var(--ip-border);
+  color: var(--ip-text-muted);
+}
+
+.ip-badge-info {
+  background: var(--ip-surface-2);
+  border-color: var(--ip-info);
+  color: var(--ip-info);
+}
+
+.ip-header {
+  background: var(--ip-surface-1);
+  border-color: var(--ip-border);
+  color: var(--ip-text);
+}
+
+.ip-panel {
+  background: var(--ip-surface-2);
+  border-color: var(--ip-border);
+  color: var(--ip-text);
+}
+
+.ip-panel-muted {
+  background: var(--ip-surface-1);
+  border-color: var(--ip-border);
+  color: var(--ip-text);
+}
+
+.ip-canvas {
+  background: var(--ip-canvas);
+}
+
+.ip-divider {
+  background: var(--ip-border);
+}
+
+.ip-attacker {
+  background: var(--ip-surface-1);
+  border-color: var(--ip-danger);
+  box-shadow:
+    0 0 12px color-mix(in srgb, var(--ip-danger) 40%, transparent),
+    0 12px 28px color-mix(in srgb, var(--ip-danger) 32%, transparent);
+}
+
+[data-theme] .bg-gray-950 {
+  background-color: var(--ip-bg) !important;
+}
+
+[data-theme] .bg-gray-900 {
+  background-color: var(--ip-surface-1) !important;
+}
+
+[data-theme] .bg-gray-800 {
+  background-color: var(--ip-surface-2) !important;
+}
+
+[data-theme] .bg-gray-700 {
+  background-color: var(--ip-surface-2) !important;
+}
+
+[data-theme] .bg-gray-600 {
+  background-color: var(--ip-border) !important;
+}
+
+[data-theme] .text-gray-200,
+[data-theme] .text-gray-300 {
+  color: var(--ip-text) !important;
+}
+
+[data-theme] .text-gray-400,
+[data-theme] .text-gray-500 {
+  color: var(--ip-text-muted) !important;
+}
+
+[data-theme] .border-gray-700,
+[data-theme] .border-gray-600,
+[data-theme] .border-gray-500 {
+  border-color: var(--ip-border) !important;
+}
+
+[data-theme] .text-blue-400,
+[data-theme] .text-blue-500 {
+  color: var(--ip-accent) !important;
+}
+
+[data-theme] .bg-blue-600,
+[data-theme] .bg-blue-700 {
+  background-color: var(--ip-accent-strong) !important;
+}
+
+[data-theme] .border-blue-400,
+[data-theme] .border-blue-500 {
+  border-color: var(--ip-accent) !important;
+}
+
+[data-theme] .text-green-400,
+[data-theme] .text-green-500 {
+  color: var(--ip-success) !important;
+}
+
+[data-theme] .text-red-400,
+[data-theme] .text-red-500 {
+  color: var(--ip-danger) !important;
+}
+
+[data-theme] .text-yellow-400,
+[data-theme] .text-yellow-500 {
+  color: var(--ip-warning) !important;
+}
+
+[data-theme] .text-cyan-400,
+[data-theme] .text-cyan-500 {
+  color: var(--ip-info) !important;
+}
+
+
 /* React Flow smoothstep edge styles */
 .react-flow__edge {
   z-index: 1 !important;
@@ -99,6 +556,14 @@
 }
 
 .react-flow__node {
+  z-index: 10 !important;
+}
+
+.react-flow__node-labeledGroupNode {
+  z-index: 0 !important;
+}
+
+.react-flow__node-customNode {
   z-index: 10 !important;
 }
 
@@ -138,4 +603,21 @@
 
 .animate-edge-pulse {
   animation: edge-pulse 1.5s ease-in-out infinite;
+}
+
+@keyframes edge-flow {
+  from {
+    stroke-dashoffset: 0;
+  }
+  to {
+    stroke-dashoffset: -100;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .animate-border-pulse,
+  .animate-edge-pulse,
+  .react-flow__edge-path {
+    animation: none !important;
+  }
 }

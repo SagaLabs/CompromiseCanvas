@@ -60,7 +60,7 @@ export const ACTION_TYPES: ActionType[] = [
   "Other",
 ]
 
-export type EdgeActionType = 
+export type EdgeActionType =
   | "Initial Access"
   | "Lateral Movement"
   | "Privilege Escalation"
@@ -115,7 +115,6 @@ export const EDGE_ACTION_TYPES: EdgeActionType[] = [
   "Other",
 ]
 
-export type Difficulty = "Low" | "Medium" | "High" // Still used for nodes if needed, but removed from edges
 
 export interface NodeAction {
   id: string
@@ -282,6 +281,9 @@ export interface NodeData {
   // Resize properties
   width?: number
   height?: number
+  // Group styling
+  color?: "blue" | "red" | "green" | "amber" | "purple"
+  transparency?: number
 }
 
 export interface EdgeDisplaySettings {
@@ -316,3 +318,39 @@ export interface EdgeData {
 
 export type CustomNode = Node<NodeData>
 export type CustomEdge = Edge<EdgeData>
+
+// IR Activity Log types
+export type ActivityCategory =
+  | "Containment"
+  | "Remediation"
+  | "Detection"
+  | "Communication"
+  | "Evidence"
+  | "Recovery"
+  | "Other"
+
+export const ACTIVITY_CATEGORIES: ActivityCategory[] = [
+  "Containment",
+  "Remediation",
+  "Detection",
+  "Communication",
+  "Evidence",
+  "Recovery",
+  "Other",
+]
+
+export interface ActivityLogEntry {
+  id: string
+  timestamp: string           // ISO date string
+  category: ActivityCategory
+  description: string
+  performedBy?: string        // Analyst name
+  relatedNodeIds?: string[]   // Link to affected nodes
+}
+
+export interface IncidentLogEntry {
+  id: string
+  timestamp: string // ISO string
+  description: string
+  category: "Response" | "Observation" | "Meeting" | "Containment" | "Eradication" | "Recovery" | "Acquisition" | "Other"
+}

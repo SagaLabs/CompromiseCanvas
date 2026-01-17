@@ -30,6 +30,7 @@ import {
   Search,
 } from "lucide-react"
 import type { Node, Edge } from "reactflow"
+import type { IncidentLogEntry } from "@/lib/types"
 import { builtInTemplates } from "@/lib/templates"
 
 export interface Template {
@@ -40,6 +41,7 @@ export interface Template {
   tags: string[]
   nodes: Node[]
   edges: Edge[]
+  incidentLog?: IncidentLogEntry[]
   createdAt: string
   isBuiltIn: boolean
 }
@@ -183,35 +185,35 @@ export default function TemplatePanel({
   const getCategoryIcon = (category: string) => {
     switch (category) {
       case "Web Security":
-        return <Globe className="h-4 w-4 text-blue-500" />
+        return <Globe className="h-4 w-4 text-blue-500" aria-hidden="true" />
       case "Social Engineering":
-        return <Shield className="h-4 w-4 text-orange-500" />
+        return <Shield className="h-4 w-4 text-orange-500" aria-hidden="true" />
       case "Network Security":
-        return <Router className="h-4 w-4 text-purple-500" />
+        return <Router className="h-4 w-4 text-purple-500" aria-hidden="true" />
       case "Database":
-        return <Database className="h-4 w-4 text-green-500" />
+        return <Database className="h-4 w-4 text-green-500" aria-hidden="true" />
       case "Malware":
-        return <Shield className="h-4 w-4 text-red-500" />
+        return <Shield className="h-4 w-4 text-red-500" aria-hidden="true" />
       case "Supply Chain":
-        return <LayoutTemplate className="h-4 w-4 text-yellow-500" />
+        return <LayoutTemplate className="h-4 w-4 text-yellow-500" aria-hidden="true" />
       case "APT":
-        return <Shield className="h-4 w-4 text-red-600" />
+        return <Shield className="h-4 w-4 text-red-600" aria-hidden="true" />
       case "Cloud Security":
-        return <Globe className="h-4 w-4 text-cyan-500" />
+        return <Globe className="h-4 w-4 text-cyan-500" aria-hidden="true" />
       case "Insider Threat":
-        return <Shield className="h-4 w-4 text-pink-500" />
+        return <Shield className="h-4 w-4 text-pink-500" aria-hidden="true" />
       default:
-        return <Building className="h-4 w-4 text-gray-500" />
+        return <Building className="h-4 w-4 text-gray-500" aria-hidden="true" />
     }
   }
 
   return (
-    <aside className="w-96 flex-shrink-0 border-r border-gray-600 bg-gray-800 text-white flex flex-col">
+    <aside className="ip-panel w-96 flex-shrink-0 border-r flex flex-col">
       {/* Header */}
-      <div className="border-b border-gray-600 bg-gray-750 p-4 flex-shrink-0">
+      <div className="ip-panel-muted border-b p-4 flex-shrink-0">
         <div className="flex items-center justify-between mb-4">
           <h2 className="text-xl font-bold text-white flex items-center gap-3">
-            <LayoutTemplate className="h-6 w-6 text-blue-400" />
+            <LayoutTemplate className="h-6 w-6 text-blue-400" aria-hidden="true" />
             Templates
           </h2>
           <div className="flex items-center gap-2">
@@ -251,7 +253,7 @@ export default function TemplatePanel({
                       value={newTemplateDescription}
                       onChange={(e) => setNewTemplateDescription(e.target.value)}
                       className="bg-gray-700 border-gray-600 text-white mt-1"
-                      placeholder="Describe this attack path template"
+                      placeholder="Describe this Compromise Canvas template"
                       rows={3}
                     />
                   </div>
@@ -303,17 +305,21 @@ export default function TemplatePanel({
               size="icon"
               onClick={onClose}
               className="text-gray-300 hover:bg-gray-700 hover:text-white"
+              aria-label="Close templates panel"
             >
-              <X className="h-5 w-5" />
+              <X className="h-5 w-5" aria-hidden="true" />
             </Button>
           </div>
         </div>
 
         {/* Search */}
         <div className="relative mb-4">
-          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
+          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" aria-hidden="true" />
           <Input
-            placeholder="Search templates..."
+            aria-label="Search templates"
+            name="templateSearch"
+            autoComplete="off"
+            placeholder="Search templates…"
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
             className="pl-10 bg-gray-700 border-gray-600 text-white placeholder-gray-400 focus:border-blue-500"
@@ -345,7 +351,7 @@ export default function TemplatePanel({
         <div className="p-4 space-y-4">
           {filteredTemplates.length === 0 ? (
             <div className="text-center py-8 text-gray-400">
-              <LayoutTemplate className="h-12 w-12 mx-auto mb-3 opacity-50" />
+              <LayoutTemplate className="h-12 w-12 mx-auto mb-3 opacity-50" aria-hidden="true" />
               <p>No templates found</p>
               <p className="text-sm">Try adjusting your search or filters</p>
             </div>
@@ -372,8 +378,9 @@ export default function TemplatePanel({
                         onClick={() => onLoadTemplate(template)}
                         className="h-8 w-8 text-blue-400 hover:bg-blue-600/20 hover:text-blue-300"
                         title="Load template"
+                        aria-label="Load template"
                       >
-                        <Download className="h-4 w-4" />
+                        <Download className="h-4 w-4" aria-hidden="true" />
                       </Button>
                       {!template.isBuiltIn && (
                         <Button
@@ -382,8 +389,9 @@ export default function TemplatePanel({
                           onClick={() => handleDeleteTemplate(template.id)}
                           className="h-8 w-8 text-red-400 hover:bg-red-600/20 hover:text-red-300"
                           title="Delete template"
+                          aria-label="Delete template"
                         >
-                          <Trash2 className="h-4 w-4" />
+                          <Trash2 className="h-4 w-4" aria-hidden="true" />
                         </Button>
                       )}
                     </div>

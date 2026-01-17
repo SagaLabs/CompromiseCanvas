@@ -13,8 +13,7 @@ import {
   Upload,
   Radio,
   HelpCircle,
-  User,
-  AlertTriangle,
+
   UserX,
   Cloud,
   HardDrive,
@@ -31,7 +30,6 @@ import {
   ChevronRight,
   Building,
   Lock,
-  Globe,
   MessageCircle,
 } from "lucide-react"
 import type { AssetType } from "@/lib/types"
@@ -144,23 +142,33 @@ interface CategorySectionProps {
 
 function CategorySection({ category, onDragStart }: CategorySectionProps) {
   const [isExpanded, setIsExpanded] = useState(false)
+  const handleKeyboardDrag = (event: React.KeyboardEvent, nodeType: AssetType) => {
+    if (event.key !== "Enter" && event.key !== " ") return
+    event.preventDefault()
+    const dataTransfer = new DataTransfer()
+    dataTransfer.setData("application/reactflow", nodeType)
+    dataTransfer.effectAllowed = "move"
+    const dragEvent = new DragEvent("dragstart", { dataTransfer, bubbles: true, cancelable: true })
+    event.currentTarget.dispatchEvent(dragEvent)
+  }
 
   return (
     <div className="mb-4">
       <button
         onClick={() => setIsExpanded(!isExpanded)}
         className="flex w-full items-center gap-2 rounded-md bg-gray-800 px-3 py-2 text-left text-sm font-medium text-white hover:bg-gray-700 transition-colors"
+        aria-expanded={isExpanded}
       >
         {isExpanded ? (
-          <ChevronDown className="h-4 w-4" />
+          <ChevronDown className="h-4 w-4" aria-hidden="true" />
         ) : (
-          <ChevronRight className="h-4 w-4" />
+          <ChevronRight className="h-4 w-4" aria-hidden="true" />
         )}
-        <category.icon className="h-4 w-4 text-blue-400" />
+        <category.icon className="h-4 w-4 text-blue-400" aria-hidden="true" />
         {category.name}
         <span className="ml-auto text-xs text-gray-400">({category.assets.length})</span>
       </button>
-      
+
       {isExpanded && (
         <div className="mt-2 space-y-2 pl-6">
           {category.assets.map((asset) => (
@@ -168,9 +176,13 @@ function CategorySection({ category, onDragStart }: CategorySectionProps) {
               key={asset.type}
               className="flex cursor-grab items-center gap-3 rounded-md border border-gray-700 bg-gray-800 p-3 shadow-sm transition-colors hover:border-blue-500 hover:bg-gray-700"
               onDragStart={(event) => onDragStart(event, asset.type)}
+              onKeyDown={(event) => handleKeyboardDrag(event, asset.type)}
               draggable
+              role="button"
+              tabIndex={0}
+              aria-label={`Drag ${asset.label}`}
             >
-              <asset.icon className="h-5 w-5 text-blue-400" />
+              <asset.icon className="h-5 w-5 text-blue-400" aria-hidden="true" />
               <div>
                 <div className="font-medium text-sm">{asset.label}</div>
                 <div className="text-xs text-gray-400">{asset.description}</div>
@@ -190,10 +202,10 @@ export default function AssetLibrary() {
   }
 
   return (
-    <aside className="w-64 flex-shrink-0 border-r border-gray-700 bg-gray-900 p-4 text-white flex flex-col">
+    <aside className="ip-panel w-64 flex-shrink-0 border-r p-4 flex flex-col">
       <h2 className="mb-4 text-lg font-semibold">Asset Library</h2>
       <p className="mb-6 text-sm text-gray-400">Drag assets to the canvas</p>
-      
+
       <div className="flex-1 overflow-y-auto">
         {/* Asset Categories */}
         <div className="space-y-2">
@@ -215,15 +227,29 @@ export default function AssetLibrary() {
           <div
             className="flex cursor-grab items-center gap-3 rounded-md border border-gray-700 bg-gray-800 p-3 shadow-sm transition-colors hover:border-blue-500 hover:bg-gray-700"
             onDragStart={(event) => onDragStart(event, groupNode.type)}
+            onKeyDown={(event) => handleKeyboardDrag(event, groupNode.type)}
             draggable
+            role="button"
+            tabIndex={0}
+            aria-label={`Drag ${groupNode.label}`}
           >
-            <groupNode.icon className="h-5 w-5 text-blue-400" />
+            <groupNode.icon className="h-5 w-5 text-blue-400" aria-hidden="true" />
             <div>
               <div className="font-medium text-sm">{groupNode.label}</div>
               <div className="text-xs text-gray-400">{groupNode.description}</div>
             </div>
           </div>
         </div>
+      </div>
+      <div className="pt-4 border-t border-gray-700 flex items-center justify-center">
+        <img
+          src="/logo.svg"
+          alt="SagaLabs"
+          className="h-20 opacity-60"
+          width={80}
+          height={80}
+          loading="lazy"
+        />
       </div>
     </aside>
   )

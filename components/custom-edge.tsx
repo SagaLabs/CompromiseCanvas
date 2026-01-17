@@ -1,17 +1,17 @@
 import { memo } from "react"
 import { type EdgeProps, getSmoothStepPath, EdgeLabelRenderer, BaseEdge } from "reactflow"
 import type { EdgeData } from "@/lib/types"
-import { 
-  MoveRight, 
-  Upload, 
-  Search, 
-  PenToolIcon as Tool, 
-  User, 
-  Clock, 
-  Terminal, 
-  Hash, 
-  FileText, 
-  Wifi, 
+import {
+  MoveRight,
+  Upload,
+  Search,
+  PenToolIcon as Tool,
+  User,
+  Clock,
+  Terminal,
+  Hash,
+  FileText,
+  Wifi,
   Code,
   Shield,
   Key,
@@ -217,14 +217,27 @@ const CustomEdge = memo(function CustomEdge({
   }
 
   const baseEdgeStyle = getEdgeStyle(data?.actionType)
-  
+
+  const flowAnimation = animationsEnabled ? "edge-flow 2.5s linear infinite" : ""
+  const pulseAnimation = selected ? "edge-pulse 1.5s ease-in-out infinite" : ""
+  const animationValue = [flowAnimation, pulseAnimation].filter(Boolean).join(", ")
+
   // Apply selection styling if edge is selected
-  const edgeStyle = selected ? {
-    ...baseEdgeStyle,
-    strokeWidth: baseEdgeStyle.strokeWidth + 2, // Make selected edge thicker
-    filter: 'drop-shadow(0 0 8px rgba(59, 130, 246, 0.6))',
-    animation: 'edge-pulse 1.5s ease-in-out infinite',
-  } : baseEdgeStyle
+  const edgeStyle = selected
+    ? {
+        ...baseEdgeStyle,
+        strokeWidth: baseEdgeStyle.strokeWidth + 2, // Make selected edge thicker
+        filter: "drop-shadow(0 0 8px rgba(59, 130, 246, 0.6))",
+        strokeDasharray: baseEdgeStyle.strokeDasharray || "6 6",
+        strokeDashoffset: 0,
+        animation: animationValue || undefined,
+      }
+    : {
+        ...baseEdgeStyle,
+        strokeDasharray: baseEdgeStyle.strokeDasharray || "6 6",
+        strokeDashoffset: 0,
+        animation: animationValue || undefined,
+      }
 
   // Determine icon for Action Type
   const getActionTypeIcon = (actionType?: string) => {
@@ -289,31 +302,31 @@ const CustomEdge = memo(function CustomEdge({
 
   return (
     <>
-      <BaseEdge 
-        id={id} 
-        path={edgePath} 
+      <BaseEdge
+        id={id}
+        path={edgePath}
         style={{ ...style, ...edgeStyle }}
       />
-      
+
       {/* Animated circles only for specific action types and when animations are enabled */}
       {shouldAnimate && (
         <>
           {/* Animated circle moving along the edge path */}
           <circle r="4" fill={edgeStyle.stroke} opacity="0.8">
-            <animateMotion 
-              dur="3s" 
-              repeatCount="indefinite" 
+            <animateMotion
+              dur="3s"
+              repeatCount="indefinite"
               path={edgePath}
               calcMode="spline"
               keySplines="0.4 0 0.6 1"
             />
           </circle>
-          
+
           {/* Second animated circle with different timing */}
           <circle r="3" fill={edgeStyle.stroke} opacity="0.6">
-            <animateMotion 
-              dur="4s" 
-              repeatCount="indefinite" 
+            <animateMotion
+              dur="4s"
+              repeatCount="indefinite"
               path={edgePath}
               calcMode="spline"
               keySplines="0.4 0 0.6 1"
@@ -325,86 +338,86 @@ const CustomEdge = memo(function CustomEdge({
       {data?.displaySettings?.showLabel !== false && (
         <EdgeLabelRenderer>
           <div
-          style={{
-            transform: `translate(-50%, -50%) translate(${labelX}px,${labelY}px)`,
-          }}
-          className={cn(
-            "absolute pointer-events-auto rounded-lg border border-gray-700 bg-gray-800 p-3 shadow-lg",
-            "min-w-[220px] max-w-[300px] text-xs text-white", // Increased min-width for better readability
-          )}
-        >
-          {/* Main Label / Action Type */}
-          <div className="mb-1 flex items-center justify-center gap-2 text-sm font-semibold" style={{ color: edgeStyle.stroke }}>
-            {ActionTypeIcon && <ActionTypeIcon className="h-4 w-4" />}
-            <span>{data?.actionType || "New Technique"}</span>
-          </div>
+            style={{
+              transform: `translate(-50%, -50%) translate(${labelX}px,${labelY}px)`,
+            }}
+            className={cn(
+              "absolute pointer-events-auto rounded-lg border border-gray-700 bg-gray-800 p-3 shadow-lg",
+              "min-w-[220px] max-w-[300px] text-xs text-white", // Increased min-width for better readability
+            )}
+          >
+            {/* Main Label / Action Type */}
+            <div className="mb-1 flex items-center justify-center gap-2 text-sm font-semibold" style={{ color: edgeStyle.stroke }}>
+              {ActionTypeIcon && <ActionTypeIcon className="h-4 w-4" />}
+              <span>{data?.actionType || "New Technique"}</span>
+            </div>
 
-          <div className="space-y-1 text-gray-400">
-            {/* Custom Label (if different from action type) */}
-            {data?.label && data.label !== data.actionType && data?.displaySettings?.showLabel && (
-              <div className="flex items-center gap-1">
-                <FileText className="h-3 w-3" />
-                <span>Label: {data.label}</span>
-              </div>
-            )}
-            
-            {/* Tool Used */}
-            {data?.toolUsed && data?.displaySettings?.showTool && (
-              <div className="flex items-center gap-1">
-                <Tool className="h-3 w-3" />
-                <span>Tool: {data.toolUsed}</span>
-              </div>
-            )}
-            
-            {/* User Used */}
-            {data?.userUsed && data?.displaySettings?.showUser && (
-              <div className="flex items-center gap-1">
-                <User className="h-3 w-3" />
-                <span>User: {data.userUsed}</span>
-              </div>
-            )}
-            
-            {/* Timestamp */}
-            {data?.timestamp && data?.displaySettings?.showTimestamp && (
-              <div className="flex items-center gap-1">
-                <Clock className="h-3 w-3" />
-                <span>Time: {data.timestamp}</span>
-              </div>
-            )}
-            
-            {/* MITRE ATT&CK ID */}
-            {data?.mitreAttackId && data?.displaySettings?.showMitreId && (
-              <div className="flex items-center gap-1">
-                <Hash className="h-3 w-3" />
-                <span>MITRE: {data.mitreAttackId}</span>
-              </div>
-            )}
-            
-            {/* Description */}
-            {data?.description && data?.displaySettings?.showDescription && (
-              <div className="flex items-start gap-1">
-                <FileText className="h-3 w-3 mt-0.5 flex-shrink-0" />
-                <span className="break-words whitespace-pre-wrap overflow-hidden max-w-full">Desc: {data.description}</span>
-              </div>
-            )}
-            
-            {/* C2 Channel (for Command & Control edges) */}
-            {data?.actionType === "Command & Control" && data?.c2Channel && data?.displaySettings?.showC2Channel && (
-              <div className="flex items-center gap-1">
-                <Wifi className="h-3 w-3" />
-                <span>Channel: {data.c2Channel}</span>
-              </div>
-            )}
-            
-            {/* C2 Framework (for Command & Control edges) */}
-            {data?.actionType === "Command & Control" && data?.c2Framework && data?.displaySettings?.showC2Framework && (
-              <div className="flex items-center gap-1">
-                <Code className="h-3 w-3" />
-                <span>Framework: {data.c2Framework}</span>
-              </div>
-            )}
+            <div className="space-y-1 text-gray-400">
+              {/* Custom Label (if different from action type) */}
+              {data?.label && data.label !== data.actionType && data?.displaySettings?.showLabel && (
+                <div className="flex items-center gap-1">
+                  <FileText className="h-3 w-3" />
+                  <span>Label: {data.label}</span>
+                </div>
+              )}
+
+              {/* Tool Used */}
+              {data?.toolUsed && data?.displaySettings?.showTool && (
+                <div className="flex items-center gap-1">
+                  <Tool className="h-3 w-3" />
+                  <span>Tool: {data.toolUsed}</span>
+                </div>
+              )}
+
+              {/* User Used */}
+              {data?.userUsed && data?.displaySettings?.showUser && (
+                <div className="flex items-center gap-1">
+                  <User className="h-3 w-3" />
+                  <span>User: {data.userUsed}</span>
+                </div>
+              )}
+
+              {/* Timestamp */}
+              {data?.timestamp && data?.displaySettings?.showTimestamp && (
+                <div className="flex items-center gap-1">
+                  <Clock className="h-3 w-3" />
+                  <span>Time: {data.timestamp}</span>
+                </div>
+              )}
+
+              {/* MITRE ATT&CK ID */}
+              {data?.mitreAttackId && data?.displaySettings?.showMitreId && (
+                <div className="flex items-center gap-1">
+                  <Hash className="h-3 w-3" />
+                  <span>MITRE: {data.mitreAttackId}</span>
+                </div>
+              )}
+
+              {/* Description */}
+              {data?.description && data?.displaySettings?.showDescription && (
+                <div className="flex items-start gap-1">
+                  <FileText className="h-3 w-3 mt-0.5 flex-shrink-0" />
+                  <span className="break-words whitespace-pre-wrap overflow-hidden max-w-full">Desc: {data.description}</span>
+                </div>
+              )}
+
+              {/* C2 Channel (for Command & Control edges) */}
+              {data?.actionType === "Command & Control" && data?.c2Channel && data?.displaySettings?.showC2Channel && (
+                <div className="flex items-center gap-1">
+                  <Wifi className="h-3 w-3" />
+                  <span>Channel: {data.c2Channel}</span>
+                </div>
+              )}
+
+              {/* C2 Framework (for Command & Control edges) */}
+              {data?.actionType === "Command & Control" && data?.c2Framework && data?.displaySettings?.showC2Framework && (
+                <div className="flex items-center gap-1">
+                  <Code className="h-3 w-3" />
+                  <span>Framework: {data.c2Framework}</span>
+                </div>
+              )}
+            </div>
           </div>
-        </div>
         </EdgeLabelRenderer>
       )}
     </>

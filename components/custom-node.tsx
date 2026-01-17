@@ -1,4 +1,4 @@
-import { memo } from "react"
+import { memo, useMemo, useState } from "react"
 import { Handle, Position, NodeResizer, type NodeProps, useReactFlow } from "reactflow"
 import {
   Server,
@@ -22,7 +22,7 @@ import {
   Radio,
   Skull,
   HelpCircle,
-  User,
+
   AlertTriangle,
   UserX,
   Cloud,
@@ -34,10 +34,8 @@ import {
   Users,
   Calendar,
   Video,
-  Search,
   Clock,
   CheckCircle,
-  Minus,
 } from "lucide-react"
 import type { NodeData, Criticality } from "@/lib/types"
 import { cn } from "@/lib/utils"
@@ -99,6 +97,47 @@ const CustomNode = memo(function CustomNode({ data, isConnectable, selected, id 
   const Icon = assetIcons[data.type] || ServerCog // Default icon
   const CriticalityColorClass = criticalityColors[data.criticality] || "bg-gray-500"
 
+  // Memoize node className to avoid repeated conditional evaluation
+  const nodeClassName = useMemo(() => {
+    if (data.type === "attacker") {
+      return "ip-attacker shadow-lg"
+    }
+    if (data.isCompromised) {
+      return "bg-red-900/30 border-red-500/50"
+    }
+    switch (data.investigationStatus) {
+      case "Done":
+        return "bg-green-900/20 border-green-500/40"
+      case "Investigating":
+        return "bg-yellow-900/20 border-yellow-500/40"
+      case "Not Investigated":
+        return "bg-purple-900/20 border-purple-500/40"
+      default:
+        return "bg-gray-800 border-gray-700"
+    }
+  }, [data.type, data.isCompromised, data.investigationStatus])
+
+  // Memoize date formatting for attacker nodes
+  const formattedDates = useMemo(() => {
+    if (data.type !== "attacker" || !data.attackerData) return null
+    return {
+      lastSeen: data.attackerData.lastSeen
+        ? new Date(data.attackerData.lastSeen).toLocaleDateString()
+        : null,
+      firstSeen: data.attackerData.firstSeen
+        ? new Date(data.attackerData.firstSeen).toLocaleDateString()
+        : null,
+    }
+  }, [data.type, data.attackerData?.lastSeen, data.attackerData?.firstSeen])
+
+  // Memoize style object to prevent recreation on every render
+  const nodeStyle = useMemo(() => ({
+    width: data.width || 'auto',
+    height: data.height || 'auto',
+    minWidth: '200px',
+    minHeight: '120px',
+  }), [data.width, data.height])
+
   const renderNodeInfo = () => {
     if (data.type === "identity" && data.identityData) {
       return (
@@ -140,7 +179,7 @@ const CustomNode = memo(function CustomNode({ data, isConnectable, selected, id 
             data.exfiltrationData.dataTypes.length > 0 && (
               <div className="text-xs">
                 Types: {data.exfiltrationData.dataTypes.slice(0, 2).join(", ")}
-                {data.exfiltrationData.dataTypes.length > 2 ? "..." : ""}
+                {data.exfiltrationData.dataTypes.length > 2 ? "…" : ""}
               </div>
             )}
         </div>
@@ -203,7 +242,7 @@ const CustomNode = memo(function CustomNode({ data, isConnectable, selected, id 
           {data.displaySettings.showTargetIndustries && data.attackerData.targetIndustries && data.attackerData.targetIndustries.length > 0 && (
             <div className="text-xs">
               Targets: {data.attackerData.targetIndustries.slice(0, 2).join(", ")}
-              {data.attackerData.targetIndustries.length > 2 ? "..." : ""}
+              {data.attackerData.targetIndustries.length > 2 ? "…" : ""}
             </div>
           )}
           {data.displaySettings.showIp && data.attackerData.ip && (
@@ -212,17 +251,17 @@ const CustomNode = memo(function CustomNode({ data, isConnectable, selected, id 
           {data.displaySettings.showAttackVectors && data.attackerData.attackVectors && data.attackerData.attackVectors.length > 0 && (
             <div className="text-xs">
               Vectors: {data.attackerData.attackVectors.slice(0, 2).join(", ")}
-              {data.attackerData.attackVectors.length > 2 ? "..." : ""}
+              {data.attackerData.attackVectors.length > 2 ? "…" : ""}
             </div>
           )}
           {data.displaySettings.showInfrastructureAge && data.attackerData.infrastructureAge && (
             <div className="text-xs">Age: {data.attackerData.infrastructureAge}</div>
           )}
-          {data.displaySettings.showLastSeen && data.attackerData.lastSeen && (
-            <div className="text-xs">Last: {new Date(data.attackerData.lastSeen).toLocaleDateString()}</div>
+          {data.displaySettings.showLastSeen && formattedDates?.lastSeen && (
+            <div className="text-xs">Last: {formattedDates.lastSeen}</div>
           )}
-          {data.displaySettings.showFirstSeen && data.attackerData.firstSeen && (
-            <div className="text-xs">First: {new Date(data.attackerData.firstSeen).toLocaleDateString()}</div>
+          {data.displaySettings.showFirstSeen && formattedDates?.firstSeen && (
+            <div className="text-xs">First: {formattedDates.firstSeen}</div>
           )}
           {data.displaySettings.showInfrastructureStatus && data.attackerData.infrastructureStatus && (
             <div className="text-xs">Status: {data.attackerData.infrastructureStatus}</div>
@@ -319,48 +358,26 @@ const CustomNode = memo(function CustomNode({ data, isConnectable, selected, id 
     )
   }
 
+  const [isHovered, setIsHovered] = useState(false)
+
   return (
     <div
       className={cn(
         "relative flex flex-col items-center justify-center rounded-lg border px-4 py-3 shadow-md",
-        data.type === "attacker" 
-          ? "bg-gray-900/90 border-orange-500 shadow-lg shadow-orange-500/30" 
-          : data.isCompromised 
-            ? "bg-red-900/30 border-red-500/50" 
-            : data.type !== "attacker" && data.investigationStatus === "Done"
-              ? "bg-green-900/20 border-green-500/40"
-              : data.type !== "attacker" && data.investigationStatus === "Investigating"
-                ? "bg-yellow-900/20 border-yellow-500/40"
-                : data.type !== "attacker" && data.investigationStatus === "Not Investigated"
-                  ? "bg-purple-900/20 border-purple-500/40"
-                  : "bg-gray-800",
+        nodeClassName,
         "text-white",
-        data.type === "attacker" 
-          ? "border-orange-500" 
-          : data.isCompromised 
-            ? "border-red-500/50" 
-            : data.type !== "attacker" && data.investigationStatus === "Done"
-              ? "border-green-500/40"
-              : data.type !== "attacker" && data.investigationStatus === "Investigating"
-                ? "border-yellow-500/40"
-                : data.type !== "attacker" && data.investigationStatus === "Not Investigated"
-                  ? "border-purple-500/40"
-                  : "border-gray-700",
         selected && "animate-border-pulse border-4 border-blue-400"
       )}
-      style={{
-        width: data.width || 'auto',
-        height: data.height || 'auto',
-        minWidth: '200px',
-        minHeight: '120px',
-      }}
+      style={nodeStyle}
+      onMouseEnter={() => setIsHovered(true)}
+      onMouseLeave={() => setIsHovered(false)}
     >
       <NodeResizer
-        isVisible={selected}
+        isVisible={selected || isHovered}
         minWidth={200}
         minHeight={120}
-        lineClassName="border-blue-400"
-        handleClassName="h-3 w-3 border-2 bg-white border-blue-400 rounded"
+        lineClassName="border-blue-400 border-2"
+        handleClassName="h-5 w-5 border-2 bg-white border-blue-400 rounded shadow-md transition-transform hover:scale-110"
         onResize={(event, params) => {
           setNodes((nodes) =>
             nodes.map((node) => {

@@ -30,7 +30,7 @@ export default function MobileWarning({ onDismiss }: MobileWarningProps) {
             <div>
               <p className="text-sm font-medium text-gray-900">Desktop Experience Required</p>
               <p className="text-xs text-gray-600">
-                This attack path designer requires a larger screen and mouse/trackpad controls for optimal use.
+                Compromise Canvas requires a larger screen and mouse/trackpad controls for optimal use.
               </p>
             </div>
           </div>

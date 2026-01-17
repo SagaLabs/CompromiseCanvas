@@ -30,8 +30,9 @@ export default function DataHandlingModal({ isOpen, onClose }: DataHandlingModal
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="max-w-4xl max-h-[90vh] bg-gray-900 text-white border-gray-700">
-       
-
+        <DialogHeader className="border-b border-gray-700 pb-4">
+          <DialogTitle>Data Handling</DialogTitle>
+        </DialogHeader>
         <ScrollArea className="max-h-[70vh] pr-4">
           <div className="space-y-6">
             {/* Overview Section */}
@@ -41,7 +42,7 @@ export default function DataHandlingModal({ isOpen, onClose }: DataHandlingModal
                 <h3 className="text-lg font-semibold">Overview</h3>
               </div>
               <p className="text-gray-300 leading-relaxed">
-                This application is designed to help security professionals visualize and analyze attack paths. 
+                This application is designed to help security professionals visualize and analyze compromise paths. 
                 All data processing occurs locally in your browser, ensuring privacy and security for 
                 sensitive information.
               </p>

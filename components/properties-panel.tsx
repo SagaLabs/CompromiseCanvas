@@ -7,6 +7,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Textarea } from "@/components/ui/textarea"
 import { Button } from "@/components/ui/button"
 import { Switch } from "@/components/ui/switch"
+import { Slider } from "@/components/ui/slider"
 import {
   Plus,
   X,
@@ -21,6 +22,7 @@ import {
   Zap,
   Info,
   Shield,
+  Palette,
 } from "lucide-react" // Import all necessary icons
 import {
   type NodeData,
@@ -68,21 +70,43 @@ interface PropertiesPanelProps {
 export default function PropertiesPanel({ selectedElement, updateNode, updateEdge, onDelete }: PropertiesPanelProps) {
   const [nodeData, setNodeData] = useState<NodeData | null>(null)
   const [edgeData, setEdgeData] = useState<EdgeData | null>(null)
+  const toLocalInputValue = (isoString?: string) => {
+    if (!isoString) return ""
+    const date = new Date(isoString)
+    if (Number.isNaN(date.getTime())) return ""
+    const pad = (value: number) => String(value).padStart(2, "0")
+    return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}T${pad(
+      date.getHours(),
+    )}:${pad(date.getMinutes())}`
+  }
+
+  const nowLocalInputValue = () => {
+    const date = new Date()
+    const pad = (value: number) => String(value).padStart(2, "0")
+    return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}T${pad(
+      date.getHours(),
+    )}:${pad(date.getMinutes())}`
+  }
+
+  // Extract stable references to avoid re-running effect during drag/resize
+  const elementId = selectedElement?.id
+  const elementType = selectedElement?.type
+  const elementData = selectedElement && "data" in selectedElement ? selectedElement.data : null
 
   useEffect(() => {
-    if (selectedElement && "data" in selectedElement) {
-      if (selectedElement.type !== "customEdge") {
-        setNodeData(selectedElement.data as NodeData)
+    if (elementData) {
+      if (elementType !== "customEdge") {
+        setNodeData(elementData as NodeData)
         setEdgeData(null)
       } else {
-        setEdgeData(selectedElement.data as EdgeData)
+        setEdgeData(elementData as EdgeData)
         setNodeData(null)
       }
     } else {
       setNodeData(null)
       setEdgeData(null)
     }
-  }, [selectedElement])
+  }, [elementId, elementType, elementData])
 
   const handleNodeChange = (field: keyof NodeData, value: any) => {
     if (nodeData) {
@@ -175,7 +199,7 @@ export default function PropertiesPanel({ selectedElement, updateNode, updateEdg
         showC2Channel: true,
         showC2Framework: true,
       }
-      
+
       const newDisplaySettings = { ...currentDisplaySettings, [field]: value }
       const newData = { ...edgeData, displaySettings: newDisplaySettings }
       setEdgeData(newData)
@@ -516,7 +540,7 @@ export default function PropertiesPanel({ selectedElement, updateNode, updateEdg
 
   if (!selectedElement) {
     return (
-      <aside className="w-80 flex-shrink-0 border-l border-gray-700 bg-gray-900 p-4 text-white">
+      <aside className="ip-panel w-80 flex-shrink-0 border-l p-4">
         <h2 className="mb-4 text-lg font-semibold">Properties</h2>
         <p className="text-sm text-gray-400">Select a node or edge to view/edit its properties.</p>
       </aside>
@@ -524,7 +548,7 @@ export default function PropertiesPanel({ selectedElement, updateNode, updateEdg
   }
 
   return (
-    <aside className="w-80 flex-shrink-0 overflow-y-auto border-l border-gray-700 bg-gray-900 p-4 text-white">
+    <aside className="ip-panel w-80 flex-shrink-0 overflow-y-auto border-l p-4">
       <div className="flex justify-between items-center mb-4">
         <h2 className="text-lg font-semibold">Properties</h2>
         <Button
@@ -533,8 +557,9 @@ export default function PropertiesPanel({ selectedElement, updateNode, updateEdg
           onClick={onDelete}
           className="text-red-400 hover:bg-gray-700"
           title={`Delete selected ${selectedElement.type === "customEdge" ? "edge" : "node"}`}
+          aria-label={`Delete selected ${selectedElement.type === "customEdge" ? "edge" : "node"}`}
         >
-          <Trash2 className="h-5 w-5" />
+          <Trash2 className="h-5 w-5" aria-hidden="true" />
           <span className="sr-only">Delete Selected</span>
         </Button>
       </div>
@@ -552,6 +577,50 @@ export default function PropertiesPanel({ selectedElement, updateNode, updateEdg
               className="mt-1 bg-gray-800 text-white border-gray-700"
             />
           </div>
+
+          {/* Asset Group Appearance */}
+          {nodeData.type === "group" && (
+            <div className="border-t border-gray-700 pt-4 space-y-4">
+              <div className="flex items-center gap-2">
+                <Palette className="h-4 w-4 text-blue-400" />
+                <h3 className="text-sm font-semibold text-gray-200">Appearance</h3>
+              </div>
+
+              <div>
+                <Label htmlFor="color" className="text-sm mb-2 block">Color</Label>
+                <Select
+                  value={nodeData.color || "blue"}
+                  onValueChange={(value) => handleNodeChange("color", value)}
+                >
+                  <SelectTrigger className="w-full bg-gray-800 text-white border-gray-700">
+                    <SelectValue placeholder="Select Color" />
+                  </SelectTrigger>
+                  <SelectContent className="bg-gray-800 text-white border-gray-700">
+                    <SelectItem value="blue">Blue</SelectItem>
+                    <SelectItem value="red">Red</SelectItem>
+                    <SelectItem value="green">Green</SelectItem>
+                    <SelectItem value="amber">Amber</SelectItem>
+                    <SelectItem value="purple">Purple</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+
+              <div>
+                <div className="flex justify-between mb-2">
+                  <Label htmlFor="transparency" className="text-sm">Transparency</Label>
+                  <span className="text-xs text-gray-400">{Math.round((nodeData.transparency || 0.2) * 100)}%</span>
+                </div>
+                <Slider
+                  value={[nodeData.transparency || 0.2]}
+                  min={0.1}
+                  max={1.0}
+                  step={0.1}
+                  onValueChange={(value) => handleNodeChange("transparency", value[0])}
+                  className="py-2"
+                />
+              </div>
+            </div>
+          )}
 
           {/* Compromised Status */}
           {nodeData.type !== "group" && (
@@ -757,8 +826,9 @@ export default function PropertiesPanel({ selectedElement, updateNode, updateEdg
                       size="icon"
                       onClick={() => handleRemovePrivilege(index)}
                       className="text-red-400 hover:bg-gray-700"
+                      aria-label="Remove privilege"
                     >
-                      <X className="h-4 w-4" />
+                      <X className="h-4 w-4" aria-hidden="true" />
                     </Button>
                   </div>
                 ))}
@@ -786,8 +856,9 @@ export default function PropertiesPanel({ selectedElement, updateNode, updateEdg
                       size="icon"
                       onClick={() => handleRemoveGroup(index)}
                       className="text-red-400 hover:bg-gray-700"
+                      aria-label="Remove group"
                     >
-                      <X className="h-4 w-4" />
+                      <X className="h-4 w-4" aria-hidden="true" />
                     </Button>
                   </div>
                 ))}
@@ -955,8 +1026,9 @@ export default function PropertiesPanel({ selectedElement, updateNode, updateEdg
                       size="icon"
                       onClick={() => handleRemoveDataType(index)}
                       className="text-red-400 hover:bg-gray-700"
+                      aria-label="Remove data type"
                     >
-                      <X className="h-4 w-4" />
+                      <X className="h-4 w-4" aria-hidden="true" />
                     </Button>
                   </div>
                 ))}
@@ -984,8 +1056,9 @@ export default function PropertiesPanel({ selectedElement, updateNode, updateEdg
                       size="icon"
                       onClick={() => handleRemoveDetectionEvasion(index)}
                       className="text-red-400 hover:bg-gray-700"
+                      aria-label="Remove detection evasion technique"
                     >
-                      <X className="h-4 w-4" />
+                      <X className="h-4 w-4" aria-hidden="true" />
                     </Button>
                   </div>
                 ))}
@@ -1185,8 +1258,9 @@ export default function PropertiesPanel({ selectedElement, updateNode, updateEdg
                       size="icon"
                       onClick={() => handleRemoveTargetIndustry(index)}
                       className="text-red-400 hover:bg-gray-700"
+                      aria-label="Remove target industry"
                     >
-                      <X className="h-4 w-4" />
+                      <X className="h-4 w-4" aria-hidden="true" />
                     </Button>
                   </div>
                 ))}
@@ -1226,8 +1300,9 @@ export default function PropertiesPanel({ selectedElement, updateNode, updateEdg
                       size="icon"
                       onClick={() => handleRemoveAttackVector(index)}
                       className="text-red-400 hover:bg-gray-700"
+                      aria-label="Remove attack vector"
                     >
-                      <X className="h-4 w-4" />
+                      <X className="h-4 w-4" aria-hidden="true" />
                     </Button>
                   </div>
                 ))}
@@ -1503,8 +1578,9 @@ export default function PropertiesPanel({ selectedElement, updateNode, updateEdg
                       size="icon"
                       onClick={() => handleRemoveObfuscation(index)}
                       className="text-red-400 hover:bg-gray-700"
+                      aria-label="Remove obfuscation technique"
                     >
-                      <X className="h-4 w-4" />
+                      <X className="h-4 w-4" aria-hidden="true" />
                     </Button>
                   </div>
                 ))}
@@ -1532,8 +1608,9 @@ export default function PropertiesPanel({ selectedElement, updateNode, updateEdg
                       size="icon"
                       onClick={() => handleRemoveFallbackChannel(index)}
                       className="text-red-400 hover:bg-gray-700"
+                      aria-label="Remove fallback channel"
                     >
-                      <X className="h-4 w-4" />
+                      <X className="h-4 w-4" aria-hidden="true" />
                     </Button>
                   </div>
                 ))}
@@ -1561,8 +1638,9 @@ export default function PropertiesPanel({ selectedElement, updateNode, updateEdg
                       size="icon"
                       onClick={() => handleRemovePersistenceMethod(index)}
                       className="text-red-400 hover:bg-gray-700"
+                      aria-label="Remove persistence method"
                     >
-                      <X className="h-4 w-4" />
+                      <X className="h-4 w-4" aria-hidden="true" />
                     </Button>
                   </div>
                 ))}
@@ -1654,8 +1732,9 @@ export default function PropertiesPanel({ selectedElement, updateNode, updateEdg
                     size="icon"
                     onClick={() => handleRemoveService(index)}
                     className="text-red-400 hover:bg-gray-700"
+                    aria-label="Remove service"
                   >
-                    <X className="h-4 w-4" />
+                    <X className="h-4 w-4" aria-hidden="true" />
                   </Button>
                 </div>
               ))}
@@ -1673,85 +1752,86 @@ export default function PropertiesPanel({ selectedElement, updateNode, updateEdg
           {nodeData.type !== "group" && (
             <div>
               <Label className="text-sm">Actions</Label>
-            {(nodeData.actions || []).map((action, index) => {
-              const ActionIcon = actionIcons[action.type] || Info // Get the icon based on action type
-              return (
-                <div key={action.id} className="mt-2 rounded-md border border-gray-700 p-3 space-y-2">
-                  <div className="flex justify-between items-center">
-                    <Label className="text-sm font-medium">Action {index + 1}</Label>
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      onClick={() => handleRemoveAction(index)}
-                      className="text-red-400 hover:bg-gray-700"
-                    >
-                      <X className="h-4 w-4" />
-                    </Button>
-                  </div>
-                  <div>
-                    <Label htmlFor={`action-type-${index}`} className="text-xs">
-                      Type
-                    </Label>
-                    <div className="flex items-center gap-2 mt-1">
-                      {" "}
-                      {/* Added flex container for icon and select */}
-                      <ActionIcon className="h-4 w-4 text-purple-400" /> {/* Display the icon */}
-                      <Select
-                        value={action.type}
-                        onValueChange={(value: ActionType) => handleActionChange(index, "type", value)}
+              {(nodeData.actions || []).map((action, index) => {
+                const ActionIcon = actionIcons[action.type] || Info // Get the icon based on action type
+                return (
+                  <div key={action.id} className="mt-2 rounded-md border border-gray-700 p-3 space-y-2">
+                    <div className="flex justify-between items-center">
+                      <Label className="text-sm font-medium">Action {index + 1}</Label>
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        onClick={() => handleRemoveAction(index)}
+                        className="text-red-400 hover:bg-gray-700"
+                        aria-label="Remove action"
                       >
-                        <SelectTrigger
-                          id={`action-type-${index}`}
-                          className="flex-1 bg-gray-800 text-white border-gray-700 text-xs"
+                        <X className="h-4 w-4" aria-hidden="true" />
+                      </Button>
+                    </div>
+                    <div>
+                      <Label htmlFor={`action-type-${index}`} className="text-xs">
+                        Type
+                      </Label>
+                      <div className="flex items-center gap-2 mt-1">
+                        {" "}
+                        {/* Added flex container for icon and select */}
+                        <ActionIcon className="h-4 w-4 text-purple-400" /> {/* Display the icon */}
+                        <Select
+                          value={action.type}
+                          onValueChange={(value: ActionType) => handleActionChange(index, "type", value)}
                         >
-                          <SelectValue placeholder="Select action type" />
-                        </SelectTrigger>
-                        <SelectContent className="bg-gray-800 text-white border-gray-700">
-                          {ACTION_TYPES.map((type) => (
-                            <SelectItem key={type} value={type}>
-                              {type}
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
+                          <SelectTrigger
+                            id={`action-type-${index}`}
+                            className="flex-1 bg-gray-800 text-white border-gray-700 text-xs"
+                          >
+                            <SelectValue placeholder="Select action type" />
+                          </SelectTrigger>
+                          <SelectContent className="bg-gray-800 text-white border-gray-700">
+                            {ACTION_TYPES.map((type) => (
+                              <SelectItem key={type} value={type}>
+                                {type}
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                      </div>
+                    </div>
+                    <div>
+                      <Label htmlFor={`action-technique-${index}`} className="text-xs">
+                        Technique
+                      </Label>
+                      <Input
+                        id={`action-technique-${index}`}
+                        value={action.technique}
+                        onChange={(e) => handleActionChange(index, "technique", e.target.value)}
+                        className="mt-1 bg-gray-800 text-white border-gray-700 text-xs"
+                        placeholder="e.g., SQL Injection"
+                      />
+                    </div>
+                    <div>
+                      <Label htmlFor={`action-details-${index}`} className="text-xs">
+                        Details
+                      </Label>
+                      <Textarea
+                        id={`action-details-${index}`}
+                        value={action.details}
+                        onChange={(e) => handleActionChange(index, "details", e.target.value)}
+                        className="mt-1 bg-gray-800 text-white border-gray-700 text-xs"
+                        placeholder="e.g., webshell placed in C:\inet\, local user created"
+                      />
                     </div>
                   </div>
-                  <div>
-                    <Label htmlFor={`action-technique-${index}`} className="text-xs">
-                      Technique
-                    </Label>
-                    <Input
-                      id={`action-technique-${index}`}
-                      value={action.technique}
-                      onChange={(e) => handleActionChange(index, "technique", e.target.value)}
-                      className="mt-1 bg-gray-800 text-white border-gray-700 text-xs"
-                      placeholder="e.g., SQL Injection"
-                    />
-                  </div>
-                  <div>
-                    <Label htmlFor={`action-details-${index}`} className="text-xs">
-                      Details
-                    </Label>
-                    <Textarea
-                      id={`action-details-${index}`}
-                      value={action.details}
-                      onChange={(e) => handleActionChange(index, "details", e.target.value)}
-                      className="mt-1 bg-gray-800 text-white border-gray-700 text-xs"
-                      placeholder="e.g., webshell placed in C:\inet\, local user created"
-                    />
-                  </div>
-                </div>
-              )
-            })}
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={handleAddAction}
-              className="mt-2 w-full border-gray-700 text-white hover:bg-gray-700 bg-transparent"
-            >
-              <Plus className="mr-2 h-4 w-4" /> Add Action
-            </Button>
-          </div>
+                )
+              })}
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={handleAddAction}
+                className="mt-2 w-full border-gray-700 text-white hover:bg-gray-700 bg-transparent"
+              >
+                <Plus className="mr-2 h-4 w-4" /> Add Action
+              </Button>
+            </div>
           )}
 
           <div>
@@ -1771,461 +1851,461 @@ export default function PropertiesPanel({ selectedElement, updateNode, updateEdg
           {nodeData.type !== "group" && (
             <div className="border-t border-gray-700 pt-4">
               <Label className="text-sm font-semibold text-gray-300">Display Settings</Label>
-            <div className="mt-2 space-y-2">
-              {nodeData.type !== "identity" &&
-                nodeData.type !== "exfiltration" &&
-                nodeData.type !== "command-control" && (
+              <div className="mt-2 space-y-2">
+                {nodeData.type !== "identity" &&
+                  nodeData.type !== "exfiltration" &&
+                  nodeData.type !== "command-control" && (
+                    <>
+                      <div className="flex items-center justify-between">
+                        <Label htmlFor="show-hostname" className="text-xs text-gray-400">
+                          Show Hostname
+                        </Label>
+                        <Switch
+                          id="show-hostname"
+                          checked={nodeData.displaySettings.showHostname}
+                          onCheckedChange={(checked) => handleDisplaySettingChange("showHostname", checked)}
+                        />
+                      </div>
+                      <div className="flex items-center justify-between">
+                        <Label htmlFor="show-ip" className="text-xs text-gray-400">
+                          Show IP Address
+                        </Label>
+                        <Switch
+                          id="show-ip"
+                          checked={nodeData.displaySettings.showIpAddress}
+                          onCheckedChange={(checked) => handleDisplaySettingChange("showIpAddress", checked)}
+                        />
+                      </div>
+                      <div className="flex items-center justify-between">
+                        <Label htmlFor="show-os" className="text-xs text-gray-400">
+                          Show OS
+                        </Label>
+                        <Switch
+                          id="show-os"
+                          checked={nodeData.displaySettings.showOs}
+                          onCheckedChange={(checked) => handleDisplaySettingChange("showOs", checked)}
+                        />
+                      </div>
+                      <div className="flex items-center justify-between">
+                        <Label htmlFor="show-services" className="text-xs text-gray-400">
+                          Show Services
+                        </Label>
+                        <Switch
+                          id="show-services"
+                          checked={nodeData.displaySettings.showServices}
+                          onCheckedChange={(checked) => handleDisplaySettingChange("showServices", checked)}
+                        />
+                      </div>
+                    </>
+                  )}
+
+                {nodeData.type === "identity" && (
                   <>
                     <div className="flex items-center justify-between">
-                      <Label htmlFor="show-hostname" className="text-xs text-gray-400">
-                        Show Hostname
+                      <Label htmlFor="show-username" className="text-xs text-gray-400">
+                        Show Username
                       </Label>
                       <Switch
-                        id="show-hostname"
-                        checked={nodeData.displaySettings.showHostname}
-                        onCheckedChange={(checked) => handleDisplaySettingChange("showHostname", checked)}
+                        id="show-username"
+                        checked={nodeData.displaySettings.showUsername}
+                        onCheckedChange={(checked) => handleDisplaySettingChange("showUsername", checked)}
                       />
                     </div>
                     <div className="flex items-center justify-between">
-                      <Label htmlFor="show-ip" className="text-xs text-gray-400">
-                        Show IP Address
+                      <Label htmlFor="show-domain" className="text-xs text-gray-400">
+                        Show Domain
                       </Label>
                       <Switch
-                        id="show-ip"
-                        checked={nodeData.displaySettings.showIpAddress}
-                        onCheckedChange={(checked) => handleDisplaySettingChange("showIpAddress", checked)}
+                        id="show-domain"
+                        checked={nodeData.displaySettings.showDomain}
+                        onCheckedChange={(checked) => handleDisplaySettingChange("showDomain", checked)}
                       />
                     </div>
                     <div className="flex items-center justify-between">
-                      <Label htmlFor="show-os" className="text-xs text-gray-400">
-                        Show OS
+                      <Label htmlFor="show-account-type" className="text-xs text-gray-400">
+                        Show Account Type
                       </Label>
                       <Switch
-                        id="show-os"
-                        checked={nodeData.displaySettings.showOs}
-                        onCheckedChange={(checked) => handleDisplaySettingChange("showOs", checked)}
+                        id="show-account-type"
+                        checked={nodeData.displaySettings.showAccountType}
+                        onCheckedChange={(checked) => handleDisplaySettingChange("showAccountType", checked)}
                       />
                     </div>
                     <div className="flex items-center justify-between">
-                      <Label htmlFor="show-services" className="text-xs text-gray-400">
-                        Show Services
+                      <Label htmlFor="show-account-source" className="text-xs text-gray-400">
+                        Show Account Source
                       </Label>
                       <Switch
-                        id="show-services"
-                        checked={nodeData.displaySettings.showServices}
-                        onCheckedChange={(checked) => handleDisplaySettingChange("showServices", checked)}
+                        id="show-account-source"
+                        checked={nodeData.displaySettings.showAccountSource}
+                        onCheckedChange={(checked) => handleDisplaySettingChange("showAccountSource", checked)}
+                      />
+                    </div>
+                    <div className="flex items-center justify-between">
+                      <Label htmlFor="show-account-status" className="text-xs text-gray-400">
+                        Show Account Status
+                      </Label>
+                      <Switch
+                        id="show-account-status"
+                        checked={nodeData.displaySettings.showAccountStatus}
+                        onCheckedChange={(checked) => handleDisplaySettingChange("showAccountStatus", checked)}
+                      />
+                    </div>
+                    <div className="flex items-center justify-between">
+                      <Label htmlFor="show-mfa-status" className="text-xs text-gray-400">
+                        Show MFA Status
+                      </Label>
+                      <Switch
+                        id="show-mfa-status"
+                        checked={nodeData.displaySettings.showMfaStatus}
+                        onCheckedChange={(checked) => handleDisplaySettingChange("showMfaStatus", checked)}
+                      />
+                    </div>
+                    <div className="flex items-center justify-between">
+                      <Label htmlFor="show-risk-level" className="text-xs text-gray-400">
+                        Show Risk Level
+                      </Label>
+                      <Switch
+                        id="show-risk-level"
+                        checked={nodeData.displaySettings.showRiskLevel}
+                        onCheckedChange={(checked) => handleDisplaySettingChange("showRiskLevel", checked)}
                       />
                     </div>
                   </>
                 )}
 
-              {nodeData.type === "identity" && (
-                <>
-                  <div className="flex items-center justify-between">
-                    <Label htmlFor="show-username" className="text-xs text-gray-400">
-                      Show Username
-                    </Label>
-                    <Switch
-                      id="show-username"
-                      checked={nodeData.displaySettings.showUsername}
-                      onCheckedChange={(checked) => handleDisplaySettingChange("showUsername", checked)}
-                    />
-                  </div>
-                  <div className="flex items-center justify-between">
-                    <Label htmlFor="show-domain" className="text-xs text-gray-400">
-                      Show Domain
-                    </Label>
-                    <Switch
-                      id="show-domain"
-                      checked={nodeData.displaySettings.showDomain}
-                      onCheckedChange={(checked) => handleDisplaySettingChange("showDomain", checked)}
-                    />
-                  </div>
-                  <div className="flex items-center justify-between">
-                    <Label htmlFor="show-account-type" className="text-xs text-gray-400">
-                      Show Account Type
-                    </Label>
-                    <Switch
-                      id="show-account-type"
-                      checked={nodeData.displaySettings.showAccountType}
-                      onCheckedChange={(checked) => handleDisplaySettingChange("showAccountType", checked)}
-                    />
-                  </div>
-                  <div className="flex items-center justify-between">
-                    <Label htmlFor="show-account-source" className="text-xs text-gray-400">
-                      Show Account Source
-                    </Label>
-                    <Switch
-                      id="show-account-source"
-                      checked={nodeData.displaySettings.showAccountSource}
-                      onCheckedChange={(checked) => handleDisplaySettingChange("showAccountSource", checked)}
-                    />
-                  </div>
-                  <div className="flex items-center justify-between">
-                    <Label htmlFor="show-account-status" className="text-xs text-gray-400">
-                      Show Account Status
-                    </Label>
-                    <Switch
-                      id="show-account-status"
-                      checked={nodeData.displaySettings.showAccountStatus}
-                      onCheckedChange={(checked) => handleDisplaySettingChange("showAccountStatus", checked)}
-                    />
-                  </div>
-                  <div className="flex items-center justify-between">
-                    <Label htmlFor="show-mfa-status" className="text-xs text-gray-400">
-                      Show MFA Status
-                    </Label>
-                    <Switch
-                      id="show-mfa-status"
-                      checked={nodeData.displaySettings.showMfaStatus}
-                      onCheckedChange={(checked) => handleDisplaySettingChange("showMfaStatus", checked)}
-                    />
-                  </div>
-                  <div className="flex items-center justify-between">
-                    <Label htmlFor="show-risk-level" className="text-xs text-gray-400">
-                      Show Risk Level
-                    </Label>
-                    <Switch
-                      id="show-risk-level"
-                      checked={nodeData.displaySettings.showRiskLevel}
-                      onCheckedChange={(checked) => handleDisplaySettingChange("showRiskLevel", checked)}
-                    />
-                  </div>
-                </>
-              )}
+                {nodeData.type === "exfiltration" && (
+                  <>
+                    <div className="flex items-center justify-between">
+                      <Label htmlFor="show-method" className="text-xs text-gray-400">
+                        Show Method
+                      </Label>
+                      <Switch
+                        id="show-method"
+                        checked={nodeData.displaySettings.showMethod}
+                        onCheckedChange={(checked) => handleDisplaySettingChange("showMethod", checked)}
+                      />
+                    </div>
+                    <div className="flex items-center justify-between">
+                      <Label htmlFor="show-destination" className="text-xs text-gray-400">
+                        Show Destination
+                      </Label>
+                      <Switch
+                        id="show-destination"
+                        checked={nodeData.displaySettings.showDestination}
+                        onCheckedChange={(checked) => handleDisplaySettingChange("showDestination", checked)}
+                      />
+                    </div>
+                    <div className="flex items-center justify-between">
+                      <Label htmlFor="show-status" className="text-xs text-gray-400">
+                        Show Status
+                      </Label>
+                      <Switch
+                        id="show-status"
+                        checked={nodeData.displaySettings.showStatus}
+                        onCheckedChange={(checked) => handleDisplaySettingChange("showStatus", checked)}
+                      />
+                    </div>
+                    <div className="flex items-center justify-between">
+                      <Label htmlFor="show-volume" className="text-xs text-gray-400">
+                        Show Volume
+                      </Label>
+                      <Switch
+                        id="show-volume"
+                        checked={nodeData.displaySettings.showVolume}
+                        onCheckedChange={(checked) => handleDisplaySettingChange("showVolume", checked)}
+                      />
+                    </div>
+                    <div className="flex items-center justify-between">
+                      <Label htmlFor="show-data-types" className="text-xs text-gray-400">
+                        Show Data Types
+                      </Label>
+                      <Switch
+                        id="show-data-types"
+                        checked={nodeData.displaySettings.showDataTypes}
+                        onCheckedChange={(checked) => handleDisplaySettingChange("showDataTypes", checked)}
+                      />
+                    </div>
+                  </>
+                )}
 
-              {nodeData.type === "exfiltration" && (
-                <>
-                  <div className="flex items-center justify-between">
-                    <Label htmlFor="show-method" className="text-xs text-gray-400">
-                      Show Method
-                    </Label>
-                    <Switch
-                      id="show-method"
-                      checked={nodeData.displaySettings.showMethod}
-                      onCheckedChange={(checked) => handleDisplaySettingChange("showMethod", checked)}
-                    />
-                  </div>
-                  <div className="flex items-center justify-between">
-                    <Label htmlFor="show-destination" className="text-xs text-gray-400">
-                      Show Destination
-                    </Label>
-                    <Switch
-                      id="show-destination"
-                      checked={nodeData.displaySettings.showDestination}
-                      onCheckedChange={(checked) => handleDisplaySettingChange("showDestination", checked)}
-                    />
-                  </div>
-                  <div className="flex items-center justify-between">
-                    <Label htmlFor="show-status" className="text-xs text-gray-400">
-                      Show Status
-                    </Label>
-                    <Switch
-                      id="show-status"
-                      checked={nodeData.displaySettings.showStatus}
-                      onCheckedChange={(checked) => handleDisplaySettingChange("showStatus", checked)}
-                    />
-                  </div>
-                  <div className="flex items-center justify-between">
-                    <Label htmlFor="show-volume" className="text-xs text-gray-400">
-                      Show Volume
-                    </Label>
-                    <Switch
-                      id="show-volume"
-                      checked={nodeData.displaySettings.showVolume}
-                      onCheckedChange={(checked) => handleDisplaySettingChange("showVolume", checked)}
-                    />
-                  </div>
-                  <div className="flex items-center justify-between">
-                    <Label htmlFor="show-data-types" className="text-xs text-gray-400">
-                      Show Data Types
-                    </Label>
-                    <Switch
-                      id="show-data-types"
-                      checked={nodeData.displaySettings.showDataTypes}
-                      onCheckedChange={(checked) => handleDisplaySettingChange("showDataTypes", checked)}
-                    />
-                  </div>
-                </>
-              )}
+                {nodeData.type === "command-control" && (
+                  <>
+                    <div className="flex items-center justify-between">
+                      <Label htmlFor="show-c2-type" className="text-xs text-gray-400">
+                        Show C2 Type
+                      </Label>
+                      <Switch
+                        id="show-c2-type"
+                        checked={nodeData.displaySettings.showC2Type}
+                        onCheckedChange={(checked) => handleDisplaySettingChange("showC2Type", checked)}
+                      />
+                    </div>
+                    <div className="flex items-center justify-between">
+                      <Label htmlFor="show-c2-server" className="text-xs text-gray-400">
+                        Show C2 Server
+                      </Label>
+                      <Switch
+                        id="show-c2-server"
+                        checked={nodeData.displaySettings.showC2Server}
+                        onCheckedChange={(checked) => handleDisplaySettingChange("showC2Server", checked)}
+                      />
+                    </div>
+                    <div className="flex items-center justify-between">
+                      <Label htmlFor="show-beacon-interval" className="text-xs text-gray-400">
+                        Show Beacon Interval
+                      </Label>
+                      <Switch
+                        id="show-beacon-interval"
+                        checked={nodeData.displaySettings.showBeaconInterval}
+                        onCheckedChange={(checked) => handleDisplaySettingChange("showBeaconInterval", checked)}
+                      />
+                    </div>
+                    <div className="flex items-center justify-between">
+                      <Label htmlFor="show-implant-type" className="text-xs text-gray-400">
+                        Show Implant Type
+                      </Label>
+                      <Switch
+                        id="show-implant-type"
+                        checked={nodeData.displaySettings.showImplantType}
+                        onCheckedChange={(checked) => handleDisplaySettingChange("showImplantType", checked)}
+                      />
+                    </div>
+                  </>
+                )}
 
-              {nodeData.type === "command-control" && (
-                <>
-                  <div className="flex items-center justify-between">
-                    <Label htmlFor="show-c2-type" className="text-xs text-gray-400">
-                      Show C2 Type
-                    </Label>
-                    <Switch
-                      id="show-c2-type"
-                      checked={nodeData.displaySettings.showC2Type}
-                      onCheckedChange={(checked) => handleDisplaySettingChange("showC2Type", checked)}
-                    />
-                  </div>
-                  <div className="flex items-center justify-between">
-                    <Label htmlFor="show-c2-server" className="text-xs text-gray-400">
-                      Show C2 Server
-                    </Label>
-                    <Switch
-                      id="show-c2-server"
-                      checked={nodeData.displaySettings.showC2Server}
-                      onCheckedChange={(checked) => handleDisplaySettingChange("showC2Server", checked)}
-                    />
-                  </div>
-                  <div className="flex items-center justify-between">
-                    <Label htmlFor="show-beacon-interval" className="text-xs text-gray-400">
-                      Show Beacon Interval
-                    </Label>
-                    <Switch
-                      id="show-beacon-interval"
-                      checked={nodeData.displaySettings.showBeaconInterval}
-                      onCheckedChange={(checked) => handleDisplaySettingChange("showBeaconInterval", checked)}
-                    />
-                  </div>
-                  <div className="flex items-center justify-between">
-                    <Label htmlFor="show-implant-type" className="text-xs text-gray-400">
-                      Show Implant Type
-                    </Label>
-                    <Switch
-                      id="show-implant-type"
-                      checked={nodeData.displaySettings.showImplantType}
-                      onCheckedChange={(checked) => handleDisplaySettingChange("showImplantType", checked)}
-                    />
-                  </div>
-                </>
-              )}
+                {nodeData.type === "cloud-tenant" && (
+                  <>
+                    <div className="flex items-center justify-between">
+                      <Label htmlFor="show-tenant-id" className="text-xs text-gray-400">
+                        Show Tenant ID
+                      </Label>
+                      <Switch
+                        id="show-tenant-id"
+                        checked={nodeData.displaySettings.showTenantId}
+                        onCheckedChange={(checked) => handleDisplaySettingChange("showTenantId", checked)}
+                      />
+                    </div>
+                    <div className="flex items-center justify-between">
+                      <Label htmlFor="show-tenant-name" className="text-xs text-gray-400">
+                        Show Tenant Name
+                      </Label>
+                      <Switch
+                        id="show-tenant-name"
+                        checked={nodeData.displaySettings.showTenantName}
+                        onCheckedChange={(checked) => handleDisplaySettingChange("showTenantName", checked)}
+                      />
+                    </div>
+                    <div className="flex items-center justify-between">
+                      <Label htmlFor="show-cloud-provider" className="text-xs text-gray-400">
+                        Show Cloud Provider
+                      </Label>
+                      <Switch
+                        id="show-cloud-provider"
+                        checked={nodeData.displaySettings.showCloudProvider}
+                        onCheckedChange={(checked) => handleDisplaySettingChange("showCloudProvider", checked)}
+                      />
+                    </div>
+                    <div className="flex items-center justify-between">
+                      <Label htmlFor="show-tenant-type" className="text-xs text-gray-400">
+                        Show Tenant Type
+                      </Label>
+                      <Switch
+                        id="show-tenant-type"
+                        checked={nodeData.displaySettings.showTenantType}
+                        onCheckedChange={(checked) => handleDisplaySettingChange("showTenantType", checked)}
+                      />
+                    </div>
+                    <div className="flex items-center justify-between">
+                      <Label htmlFor="show-region" className="text-xs text-gray-400">
+                        Show Region
+                      </Label>
+                      <Switch
+                        id="show-region"
+                        checked={nodeData.displaySettings.showRegion}
+                        onCheckedChange={(checked) => handleDisplaySettingChange("showRegion", checked)}
+                      />
+                    </div>
+                    <div className="flex items-center justify-between">
+                      <Label htmlFor="show-environment" className="text-xs text-gray-400">
+                        Show Environment
+                      </Label>
+                      <Switch
+                        id="show-environment"
+                        checked={nodeData.displaySettings.showEnvironment}
+                        onCheckedChange={(checked) => handleDisplaySettingChange("showEnvironment", checked)}
+                      />
+                    </div>
+                    <div className="flex items-center justify-between">
+                      <Label htmlFor="show-resource-count" className="text-xs text-gray-400">
+                        Show Resource Count
+                      </Label>
+                      <Switch
+                        id="show-resource-count"
+                        checked={nodeData.displaySettings.showResourceCount}
+                        onCheckedChange={(checked) => handleDisplaySettingChange("showResourceCount", checked)}
+                      />
+                    </div>
+                    <div className="flex items-center justify-between">
+                      <Label htmlFor="show-security-score" className="text-xs text-gray-400">
+                        Show Security Score
+                      </Label>
+                      <Switch
+                        id="show-security-score"
+                        checked={nodeData.displaySettings.showSecurityScore}
+                        onCheckedChange={(checked) => handleDisplaySettingChange("showSecurityScore", checked)}
+                      />
+                    </div>
+                  </>
+                )}
 
-              {nodeData.type === "cloud-tenant" && (
-                <>
-                  <div className="flex items-center justify-between">
-                    <Label htmlFor="show-tenant-id" className="text-xs text-gray-400">
-                      Show Tenant ID
-                    </Label>
-                    <Switch
-                      id="show-tenant-id"
-                      checked={nodeData.displaySettings.showTenantId}
-                      onCheckedChange={(checked) => handleDisplaySettingChange("showTenantId", checked)}
-                    />
-                  </div>
-                  <div className="flex items-center justify-between">
-                    <Label htmlFor="show-tenant-name" className="text-xs text-gray-400">
-                      Show Tenant Name
-                    </Label>
-                    <Switch
-                      id="show-tenant-name"
-                      checked={nodeData.displaySettings.showTenantName}
-                      onCheckedChange={(checked) => handleDisplaySettingChange("showTenantName", checked)}
-                    />
-                  </div>
-                  <div className="flex items-center justify-between">
-                    <Label htmlFor="show-cloud-provider" className="text-xs text-gray-400">
-                      Show Cloud Provider
-                    </Label>
-                    <Switch
-                      id="show-cloud-provider"
-                      checked={nodeData.displaySettings.showCloudProvider}
-                      onCheckedChange={(checked) => handleDisplaySettingChange("showCloudProvider", checked)}
-                    />
-                  </div>
-                  <div className="flex items-center justify-between">
-                    <Label htmlFor="show-tenant-type" className="text-xs text-gray-400">
-                      Show Tenant Type
-                    </Label>
-                    <Switch
-                      id="show-tenant-type"
-                      checked={nodeData.displaySettings.showTenantType}
-                      onCheckedChange={(checked) => handleDisplaySettingChange("showTenantType", checked)}
-                    />
-                  </div>
-                  <div className="flex items-center justify-between">
-                    <Label htmlFor="show-region" className="text-xs text-gray-400">
-                      Show Region
-                    </Label>
-                    <Switch
-                      id="show-region"
-                      checked={nodeData.displaySettings.showRegion}
-                      onCheckedChange={(checked) => handleDisplaySettingChange("showRegion", checked)}
-                    />
-                  </div>
-                  <div className="flex items-center justify-between">
-                    <Label htmlFor="show-environment" className="text-xs text-gray-400">
-                      Show Environment
-                    </Label>
-                    <Switch
-                      id="show-environment"
-                      checked={nodeData.displaySettings.showEnvironment}
-                      onCheckedChange={(checked) => handleDisplaySettingChange("showEnvironment", checked)}
-                    />
-                  </div>
-                  <div className="flex items-center justify-between">
-                    <Label htmlFor="show-resource-count" className="text-xs text-gray-400">
-                      Show Resource Count
-                    </Label>
-                    <Switch
-                      id="show-resource-count"
-                      checked={nodeData.displaySettings.showResourceCount}
-                      onCheckedChange={(checked) => handleDisplaySettingChange("showResourceCount", checked)}
-                    />
-                  </div>
-                  <div className="flex items-center justify-between">
-                    <Label htmlFor="show-security-score" className="text-xs text-gray-400">
-                      Show Security Score
-                    </Label>
-                    <Switch
-                      id="show-security-score"
-                      checked={nodeData.displaySettings.showSecurityScore}
-                      onCheckedChange={(checked) => handleDisplaySettingChange("showSecurityScore", checked)}
-                    />
-                  </div>
-                </>
-              )}
+                {nodeData.type === "attacker" && (
+                  <>
+                    <div className="flex items-center justify-between">
+                      <Label htmlFor="show-target-industries" className="text-xs text-gray-400">
+                        Show Target Industries
+                      </Label>
+                      <Switch
+                        id="show-target-industries"
+                        checked={nodeData.displaySettings.showTargetIndustries}
+                        onCheckedChange={(checked) => handleDisplaySettingChange("showTargetIndustries", checked)}
+                      />
+                    </div>
+                    <div className="flex items-center justify-between">
+                      <Label htmlFor="show-attacker-ip" className="text-xs text-gray-400">
+                        Show IP
+                      </Label>
+                      <Switch
+                        id="show-attacker-ip"
+                        checked={nodeData.displaySettings.showIp}
+                        onCheckedChange={(checked) => handleDisplaySettingChange("showIp", checked)}
+                      />
+                    </div>
+                    <div className="flex items-center justify-between">
+                      <Label htmlFor="show-attack-vectors" className="text-xs text-gray-400">
+                        Show Attack Vectors
+                      </Label>
+                      <Switch
+                        id="show-attack-vectors"
+                        checked={nodeData.displaySettings.showAttackVectors}
+                        onCheckedChange={(checked) => handleDisplaySettingChange("showAttackVectors", checked)}
+                      />
+                    </div>
+                    <div className="flex items-center justify-between">
+                      <Label htmlFor="show-infrastructure-age" className="text-xs text-gray-400">
+                        Show Infrastructure Age
+                      </Label>
+                      <Switch
+                        id="show-infrastructure-age"
+                        checked={nodeData.displaySettings.showInfrastructureAge}
+                        onCheckedChange={(checked) => handleDisplaySettingChange("showInfrastructureAge", checked)}
+                      />
+                    </div>
+                    <div className="flex items-center justify-between">
+                      <Label htmlFor="show-last-seen" className="text-xs text-gray-400">
+                        Show Last Seen
+                      </Label>
+                      <Switch
+                        id="show-last-seen"
+                        checked={nodeData.displaySettings.showLastSeen}
+                        onCheckedChange={(checked) => handleDisplaySettingChange("showLastSeen", checked)}
+                      />
+                    </div>
+                    <div className="flex items-center justify-between">
+                      <Label htmlFor="show-first-seen" className="text-xs text-gray-400">
+                        Show First Seen
+                      </Label>
+                      <Switch
+                        id="show-first-seen"
+                        checked={nodeData.displaySettings.showFirstSeen}
+                        onCheckedChange={(checked) => handleDisplaySettingChange("showFirstSeen", checked)}
+                      />
+                    </div>
+                    <div className="flex items-center justify-between">
+                      <Label htmlFor="show-infrastructure-status" className="text-xs text-gray-400">
+                        Show Infrastructure Status
+                      </Label>
+                      <Switch
+                        id="show-infrastructure-status"
+                        checked={nodeData.displaySettings.showInfrastructureStatus}
+                        onCheckedChange={(checked) => handleDisplaySettingChange("showInfrastructureStatus", checked)}
+                      />
+                    </div>
+                    <div className="flex items-center justify-between">
+                      <Label htmlFor="show-threat-actor" className="text-xs text-gray-400">
+                        Show Threat Actor
+                      </Label>
+                      <Switch
+                        id="show-threat-actor"
+                        checked={nodeData.displaySettings.showThreatActor}
+                        onCheckedChange={(checked) => handleDisplaySettingChange("showThreatActor", checked)}
+                      />
+                    </div>
+                    <div className="flex items-center justify-between">
+                      <Label htmlFor="show-location" className="text-xs text-gray-400">
+                        Show Location
+                      </Label>
+                      <Switch
+                        id="show-location"
+                        checked={nodeData.displaySettings.showLocation}
+                        onCheckedChange={(checked) => handleDisplaySettingChange("showLocation", checked)}
+                      />
+                    </div>
+                    <div className="flex items-center justify-between">
+                      <Label htmlFor="show-hosting-provider" className="text-xs text-gray-400">
+                        Show Hosting Provider
+                      </Label>
+                      <Switch
+                        id="show-hosting-provider"
+                        checked={nodeData.displaySettings.showHostingProvider}
+                        onCheckedChange={(checked) => handleDisplaySettingChange("showHostingProvider", checked)}
+                      />
+                    </div>
+                    <div className="flex items-center justify-between">
+                      <Label htmlFor="show-infrastructure-type" className="text-xs text-gray-400">
+                        Show Infrastructure Type
+                      </Label>
+                      <Switch
+                        id="show-infrastructure-type"
+                        checked={nodeData.displaySettings.showInfrastructureType}
+                        onCheckedChange={(checked) => handleDisplaySettingChange("showInfrastructureType", checked)}
+                      />
+                    </div>
+                  </>
+                )}
 
-              {nodeData.type === "attacker" && (
-                <>
-                  <div className="flex items-center justify-between">
-                    <Label htmlFor="show-target-industries" className="text-xs text-gray-400">
-                      Show Target Industries
-                    </Label>
-                    <Switch
-                      id="show-target-industries"
-                      checked={nodeData.displaySettings.showTargetIndustries}
-                      onCheckedChange={(checked) => handleDisplaySettingChange("showTargetIndustries", checked)}
-                    />
-                  </div>
-                  <div className="flex items-center justify-between">
-                    <Label htmlFor="show-attacker-ip" className="text-xs text-gray-400">
-                      Show IP
-                    </Label>
-                    <Switch
-                      id="show-attacker-ip"
-                      checked={nodeData.displaySettings.showIp}
-                      onCheckedChange={(checked) => handleDisplaySettingChange("showIp", checked)}
-                    />
-                  </div>
-                  <div className="flex items-center justify-between">
-                    <Label htmlFor="show-attack-vectors" className="text-xs text-gray-400">
-                      Show Attack Vectors
-                    </Label>
-                    <Switch
-                      id="show-attack-vectors"
-                      checked={nodeData.displaySettings.showAttackVectors}
-                      onCheckedChange={(checked) => handleDisplaySettingChange("showAttackVectors", checked)}
-                    />
-                  </div>
-                  <div className="flex items-center justify-between">
-                    <Label htmlFor="show-infrastructure-age" className="text-xs text-gray-400">
-                      Show Infrastructure Age
-                    </Label>
-                    <Switch
-                      id="show-infrastructure-age"
-                      checked={nodeData.displaySettings.showInfrastructureAge}
-                      onCheckedChange={(checked) => handleDisplaySettingChange("showInfrastructureAge", checked)}
-                    />
-                  </div>
-                  <div className="flex items-center justify-between">
-                    <Label htmlFor="show-last-seen" className="text-xs text-gray-400">
-                      Show Last Seen
-                    </Label>
-                    <Switch
-                      id="show-last-seen"
-                      checked={nodeData.displaySettings.showLastSeen}
-                      onCheckedChange={(checked) => handleDisplaySettingChange("showLastSeen", checked)}
-                    />
-                  </div>
-                  <div className="flex items-center justify-between">
-                    <Label htmlFor="show-first-seen" className="text-xs text-gray-400">
-                      Show First Seen
-                    </Label>
-                    <Switch
-                      id="show-first-seen"
-                      checked={nodeData.displaySettings.showFirstSeen}
-                      onCheckedChange={(checked) => handleDisplaySettingChange("showFirstSeen", checked)}
-                    />
-                  </div>
-                  <div className="flex items-center justify-between">
-                    <Label htmlFor="show-infrastructure-status" className="text-xs text-gray-400">
-                      Show Infrastructure Status
-                    </Label>
-                    <Switch
-                      id="show-infrastructure-status"
-                      checked={nodeData.displaySettings.showInfrastructureStatus}
-                      onCheckedChange={(checked) => handleDisplaySettingChange("showInfrastructureStatus", checked)}
-                    />
-                  </div>
-                  <div className="flex items-center justify-between">
-                    <Label htmlFor="show-threat-actor" className="text-xs text-gray-400">
-                      Show Threat Actor
-                    </Label>
-                    <Switch
-                      id="show-threat-actor"
-                      checked={nodeData.displaySettings.showThreatActor}
-                      onCheckedChange={(checked) => handleDisplaySettingChange("showThreatActor", checked)}
-                    />
-                  </div>
-                  <div className="flex items-center justify-between">
-                    <Label htmlFor="show-location" className="text-xs text-gray-400">
-                      Show Location
-                    </Label>
-                    <Switch
-                      id="show-location"
-                      checked={nodeData.displaySettings.showLocation}
-                      onCheckedChange={(checked) => handleDisplaySettingChange("showLocation", checked)}
-                    />
-                  </div>
-                  <div className="flex items-center justify-between">
-                    <Label htmlFor="show-hosting-provider" className="text-xs text-gray-400">
-                      Show Hosting Provider
-                    </Label>
-                    <Switch
-                      id="show-hosting-provider"
-                      checked={nodeData.displaySettings.showHostingProvider}
-                      onCheckedChange={(checked) => handleDisplaySettingChange("showHostingProvider", checked)}
-                    />
-                  </div>
-                  <div className="flex items-center justify-between">
-                    <Label htmlFor="show-infrastructure-type" className="text-xs text-gray-400">
-                      Show Infrastructure Type
-                    </Label>
-                    <Switch
-                      id="show-infrastructure-type"
-                      checked={nodeData.displaySettings.showInfrastructureType}
-                      onCheckedChange={(checked) => handleDisplaySettingChange("showInfrastructureType", checked)}
-                    />
-                  </div>
-                </>
-              )}
-
-              <div className="flex items-center justify-between">
-                <Label htmlFor="show-criticality" className="text-xs text-gray-400">
-                  Show Criticality
-                </Label>
-                <Switch
-                  id="show-criticality"
-                  checked={nodeData.displaySettings.showCriticality}
-                  onCheckedChange={(checked) => handleDisplaySettingChange("showCriticality", checked)}
-                />
-              </div>
-              <div className="flex items-center justify-between">
-                <Label htmlFor="show-actions" className="text-xs text-gray-400">
-                  Show Actions
-                </Label>
-                <Switch
-                  id="show-actions"
-                  checked={nodeData.displaySettings.showActions}
-                  onCheckedChange={(checked) => handleDisplaySettingChange("showActions", checked)}
-                />
-              </div>
-              <div className="flex items-center justify-between">
-                <Label htmlFor="show-description" className="text-xs text-gray-400">
-                  Show Description
-                </Label>
-                <Switch
-                  id="show-description"
-                  checked={nodeData.displaySettings.showDescription}
-                  onCheckedChange={(checked) => handleDisplaySettingChange("showDescription", checked)}
-                />
+                <div className="flex items-center justify-between">
+                  <Label htmlFor="show-criticality" className="text-xs text-gray-400">
+                    Show Criticality
+                  </Label>
+                  <Switch
+                    id="show-criticality"
+                    checked={nodeData.displaySettings.showCriticality}
+                    onCheckedChange={(checked) => handleDisplaySettingChange("showCriticality", checked)}
+                  />
+                </div>
+                <div className="flex items-center justify-between">
+                  <Label htmlFor="show-actions" className="text-xs text-gray-400">
+                    Show Actions
+                  </Label>
+                  <Switch
+                    id="show-actions"
+                    checked={nodeData.displaySettings.showActions}
+                    onCheckedChange={(checked) => handleDisplaySettingChange("showActions", checked)}
+                  />
+                </div>
+                <div className="flex items-center justify-between">
+                  <Label htmlFor="show-description" className="text-xs text-gray-400">
+                    Show Description
+                  </Label>
+                  <Switch
+                    id="show-description"
+                    checked={nodeData.displaySettings.showDescription}
+                    onCheckedChange={(checked) => handleDisplaySettingChange("showDescription", checked)}
+                  />
+                </div>
               </div>
             </div>
-          </div>
           )}
         </div>
       )}
@@ -2353,13 +2433,44 @@ export default function PropertiesPanel({ selectedElement, updateNode, updateEdg
             <Label htmlFor="timestamp" className="text-sm">
               Timestamp (ISO8601)
             </Label>
-            <Input
-              id="timestamp"
-              value={edgeData.timestamp}
-              onChange={(e) => handleEdgeChange("timestamp", e.target.value)}
-              className="mt-1 bg-gray-800 text-white border-gray-700"
-              placeholder="e.g., 2023-10-27T10:31:00Z"
-            />
+            <div className="mt-1 flex items-center gap-2">
+              <Input
+                id="timestamp"
+                type="datetime-local"
+                value={toLocalInputValue(edgeData.timestamp)}
+                onChange={(e) => {
+                  const value = e.target.value
+                  if (!value) {
+                    handleEdgeChange("timestamp", "")
+                    return
+                  }
+                  const parsedDate = new Date(value)
+                  handleEdgeChange(
+                    "timestamp",
+                    Number.isNaN(parsedDate.getTime()) ? "" : parsedDate.toISOString(),
+                  )
+                }}
+                className="bg-gray-800 text-white border-gray-700"
+              />
+              <Button
+                type="button"
+                variant="ghost"
+                size="sm"
+                className="text-gray-300 hover:bg-gray-700"
+                onClick={() => handleEdgeChange("timestamp", new Date().toISOString())}
+              >
+                Now
+              </Button>
+              <Button
+                type="button"
+                variant="ghost"
+                size="sm"
+                className="text-gray-300 hover:bg-gray-700"
+                onClick={() => handleEdgeChange("timestamp", "")}
+              >
+                Clear
+              </Button>
+            </div>
           </div>
           <div>
             <Label htmlFor="mitre-attack-id" className="text-sm">

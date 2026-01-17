@@ -1,17 +1,17 @@
 "use client"
 
 import { ReactFlowProvider } from "reactflow"
-import AttackPathDesigner from "@/components/attack-path-designer"
+import CompromiseCanvas from "@/components/compromise-canvas"
 import { useEffect } from "react"
 
 export default function Home() {
   useEffect(() => {
-    document.title = "Compromise Canvas - Attack Path Designer"
+    document.title = "Compromise Canvas"
   }, [])
 
   return (
     <ReactFlowProvider>
-      <AttackPathDesigner />
+      <CompromiseCanvas />
     </ReactFlowProvider>
   )
 }

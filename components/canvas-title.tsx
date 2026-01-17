@@ -53,8 +53,11 @@ export default function CanvasTitle({ title, onTitleChange }: CanvasTitleProps) 
           value={editTitle}
           onChange={(e) => setEditTitle(e.target.value)}
           onKeyDown={handleKeyDown}
-          className="bg-transparent text-white text-lg font-semibold outline-none border-none min-w-[200px] max-w-[400px]"
-          placeholder="Enter operation title..."
+          aria-label="Canvas title"
+          name="canvasTitle"
+          autoComplete="off"
+          className="bg-transparent text-white text-lg font-semibold border-none min-w-[200px] max-w-[400px] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-400/60 focus-visible:ring-offset-2 focus-visible:ring-offset-gray-900"
+          placeholder="Enter operation title…"
         />
         <div className="flex items-center gap-1">
           <Button
@@ -62,16 +65,18 @@ export default function CanvasTitle({ title, onTitleChange }: CanvasTitleProps) 
             size="icon"
             onClick={handleSave}
             className="h-6 w-6 text-green-400 hover:text-green-300"
+            aria-label="Save title"
           >
-            <Save className="h-3 w-3" />
+            <Save className="h-3 w-3" aria-hidden="true" />
           </Button>
           <Button
             variant="ghost"
             size="icon"
             onClick={handleCancel}
             className="h-6 w-6 text-gray-400 hover:text-gray-300"
+            aria-label="Cancel edit"
           >
-            <X className="h-3 w-3" />
+            <X className="h-3 w-3" aria-hidden="true" />
           </Button>
         </div>
       </div>
@@ -86,7 +91,7 @@ export default function CanvasTitle({ title, onTitleChange }: CanvasTitleProps) 
         onClick={() => setIsEditing(true)}
         className="text-gray-400 hover:text-white hover:bg-white/10"
       >
-        <Edit3 className="h-4 w-4 mr-2" />
+        <Edit3 className="h-4 w-4 mr-2" aria-hidden="true" />
         Add Title
       </Button>
     )
@@ -100,8 +105,9 @@ export default function CanvasTitle({ title, onTitleChange }: CanvasTitleProps) 
         size="icon"
         onClick={() => setIsEditing(true)}
         className="h-6 w-6 opacity-0 group-hover:opacity-100 transition-opacity text-gray-400 hover:text-white"
+        aria-label="Edit title"
       >
-        <Edit3 className="h-3 w-3" />
+        <Edit3 className="h-3 w-3" aria-hidden="true" />
       </Button>
     </div>
   )
