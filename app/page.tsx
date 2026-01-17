@@ -6,7 +6,7 @@ import { useEffect } from "react"
 
 export default function Home() {
   useEffect(() => {
-    document.title = "IntrusionPath - Attack Path Designer"
+    document.title = "Compromise Canvas - Attack Path Designer"
   }, [])
 
   return (

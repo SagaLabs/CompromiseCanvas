@@ -726,13 +726,13 @@ export default function AttackPathDesigner() {
         ...flow,
         canvasTitle: canvasTitle
       }
-      localStorage.setItem("intrusionpath-flow", JSON.stringify(saveData))
-      alert("IntrusionPath diagram saved!")
+      localStorage.setItem("compromise-canvas-flow", JSON.stringify(saveData))
+      alert("Diagram saved!")
     }
   }
 
   const handleLoad = () => {
-    const flowString = localStorage.getItem("intrusionpath-flow")
+    const flowString = localStorage.getItem("compromise-canvas-flow")
     if (flowString) {
       const flow = JSON.parse(flowString)
       if (flow.nodes && flow.edges) {
@@ -762,10 +762,10 @@ export default function AttackPathDesigner() {
           handleAutoAlign()
         }, 100)
 
-        alert("IntrusionPath diagram loaded!")
+        alert("Diagram loaded!")
       }
     } else {
-      alert("No saved IntrusionPath diagram found!")
+      alert("No saved Diagram found!")
     }
   }
 
@@ -789,7 +789,7 @@ export default function AttackPathDesigner() {
 
       const link = document.createElement("a")
       link.href = url
-      link.download = `intrusionpath-diagram-${new Date().toISOString().split("T")[0]}.json`
+      link.download = `compromise-canvas-${new Date().toISOString().split("T")[0]}.json`
       document.body.appendChild(link)
       link.click()
       document.body.removeChild(link)

@@ -112,7 +112,7 @@ export default function TemplatePanel({
   onClose,
 }: TemplatePanelProps) {
   const [templates, setTemplates] = useState<Template[]>(() => {
-    const savedTemplates = localStorage.getItem("intrusionpath-templates")
+    const savedTemplates = localStorage.getItem("compromise-canvas-templates")
     const userTemplates = savedTemplates ? JSON.parse(savedTemplates) : []
     return [...builtInTemplates, ...userTemplates]
   })
@@ -161,7 +161,7 @@ export default function TemplatePanel({
     setTemplates(updatedTemplates)
 
     const userTemplates = updatedTemplates.filter((t) => !t.isBuiltIn)
-    localStorage.setItem("intrusionpath-templates", JSON.stringify(userTemplates))
+    localStorage.setItem("compromise-canvas-templates", JSON.stringify(userTemplates))
 
     setNewTemplateName("")
     setNewTemplateDescription("")
@@ -176,7 +176,7 @@ export default function TemplatePanel({
       setTemplates(updatedTemplates)
 
       const userTemplates = updatedTemplates.filter((t) => !t.isBuiltIn)
-      localStorage.setItem("intrusionpath-templates", JSON.stringify(userTemplates))
+      localStorage.setItem("compromise-canvas-templates", JSON.stringify(userTemplates))
     }
   }
 

@@ -91,7 +91,7 @@ export default function HeaderControls({
     <header className="flex h-14 items-center justify-between border-b border-gray-700 bg-gray-900 px-4 text-white">
       <div className="flex items-center gap-4">
         <div className="flex items-center gap-2">
-          <div className="text-xl font-bold text-blue-400">IntrusionPath</div>
+          <div className="text-xl font-bold text-blue-400">Compromise Canvas</div>
           <div className="text-sm text-gray-400">Attack Path Designer</div>
         </div>
         <div className="h-6 w-px bg-gray-600"></div>

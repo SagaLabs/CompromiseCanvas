@@ -4,8 +4,8 @@ import { GeistMono } from 'geist/font/mono'
 import './globals.css'
 
 export const metadata: Metadata = {
-  title: 'IntrusionPath - Attack Path Designer',
-  description: 'Created by SagaLabs',
+  title: 'Compromise Canvas - Attack Path Designer',
+  description: 'Interactive visual editor for cyber attack paths by SagaLabs',
   icons: {
     icon: 'public/favicon.ico',
     shortcut: 'public/favicon.ico',

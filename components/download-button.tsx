@@ -108,7 +108,7 @@ export default function DownloadButton({ canvasTitle }: DownloadButtonProps) {
       .then((watermarkedDataUrl) => {
         const link = document.createElement('a');
         const bgSuffix = bgType === 'transparent' ? '-transparent' : '';
-        link.download = `intrusionpath-export${bgSuffix}-${new Date().toISOString().split('T')[0]}.png`;
+        link.download = `compromise-canvas${bgSuffix}-${new Date().toISOString().split('T')[0]}.png`;
         link.href = watermarkedDataUrl;
         document.body.appendChild(link);
         link.click();

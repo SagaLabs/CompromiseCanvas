@@ -1,7 +1,23 @@
 {
-  "name": "IntrusionPath",
+  "name": "compromise-canvas",
   "version": "0.1.0",
-  "private": true,
+  "description": "Interactive visual editor for building cyber attack paths and incident response timelines",
+  "author": "Christian Henriksen <contact@sagalabs.dk> (https://github.com/Guzzy711)",
+  "license": "GPL-3.0",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/SagaLabs/CompromiseCanvas.git"
+  },
+  "homepage": "https://github.com/SagaLabs/CompromiseCanvas",
+  "keywords": [
+    "cybersecurity",
+    "incident-response",
+    "attack-path",
+    "mitre-attack",
+    "security",
+    "visualization"
+  ],
+  "private": false,
   "scripts": {
     "build": "next build",
     "dev": "next dev",
