@@ -309,9 +309,10 @@ export interface EdgeData {
   timestamp: string // ISO8601 format (e.g., 'YYYY-MM-DDTHH:MM:SSZ')
   mitreAttackId?: string
   description: string // New field for detailed description
-  // Optional offsets from React Flow's automatic route and label positions
+  // Offsets remain relative to the automatic path so custom positioning still follows moving nodes.
   routeOffset?: { x: number; y: number }
   labelOffset?: { x: number; y: number }
+  // Labels follow their route unless the user explicitly unlocks them.
   labelLocked?: boolean
   // C2-specific fields
   c2Channel?: string // For C2 edges: HTTP/HTTPS, DNS, ICMP, etc.

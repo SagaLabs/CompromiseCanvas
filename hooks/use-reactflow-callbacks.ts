@@ -36,7 +36,10 @@ export const useReactFlowCallbacks = ({
   handlePaste,
 }: UseReactFlowCallbacksProps) => {
   const onConnect = useCallback(
-    (params: Connection) =>
+    (params: Connection) => {
+      // Keep this guard even though the canvas validates connections, since edges may be added programmatically.
+      if (!params.source || !params.target || params.source === params.target) return
+
       updateEdges((eds) =>
         addEdge(
           {
@@ -55,7 +58,8 @@ export const useReactFlowCallbacks = ({
           },
           eds,
         ),
-      ),
+      )
+    },
     [updateEdges],
   )
 

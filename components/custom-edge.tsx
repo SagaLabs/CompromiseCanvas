@@ -63,7 +63,7 @@ const CustomEdge = memo(function CustomEdge({
     startOffset: { x: number; y: number }
   } | null>(null)
 
-  // Use React Flow's built-in smooth step path for better edge routing
+  // Keep the automatic path as the anchor for user offsets, so the edge still follows both nodes.
   const automaticPath = getSmoothStepPath({
     sourceX,
     sourceY,
@@ -75,6 +75,7 @@ const CustomEdge = memo(function CustomEdge({
   })
   const routeOffset = data?.routeOffset ?? { x: 0, y: 0 }
   const labelOffset = data?.labelOffset ?? { x: 0, y: 0 }
+  // Missing values are treated as locked for backward compatibility with existing diagrams.
   const labelLocked = data?.labelLocked !== false
   const hasCustomRoute = routeOffset.x !== 0 || routeOffset.y !== 0
   const hasCustomLabel = labelOffset.x !== 0 || labelOffset.y !== 0
@@ -111,6 +112,7 @@ const CustomEdge = memo(function CustomEdge({
   }
 
   const resetOffsets = () => {
+    // Removing both overrides in one update forces an exact return to automatic positioning.
     setEdges((currentEdges) =>
       currentEdges.map((edge) => {
         if (edge.id !== id) return edge
@@ -131,6 +133,7 @@ const CustomEdge = memo(function CustomEdge({
 
         const edgeData = edge.data ?? {}
         if (locked) {
+          // Re-locking snaps the label back to the current line route.
           const { labelOffset: _labelOffset, ...dataWithoutLabelOffset } = edgeData
           return {
             ...edge,
@@ -155,6 +158,7 @@ const CustomEdge = memo(function CustomEdge({
   const startDrag = (event: React.PointerEvent<HTMLElement>, kind: "routeOffset" | "labelOffset") => {
     event.preventDefault()
     event.stopPropagation()
+    // Pointer capture keeps dragging responsive even when the cursor leaves the card.
     event.currentTarget.setPointerCapture(event.pointerId)
     dragState.current = {
       pointerId: event.pointerId,
@@ -172,6 +176,7 @@ const CustomEdge = memo(function CustomEdge({
 
     event.preventDefault()
     event.stopPropagation()
+    // Stored offsets use flow coordinates, while pointer movement is measured in screen pixels.
     const zoom = getZoom() || 1
     updateOffset(currentDrag.kind, {
       x: currentDrag.startOffset.x + (event.clientX - currentDrag.startClientX) / zoom,

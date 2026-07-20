@@ -9,6 +9,7 @@ import ReactFlow, {
   useReactFlow,
   type Node,
   type Edge,
+  type Connection,
   MiniMap,
   ConnectionMode,
 } from "reactflow"
@@ -36,6 +37,10 @@ const nodeTypes = {
   customNode: CustomNode,
   labeledGroupNode: GroupNode,
 }
+
+// Loose connection mode makes every handle bidirectional, so explicitly reject self-connections.
+const isValidConnection = (connection: Connection) =>
+  Boolean(connection.source && connection.target && connection.source !== connection.target)
 
 export default function CompromiseCanvas() {
   const reactFlowWrapper = useRef<HTMLDivElement>(null)
@@ -234,6 +239,7 @@ export default function CompromiseCanvas() {
             onNodesChange={onNodesChange}
             onEdgesChange={setEdgesChange}
             onConnect={onConnect}
+            isValidConnection={isValidConnection}
             onInit={setReactFlowInstance}
             onDrop={onDrop}
             onDragOver={onDragOver}

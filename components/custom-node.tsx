@@ -396,6 +396,7 @@ const CustomNode = memo(function CustomNode({ data, isConnectable, selected, id 
           )
         }}
       />
+      {/* Loose connection mode lets each side act as either an incoming or outgoing connection point. */}
       <Handle type="target" position={Position.Left} isConnectable={isConnectable} className="!bg-red-500" />
       <Handle
         id="top"
