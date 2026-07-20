@@ -170,8 +170,8 @@ export default function CompromiseCanvas() {
 
   // Memoize edge types to prevent recreation on every render during dragging
   const edgeTypes = useMemo(
-    () => createEdgeTypes(animationsEnabled, selectedElement, handleSelectEdge, deleteEdgeById),
-    [animationsEnabled, selectedElement, handleSelectEdge, deleteEdgeById],
+    () => createEdgeTypes(animationsEnabled, selectedElement, deleteEdgeById),
+    [animationsEnabled, selectedElement, deleteEdgeById],
   )
 
   // Keyboard event listener for Delete/Backspace and Undo/Redo

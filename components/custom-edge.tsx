@@ -34,7 +34,6 @@ import EdgeToolbar from "./edge-toolbar"
 interface CustomEdgeProps extends EdgeProps<Edge<EdgeData>> {
   animationsEnabled?: boolean
   selected?: boolean
-  onSelectEdge?: (id: string) => void
   onDeleteEdge?: (id: string) => void
 }
 
@@ -51,7 +50,6 @@ const CustomEdge = memo(function CustomEdge({
   markerEnd,
   animationsEnabled = true,
   selected = false,
-  onSelectEdge,
   onDeleteEdge,
 }: CustomEdgeProps) {
   // Track hover so the quick-action toolbar can appear without selecting the edge.
@@ -333,7 +331,6 @@ const CustomEdge = memo(function CustomEdge({
         labelX={labelX}
         labelY={labelY}
         isVisible={hovered || selected}
-        onSelect={() => onSelectEdge?.(id)}
         onDelete={() => onDeleteEdge?.(id)}
         onMouseEnter={() => setHovered(true)}
         onMouseLeave={() => setHovered(false)}

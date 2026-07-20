@@ -9,7 +9,6 @@ import type { NodeData } from "@/lib/types"
 export const createEdgeTypes = (
   animationsEnabled: boolean,
   selectedElement: Node | Edge | null,
-  onSelectEdge: (id: string) => void,
   onDeleteEdge: (id: string) => void,
 ) => ({
   customEdge: (props: any) => (
@@ -17,7 +16,6 @@ export const createEdgeTypes = (
       {...props}
       animationsEnabled={animationsEnabled}
       selected={selectedElement?.id === props.id && selectedElement?.type === "customEdge"}
-      onSelectEdge={onSelectEdge}
       onDeleteEdge={onDeleteEdge}
     />
   ),
