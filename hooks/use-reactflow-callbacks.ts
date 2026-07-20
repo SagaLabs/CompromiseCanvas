@@ -69,7 +69,6 @@ export const useReactFlowCallbacks = ({
       event.preventDefault()
 
       if (reactFlowWrapper.current) {
-        const reactFlowBounds = reactFlowWrapper.current.getBoundingClientRect()
         const type = event.dataTransfer.getData("application/reactflow") as AssetType
 
         // check if the dropped element is valid
@@ -77,9 +76,9 @@ export const useReactFlowCallbacks = ({
           return
         }
 
-        const position = reactFlowInstance.project({
-          x: event.clientX - reactFlowBounds.left,
-          y: event.clientY - reactFlowBounds.top,
+        const position = reactFlowInstance.screenToFlowPosition({
+          x: event.clientX,
+          y: event.clientY,
         })
 
         // Handle group nodes differently
@@ -159,11 +158,10 @@ export const useReactFlowCallbacks = ({
       event.preventDefault()
 
       if (hasClipboardData()) {
-        const reactFlowBounds = reactFlowWrapper.current?.getBoundingClientRect()
-        if (reactFlowBounds && reactFlowInstance) {
-          const position = reactFlowInstance.project({
-            x: event.clientX - reactFlowBounds.left,
-            y: event.clientY - reactFlowBounds.top,
+        if (reactFlowInstance) {
+          const position = reactFlowInstance.screenToFlowPosition({
+            x: event.clientX,
+            y: event.clientY,
           })
           handlePaste(position)
         }
