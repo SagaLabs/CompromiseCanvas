@@ -397,6 +397,20 @@ const CustomNode = memo(function CustomNode({ data, isConnectable, selected, id 
         }}
       />
       <Handle type="target" position={Position.Left} isConnectable={isConnectable} className="!bg-red-500" />
+      <Handle
+        id="top"
+        type="source"
+        position={Position.Top}
+        isConnectable={isConnectable}
+        className="!bg-red-500"
+      />
+      <Handle
+        id="bottom"
+        type="source"
+        position={Position.Bottom}
+        isConnectable={isConnectable}
+        className="!bg-red-500"
+      />
 
       {/* Compromised indicator */}
       {data.isCompromised && (

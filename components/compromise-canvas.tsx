@@ -10,6 +10,7 @@ import ReactFlow, {
   type Node,
   type Edge,
   MiniMap,
+  ConnectionMode,
 } from "reactflow"
 import "reactflow/dist/style.css"
 import CustomNode from "./custom-node"
@@ -269,6 +270,7 @@ export default function CompromiseCanvas() {
             // Disable expensive features during interaction
             connectionLineType={"smoothstep" as any}
             connectionLineStyle={{ strokeWidth: 2, stroke: "#8B5CF6" }}
+            connectionMode={ConnectionMode.Loose}
           >
             <Controls />
             <Background variant={"dots" as any} gap={12} size={1} color="#4B5563" />

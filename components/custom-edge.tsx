@@ -1,5 +1,5 @@
-import { memo } from "react"
-import { type EdgeProps, getSmoothStepPath, EdgeLabelRenderer, BaseEdge } from "reactflow"
+import { memo, useRef, useState } from "react"
+import { type EdgeProps, getSmoothStepPath, EdgeLabelRenderer, BaseEdge, useReactFlow } from "reactflow"
 import type { EdgeData } from "@/lib/types"
 import {
   MoveRight,
@@ -23,10 +23,14 @@ import {
   Truck,
   Bug,
   Lock,
+  Unlock,
   Users,
   Building,
   Package,
-  Activity
+  Activity,
+  GitBranch,
+  GripHorizontal,
+  RotateCcw,
 } from "lucide-react" // Import necessary icons
 import { cn } from "@/lib/utils" // Assuming cn utility is available
 
@@ -49,8 +53,18 @@ const CustomEdge = memo(function CustomEdge({
   animationsEnabled = true,
   selected = false,
 }: CustomEdgeProps) {
+  const { setEdges, getZoom } = useReactFlow()
+  const [dragging, setDragging] = useState<"routeOffset" | "labelOffset" | null>(null)
+  const dragState = useRef<{
+    pointerId: number
+    kind: "routeOffset" | "labelOffset"
+    startClientX: number
+    startClientY: number
+    startOffset: { x: number; y: number }
+  } | null>(null)
+
   // Use React Flow's built-in smooth step path for better edge routing
-  const [edgePath, labelX, labelY] = getSmoothStepPath({
+  const automaticPath = getSmoothStepPath({
     sourceX,
     sourceY,
     sourcePosition,
@@ -59,6 +73,119 @@ const CustomEdge = memo(function CustomEdge({
     targetPosition,
     borderRadius: 50, // Larger border radius to avoid obstacles
   })
+  const routeOffset = data?.routeOffset ?? { x: 0, y: 0 }
+  const labelOffset = data?.labelOffset ?? { x: 0, y: 0 }
+  const labelLocked = data?.labelLocked !== false
+  const hasCustomRoute = routeOffset.x !== 0 || routeOffset.y !== 0
+  const hasCustomLabel = labelOffset.x !== 0 || labelOffset.y !== 0
+  const [edgePath, routedLabelX, routedLabelY] = hasCustomRoute
+    ? getSmoothStepPath({
+        sourceX,
+        sourceY,
+        sourcePosition,
+        targetX,
+        targetY,
+        targetPosition,
+        borderRadius: 50,
+        centerX: automaticPath[1] + routeOffset.x,
+        centerY: automaticPath[2] + routeOffset.y,
+      })
+    : automaticPath
+  const labelX = routedLabelX + labelOffset.x
+  const labelY = routedLabelY + labelOffset.y
+
+  const updateOffset = (kind: "routeOffset" | "labelOffset", offset: { x: number; y: number }) => {
+    setEdges((currentEdges) =>
+      currentEdges.map((edge) =>
+        edge.id === id
+          ? {
+              ...edge,
+              data: {
+                ...edge.data,
+                [kind]: offset,
+              },
+            }
+          : edge,
+      ),
+    )
+  }
+
+  const resetOffsets = () => {
+    setEdges((currentEdges) =>
+      currentEdges.map((edge) => {
+        if (edge.id !== id) return edge
+
+        const { routeOffset: _routeOffset, labelOffset: _labelOffset, ...dataWithoutOffsets } = edge.data ?? {}
+        return {
+          ...edge,
+          data: dataWithoutOffsets,
+        }
+      }),
+    )
+  }
+
+  const setLabelLocked = (locked: boolean) => {
+    setEdges((currentEdges) =>
+      currentEdges.map((edge) => {
+        if (edge.id !== id) return edge
+
+        const edgeData = edge.data ?? {}
+        if (locked) {
+          const { labelOffset: _labelOffset, ...dataWithoutLabelOffset } = edgeData
+          return {
+            ...edge,
+            data: {
+              ...dataWithoutLabelOffset,
+              labelLocked: true,
+            },
+          }
+        }
+
+        return {
+          ...edge,
+          data: {
+            ...edgeData,
+            labelLocked: false,
+          },
+        }
+      }),
+    )
+  }
+
+  const startDrag = (event: React.PointerEvent<HTMLElement>, kind: "routeOffset" | "labelOffset") => {
+    event.preventDefault()
+    event.stopPropagation()
+    event.currentTarget.setPointerCapture(event.pointerId)
+    dragState.current = {
+      pointerId: event.pointerId,
+      kind,
+      startClientX: event.clientX,
+      startClientY: event.clientY,
+      startOffset: kind === "routeOffset" ? routeOffset : labelOffset,
+    }
+    setDragging(kind)
+  }
+
+  const handlePointerMove = (event: React.PointerEvent<HTMLElement>) => {
+    const currentDrag = dragState.current
+    if (!currentDrag || currentDrag.pointerId !== event.pointerId) return
+
+    event.preventDefault()
+    event.stopPropagation()
+    const zoom = getZoom() || 1
+    updateOffset(currentDrag.kind, {
+      x: currentDrag.startOffset.x + (event.clientX - currentDrag.startClientX) / zoom,
+      y: currentDrag.startOffset.y + (event.clientY - currentDrag.startClientY) / zoom,
+    })
+  }
+
+  const stopDrag = (event: React.PointerEvent<HTMLElement>) => {
+    if (!dragState.current || dragState.current.pointerId !== event.pointerId) return
+    event.preventDefault()
+    event.stopPropagation()
+    dragState.current = null
+    setDragging(null)
+  }
 
   // Determine edge styling based on action type
   const getEdgeStyle = (actionType?: string) => {
@@ -297,9 +424,6 @@ const CustomEdge = memo(function CustomEdge({
 
   const ActionTypeIcon = getActionTypeIcon(data?.actionType)
 
-  // Check if this edge should have animations based on global setting
-  const shouldAnimate = animationsEnabled && data?.actionType
-
   return (
     <>
       <BaseEdge
@@ -308,48 +432,77 @@ const CustomEdge = memo(function CustomEdge({
         style={{ ...style, ...edgeStyle }}
       />
 
-      {/* Animated circles only for specific action types and when animations are enabled */}
-      {shouldAnimate && (
-        <>
-          {/* Animated circle moving along the edge path */}
-          <circle r="4" fill={edgeStyle.stroke} opacity="0.8">
-            <animateMotion
-              dur="3s"
-              repeatCount="indefinite"
-              path={edgePath}
-              calcMode="spline"
-              keySplines="0.4 0 0.6 1"
-            />
-          </circle>
-
-          {/* Second animated circle with different timing */}
-          <circle r="3" fill={edgeStyle.stroke} opacity="0.6">
-            <animateMotion
-              dur="4s"
-              repeatCount="indefinite"
-              path={edgePath}
-              calcMode="spline"
-              keySplines="0.4 0 0.6 1"
-              begin="1s"
-            />
-          </circle>
-        </>
-      )}
       {data?.displaySettings?.showLabel !== false && (
         <EdgeLabelRenderer>
           <div
             style={{
               transform: `translate(-50%, -50%) translate(${labelX}px,${labelY}px)`,
             }}
+            onPointerDown={(event) => startDrag(event, labelLocked ? "routeOffset" : "labelOffset")}
+            onPointerMove={handlePointerMove}
+            onPointerUp={stopDrag}
+            onPointerCancel={stopDrag}
             className={cn(
-              "absolute pointer-events-auto rounded-lg border border-gray-700 bg-gray-800 p-3 shadow-lg",
+              "nodrag nopan absolute pointer-events-auto cursor-move rounded-lg border border-gray-700 bg-gray-800 p-3 shadow-lg",
               "min-w-[220px] max-w-[300px] text-xs text-white", // Increased min-width for better readability
+              dragging !== null && "ring-2 ring-blue-400",
             )}
           >
             {/* Main Label / Action Type */}
             <div className="mb-1 flex items-center justify-center gap-2 text-sm font-semibold" style={{ color: edgeStyle.stroke }}>
+              <button
+                type="button"
+                className={cn(
+                  "nodrag nopan rounded p-1 text-gray-400 hover:bg-gray-700 hover:text-white",
+                  dragging === "routeOffset" && "bg-blue-500/20 text-blue-300",
+                )}
+                title="Drag to move the line route"
+                aria-label="Move line route"
+                onPointerDown={(event) => startDrag(event, "routeOffset")}
+                onPointerMove={handlePointerMove}
+                onPointerUp={stopDrag}
+                onPointerCancel={stopDrag}
+                onClick={(event) => event.stopPropagation()}
+              >
+                <GitBranch className="h-3.5 w-3.5" />
+              </button>
+              <GripHorizontal
+                className="h-3.5 w-3.5 text-gray-500"
+                aria-label={labelLocked ? "Drag card and line" : "Drag label independently"}
+              />
               {ActionTypeIcon && <ActionTypeIcon className="h-4 w-4" />}
               <span>{data?.actionType || "New Technique"}</span>
+              <button
+                type="button"
+                className={cn(
+                  "nodrag nopan rounded p-1 hover:bg-gray-700 hover:text-white",
+                  labelLocked ? "text-blue-300" : "text-gray-400",
+                )}
+                title={labelLocked ? "Unlock label from line" : "Lock label to line"}
+                aria-label={labelLocked ? "Unlock label from line" : "Lock label to line"}
+                onPointerDown={(event) => event.stopPropagation()}
+                onClick={(event) => {
+                  event.stopPropagation()
+                  setLabelLocked(!labelLocked)
+                }}
+              >
+                {labelLocked ? <Lock className="h-3.5 w-3.5" /> : <Unlock className="h-3.5 w-3.5" />}
+              </button>
+              {(hasCustomRoute || hasCustomLabel) && (
+                <button
+                  type="button"
+                  className="nodrag nopan rounded p-1 text-gray-400 hover:bg-gray-700 hover:text-white"
+                  title="Reset line and label positions"
+                  aria-label="Reset line and label positions"
+                  onPointerDown={(event) => event.stopPropagation()}
+                  onClick={(event) => {
+                    event.stopPropagation()
+                    resetOffsets()
+                  }}
+                >
+                  <RotateCcw className="h-3.5 w-3.5" />
+                </button>
+              )}
             </div>
 
             <div className="space-y-1 text-gray-400">

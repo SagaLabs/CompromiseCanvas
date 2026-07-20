@@ -309,6 +309,10 @@ export interface EdgeData {
   timestamp: string // ISO8601 format (e.g., 'YYYY-MM-DDTHH:MM:SSZ')
   mitreAttackId?: string
   description: string // New field for detailed description
+  // Optional offsets from React Flow's automatic route and label positions
+  routeOffset?: { x: number; y: number }
+  labelOffset?: { x: number; y: number }
+  labelLocked?: boolean
   // C2-specific fields
   c2Channel?: string // For C2 edges: HTTP/HTTPS, DNS, ICMP, etc.
   c2Framework?: string // For C2 edges: Cobalt Strike, Empire, Metasploit, etc.
