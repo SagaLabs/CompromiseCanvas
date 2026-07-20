@@ -1,17 +1,22 @@
 import type { Node, Edge } from "reactflow"
 import CustomEdge from "@/components/custom-edge"
-import type { NodeData } from "@/lib/types"
+import type { EdgeData, NodeData } from "@/lib/types"
 
 /**
  * Create edge types with animation setting and selection state
  * Memoize to prevent unnecessary re-renders during dragging
  */
-export const createEdgeTypes = (animationsEnabled: boolean, selectedElement: Node | Edge | null) => ({
+export const createEdgeTypes = (
+  animationsEnabled: boolean,
+  selectedElement: Node | Edge | null,
+  onUpdateEdge: (edgeId: string, data: Partial<EdgeData>) => void,
+) => ({
   customEdge: (props: any) => (
     <CustomEdge
       {...props}
       animationsEnabled={animationsEnabled}
       selected={selectedElement?.id === props.id && selectedElement?.type === "customEdge"}
+      onUpdateEdge={onUpdateEdge}
     />
   ),
 })

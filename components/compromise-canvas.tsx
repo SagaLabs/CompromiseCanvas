@@ -32,6 +32,7 @@ import { useCompromiseCanvasHandlers } from "@/hooks/use-compromise-canvas-handl
 import { useReactFlowCallbacks } from "@/hooks/use-reactflow-callbacks"
 import { useState } from "react"
 import { Button } from "@/components/ui/button"
+import { isConnectionAllowed } from "@/lib/utils/flexible-connections"
 
 const nodeTypes = {
   customNode: CustomNode,
@@ -40,7 +41,7 @@ const nodeTypes = {
 
 // Loose connection mode makes every handle bidirectional, so explicitly reject self-connections.
 const isValidConnection = (connection: Connection) =>
-  Boolean(connection.source && connection.target && connection.source !== connection.target)
+  isConnectionAllowed(connection)
 
 export default function CompromiseCanvas() {
   const reactFlowWrapper = useRef<HTMLDivElement>(null)
@@ -95,9 +96,6 @@ export default function CompromiseCanvas() {
     setShowIncidentLogPanel,
   } = useCompromiseCanvasState()
 
-  // Memoize edge types to prevent recreation on every render during dragging
-  const edgeTypes = useMemo(() => createEdgeTypes(animationsEnabled, selectedElement), [animationsEnabled, selectedElement])
-
   // Use ReactFlow callbacks hook
   const {
     onConnect,
@@ -125,6 +123,12 @@ export default function CompromiseCanvas() {
     hasClipboardData,
     handlePaste,
   })
+
+  // Memoize edge types to prevent recreation on every render during dragging.
+  const edgeTypes = useMemo(
+    () => createEdgeTypes(animationsEnabled, selectedElement, updateEdge),
+    [animationsEnabled, selectedElement, updateEdge],
+  )
 
   // Use handlers hook
   const {

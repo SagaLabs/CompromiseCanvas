@@ -33,10 +33,18 @@ import {
   RotateCcw,
 } from "lucide-react" // Import necessary icons
 import { cn } from "@/lib/utils" // Assuming cn utility is available
+import {
+  calculateDragOffset,
+  hasOffset,
+  readOffset,
+  resetEdgePosition,
+  updateLabelLock,
+} from "@/lib/utils/flexible-connections"
 
 interface CustomEdgeProps extends EdgeProps<EdgeData> {
   animationsEnabled?: boolean
   selected?: boolean
+  onUpdateEdge?: (edgeId: string, data: Partial<EdgeData>) => void
 }
 
 const CustomEdge = memo(function CustomEdge({
@@ -52,6 +60,7 @@ const CustomEdge = memo(function CustomEdge({
   markerEnd,
   animationsEnabled = true,
   selected = false,
+  onUpdateEdge,
 }: CustomEdgeProps) {
   const { setEdges, getZoom } = useReactFlow()
   const [dragging, setDragging] = useState<"routeOffset" | "labelOffset" | null>(null)
@@ -61,6 +70,7 @@ const CustomEdge = memo(function CustomEdge({
     startClientX: number
     startClientY: number
     startOffset: { x: number; y: number }
+    latestOffset: { x: number; y: number }
   } | null>(null)
 
   // Keep the automatic path as the anchor for user offsets, so the edge still follows both nodes.
@@ -73,12 +83,13 @@ const CustomEdge = memo(function CustomEdge({
     targetPosition,
     borderRadius: 50, // Larger border radius to avoid obstacles
   })
-  const routeOffset = data?.routeOffset ?? { x: 0, y: 0 }
-  const labelOffset = data?.labelOffset ?? { x: 0, y: 0 }
+  const routeOffset = readOffset(data?.routeOffset)
+  const labelOffset = readOffset(data?.labelOffset)
   // Missing values are treated as locked for backward compatibility with existing diagrams.
   const labelLocked = data?.labelLocked !== false
-  const hasCustomRoute = routeOffset.x !== 0 || routeOffset.y !== 0
-  const hasCustomLabel = labelOffset.x !== 0 || labelOffset.y !== 0
+  const hasCustomRoute = hasOffset(routeOffset)
+  // Ignore stale imported label offsets while locked so the card always remains on its route.
+  const hasCustomLabel = !labelLocked && hasOffset(labelOffset)
   const [edgePath, routedLabelX, routedLabelY] = hasCustomRoute
     ? getSmoothStepPath({
         sourceX,
@@ -92,8 +103,8 @@ const CustomEdge = memo(function CustomEdge({
         centerY: automaticPath[2] + routeOffset.y,
       })
     : automaticPath
-  const labelX = routedLabelX + labelOffset.x
-  const labelY = routedLabelY + labelOffset.y
+  const labelX = routedLabelX + (labelLocked ? 0 : labelOffset.x)
+  const labelY = routedLabelY + (labelLocked ? 0 : labelOffset.y)
 
   const updateOffset = (kind: "routeOffset" | "labelOffset", offset: { x: number; y: number }) => {
     setEdges((currentEdges) =>
@@ -112,44 +123,38 @@ const CustomEdge = memo(function CustomEdge({
   }
 
   const resetOffsets = () => {
+    if (onUpdateEdge) {
+      onUpdateEdge(id, { routeOffset: undefined, labelOffset: undefined })
+      return
+    }
+
     // Removing both overrides in one update forces an exact return to automatic positioning.
     setEdges((currentEdges) =>
       currentEdges.map((edge) => {
         if (edge.id !== id) return edge
 
-        const { routeOffset: _routeOffset, labelOffset: _labelOffset, ...dataWithoutOffsets } = edge.data ?? {}
         return {
           ...edge,
-          data: dataWithoutOffsets,
+          data: resetEdgePosition(edge.data ?? {}),
         }
       }),
     )
   }
 
   const setLabelLocked = (locked: boolean) => {
+    if (onUpdateEdge) {
+      onUpdateEdge(id, locked ? { labelLocked: true, labelOffset: undefined } : { labelLocked: false })
+      return
+    }
+
     setEdges((currentEdges) =>
       currentEdges.map((edge) => {
         if (edge.id !== id) return edge
 
-        const edgeData = edge.data ?? {}
-        if (locked) {
-          // Re-locking snaps the label back to the current line route.
-          const { labelOffset: _labelOffset, ...dataWithoutLabelOffset } = edgeData
-          return {
-            ...edge,
-            data: {
-              ...dataWithoutLabelOffset,
-              labelLocked: true,
-            },
-          }
-        }
-
         return {
           ...edge,
-          data: {
-            ...edgeData,
-            labelLocked: false,
-          },
+          // Re-locking removes the independent offset and snaps the label to its route.
+          data: updateLabelLock(edge.data ?? {}, locked),
         }
       }),
     )
@@ -166,6 +171,7 @@ const CustomEdge = memo(function CustomEdge({
       startClientX: event.clientX,
       startClientY: event.clientY,
       startOffset: kind === "routeOffset" ? routeOffset : labelOffset,
+      latestOffset: kind === "routeOffset" ? routeOffset : labelOffset,
     }
     setDragging(kind)
   }
@@ -177,19 +183,27 @@ const CustomEdge = memo(function CustomEdge({
     event.preventDefault()
     event.stopPropagation()
     // Stored offsets use flow coordinates, while pointer movement is measured in screen pixels.
-    const zoom = getZoom() || 1
-    updateOffset(currentDrag.kind, {
-      x: currentDrag.startOffset.x + (event.clientX - currentDrag.startClientX) / zoom,
-      y: currentDrag.startOffset.y + (event.clientY - currentDrag.startClientY) / zoom,
-    })
+    const nextOffset = calculateDragOffset(
+      currentDrag.startOffset,
+      { x: currentDrag.startClientX, y: currentDrag.startClientY },
+      { x: event.clientX, y: event.clientY },
+      getZoom(),
+    )
+    currentDrag.latestOffset = nextOffset
+    updateOffset(
+      currentDrag.kind,
+      nextOffset,
+    )
   }
 
   const stopDrag = (event: React.PointerEvent<HTMLElement>) => {
-    if (!dragState.current || dragState.current.pointerId !== event.pointerId) return
+    const completedDrag = dragState.current
+    if (!completedDrag || completedDrag.pointerId !== event.pointerId) return
     event.preventDefault()
     event.stopPropagation()
     dragState.current = null
     setDragging(null)
+    onUpdateEdge?.(id, { [completedDrag.kind]: completedDrag.latestOffset })
   }
 
   // Determine edge styling based on action type
@@ -435,6 +449,7 @@ const CustomEdge = memo(function CustomEdge({
         id={id}
         path={edgePath}
         style={{ ...style, ...edgeStyle }}
+        markerEnd={markerEnd}
       />
 
       {data?.displaySettings?.showLabel !== false && (
@@ -447,6 +462,7 @@ const CustomEdge = memo(function CustomEdge({
             onPointerMove={handlePointerMove}
             onPointerUp={stopDrag}
             onPointerCancel={stopDrag}
+            onLostPointerCapture={stopDrag}
             className={cn(
               "nodrag nopan absolute pointer-events-auto cursor-move rounded-lg border border-gray-700 bg-gray-800 p-3 shadow-lg",
               "min-w-[220px] max-w-[300px] text-xs text-white", // Increased min-width for better readability
@@ -464,9 +480,6 @@ const CustomEdge = memo(function CustomEdge({
                 title="Drag to move the line route"
                 aria-label="Move line route"
                 onPointerDown={(event) => startDrag(event, "routeOffset")}
-                onPointerMove={handlePointerMove}
-                onPointerUp={stopDrag}
-                onPointerCancel={stopDrag}
                 onClick={(event) => event.stopPropagation()}
               >
                 <GitBranch className="h-3.5 w-3.5" />

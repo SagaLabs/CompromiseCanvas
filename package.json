@@ -22,7 +22,8 @@
     "build": "next build",
     "dev": "next dev",
     "lint": "next lint",
-    "start": "next start"
+    "start": "next start",
+    "test:flexible-connections": "tsc --module commonjs --moduleResolution node --target ES2020 --esModuleInterop --skipLibCheck --outDir /tmp/compromise-canvas-flex-tests tests/flexible-connections.test.ts lib/utils/flexible-connections.ts && node --test /tmp/compromise-canvas-flex-tests/tests/flexible-connections.test.js tests/flexible-connections-geometry.test.cjs"
   },
   "dependencies": {
     "@hookform/resolvers": "^3.9.1",

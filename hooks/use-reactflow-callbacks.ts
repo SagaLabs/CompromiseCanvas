@@ -3,6 +3,7 @@ import { addEdge, type Connection, type Node, type Edge } from "reactflow"
 import type { NodeData, EdgeData, AssetType } from "@/lib/types"
 import { defaultDisplaySettings, defaultEdgeDisplaySettings, getId, LAYER_Z_INDEX } from "@/lib/utils/compromise-canvas-constants"
 import { toast } from "@/components/ui/use-toast"
+import { isConnectionAllowed } from "@/lib/utils/flexible-connections"
 
 interface UseReactFlowCallbacksProps {
   reactFlowInstance: any
@@ -38,7 +39,7 @@ export const useReactFlowCallbacks = ({
   const onConnect = useCallback(
     (params: Connection) => {
       // Keep this guard even though the canvas validates connections, since edges may be added programmatically.
-      if (!params.source || !params.target || params.source === params.target) return
+      if (!isConnectionAllowed(params)) return
 
       updateEdges((eds) =>
         addEdge(
