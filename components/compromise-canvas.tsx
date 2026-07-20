@@ -26,6 +26,7 @@ import IncidentLogPanel from "./incident-log-panel"
 import DataHandlingModal from "./data-handling-modal"
 import StatsPanel from "./stats-panel"
 import { createEdgeTypes } from "@/lib/utils/compromise-canvas-utils"
+import { FIT_VIEW_OPTIONS } from "@/lib/utils/compromise-canvas-constants"
 import { useCompromiseCanvasState } from "@/hooks/use-compromise-canvas-state"
 import { useCompromiseCanvasHandlers } from "@/hooks/use-compromise-canvas-handlers"
 import { useReactFlowCallbacks } from "@/hooks/use-reactflow-callbacks"
@@ -90,9 +91,6 @@ export default function CompromiseCanvas() {
     setShowIncidentLogPanel,
   } = useCompromiseCanvasState()
 
-  // Memoize edge types to prevent recreation on every render during dragging
-  const edgeTypes = useMemo(() => createEdgeTypes(animationsEnabled, selectedElement), [animationsEnabled, selectedElement])
-
   // Use ReactFlow callbacks hook
   const {
     onConnect,
@@ -105,6 +103,7 @@ export default function CompromiseCanvas() {
     updateNode,
     updateEdge,
     handleDeleteSelected,
+    deleteEdgeById,
   } = useReactFlowCallbacks({
     reactFlowInstance,
     reactFlowWrapper,
@@ -165,6 +164,12 @@ export default function CompromiseCanvas() {
     fitView,
     toast,
   })
+
+  // Memoize edge types to prevent recreation on every render during dragging
+  const edgeTypes = useMemo(
+    () => createEdgeTypes(animationsEnabled, selectedElement, handleSelectEdge, deleteEdgeById),
+    [animationsEnabled, selectedElement, handleSelectEdge, deleteEdgeById],
+  )
 
   // Keyboard event listener for Delete/Backspace and Undo/Redo
   useEffect(() => {
@@ -245,7 +250,9 @@ export default function CompromiseCanvas() {
               animated: false,
             }}
             fitView
-            fitViewOptions={{ padding: 0.2 }}
+            fitViewOptions={FIT_VIEW_OPTIONS}
+            colorMode="dark"
+            connectionDragThreshold={8}
             snapToGrid={snapToGrid}
             snapGrid={[15, 15]}
             onNodeClick={onNodeClick}

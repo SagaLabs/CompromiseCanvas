@@ -1,4 +1,4 @@
-import { memo } from "react"
+import { memo, useState } from "react"
 import { type Edge, type EdgeProps, getSmoothStepPath, EdgeLabelRenderer, BaseEdge } from "@xyflow/react"
 import type { EdgeData } from "@/lib/types"
 import {
@@ -29,10 +29,13 @@ import {
   Activity
 } from "lucide-react" // Import necessary icons
 import { cn } from "@/lib/utils" // Assuming cn utility is available
+import EdgeToolbar from "./edge-toolbar"
 
 interface CustomEdgeProps extends EdgeProps<Edge<EdgeData>> {
   animationsEnabled?: boolean
   selected?: boolean
+  onSelectEdge?: (id: string) => void
+  onDeleteEdge?: (id: string) => void
 }
 
 const CustomEdge = memo(function CustomEdge({
@@ -48,7 +51,12 @@ const CustomEdge = memo(function CustomEdge({
   markerEnd,
   animationsEnabled = true,
   selected = false,
+  onSelectEdge,
+  onDeleteEdge,
 }: CustomEdgeProps) {
+  // Track hover so the quick-action toolbar can appear without selecting the edge.
+  const [hovered, setHovered] = useState(false)
+
   // Use React Flow's built-in smooth step path for better edge routing
   const [edgePath, labelX, labelY] = getSmoothStepPath({
     sourceX,
@@ -307,6 +315,30 @@ const CustomEdge = memo(function CustomEdge({
         path={edgePath}
         style={{ ...style, ...edgeStyle }}
       />
+
+      {/* Invisible wide interaction path so hovering near the edge is detected */}
+      <path
+        d={edgePath}
+        fill="none"
+        stroke="transparent"
+        strokeWidth={20}
+        style={{ cursor: "pointer" }}
+        onMouseEnter={() => setHovered(true)}
+        onMouseLeave={() => setHovered(false)}
+      />
+
+      {/* Quick-action toolbar shown at the edge midpoint on hover or when selected */}
+      {(hovered || selected) && (
+        <EdgeToolbar
+          id={id}
+          labelX={labelX}
+          labelY={labelY}
+          onSelect={() => onSelectEdge?.(id)}
+          onDelete={() => onDeleteEdge?.(id)}
+          onMouseEnter={() => setHovered(true)}
+          onMouseLeave={() => setHovered(false)}
+        />
+      )}
 
       {/* Animated circles only for specific action types and when animations are enabled */}
       {shouldAnimate && (

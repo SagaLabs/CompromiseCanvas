@@ -2,7 +2,7 @@ import { useCallback } from "react"
 import type { ReactFlowInstance, FitViewOptions } from "@xyflow/react"
 import type { CustomNode, CustomEdge } from "@/lib/types"
 import type { Template } from "@/components/template-panel"
-import { defaultDisplaySettings, LAYER_Z_INDEX } from "@/lib/utils/compromise-canvas-constants"
+import { defaultDisplaySettings, LAYER_Z_INDEX, FIT_VIEW_OPTIONS } from "@/lib/utils/compromise-canvas-constants"
 import { calculateAutoAlignedPositions } from "@/lib/utils/compromise-canvas-utils"
 
 interface UseCompromiseCanvasHandlersProps {
@@ -281,7 +281,7 @@ export const useCompromiseCanvasHandlers = ({
   }, [reactFlowInstance])
 
   const handleFitView = useCallback(() => {
-    fitView()
+    fitView(FIT_VIEW_OPTIONS)
   }, [fitView])
 
   const handleToggleGrid = useCallback(() => {

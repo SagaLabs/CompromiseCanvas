@@ -229,6 +229,23 @@ export const useReactFlowCallbacks = ({
     }
   }, [selectedElement, nodes, edges, updateEdges, takeSnapshot, setNodes, setEdges, setSelectedElement])
 
+  const deleteEdgeById = useCallback(
+    (edgeId: string) => {
+      updateEdges((eds) => eds.filter((e) => e.id !== edgeId))
+
+      toast({
+        title: "Element Deleted",
+        description: "Removed selected edge. You can undo with Ctrl+Z.",
+        variant: "default",
+      })
+
+      if (selectedElement?.id === edgeId) {
+        setSelectedElement(null)
+      }
+    },
+    [updateEdges, selectedElement, setSelectedElement],
+  )
+
   return {
     onConnect,
     onDragOver,
@@ -240,5 +257,6 @@ export const useReactFlowCallbacks = ({
     updateNode,
     updateEdge,
     handleDeleteSelected,
+    deleteEdgeById,
   }
 }

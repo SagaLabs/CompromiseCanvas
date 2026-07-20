@@ -6,12 +6,19 @@ import type { NodeData } from "@/lib/types"
  * Create edge types with animation setting and selection state
  * Memoize to prevent unnecessary re-renders during dragging
  */
-export const createEdgeTypes = (animationsEnabled: boolean, selectedElement: Node | Edge | null) => ({
+export const createEdgeTypes = (
+  animationsEnabled: boolean,
+  selectedElement: Node | Edge | null,
+  onSelectEdge: (id: string) => void,
+  onDeleteEdge: (id: string) => void,
+) => ({
   customEdge: (props: any) => (
     <CustomEdge
       {...props}
       animationsEnabled={animationsEnabled}
       selected={selectedElement?.id === props.id && selectedElement?.type === "customEdge"}
+      onSelectEdge={onSelectEdge}
+      onDeleteEdge={onDeleteEdge}
     />
   ),
 })
