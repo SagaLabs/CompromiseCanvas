@@ -31,6 +31,12 @@ export type AssetType =
 
 export type Criticality = "Low" | "Medium" | "High" | "Critical"
 export type InvestigationStatus = "No Status" | "Not Investigated" | "Investigating" | "Done"
+export const INVESTIGATION_STATUSES: InvestigationStatus[] = [
+  "No Status",
+  "Not Investigated",
+  "Investigating",
+  "Done",
+]
 export type ActionType =
   | "Initial Access"
   | "Lateral Movement"

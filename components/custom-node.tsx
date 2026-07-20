@@ -1,5 +1,6 @@
-import { memo, useMemo, useState } from "react"
+import { memo, useMemo, useState, useCallback, useRef, useEffect } from "react"
 import { Handle, Position, NodeResizer, type Node, type NodeProps, useReactFlow } from "@xyflow/react"
+import NodeToolbar from "./node-toolbar"
 import {
   Server,
   Database,
@@ -37,7 +38,7 @@ import {
   Clock,
   CheckCircle,
 } from "lucide-react"
-import type { NodeData, Criticality } from "@/lib/types"
+import type { NodeData, Criticality, InvestigationStatus } from "@/lib/types"
 import { cn } from "@/lib/utils"
 
 const assetIcons = {
@@ -359,6 +360,44 @@ const CustomNode = memo(function CustomNode({ data, isConnectable, selected, id 
   }
 
   const [isHovered, setIsHovered] = useState(false)
+  // Keep the toolbar mounted while its status menu is open (pointer leaves the node).
+  const [menuOpen, setMenuOpen] = useState(false)
+
+  // Hover-intent: delay hiding so the pointer can travel from the node to the
+  // floating toolbar without it vanishing mid-reach.
+  const hideTimer = useRef<ReturnType<typeof setTimeout> | null>(null)
+  const showToolbar = useCallback(() => {
+    if (hideTimer.current) clearTimeout(hideTimer.current)
+    setIsHovered(true)
+  }, [])
+  const hideToolbar = useCallback(() => {
+    if (hideTimer.current) clearTimeout(hideTimer.current)
+    hideTimer.current = setTimeout(() => setIsHovered(false), 300)
+  }, [])
+  useEffect(() => () => {
+    if (hideTimer.current) clearTimeout(hideTimer.current)
+  }, [])
+
+  const toggleCompromised = useCallback(() => {
+    setNodes((nodes) =>
+      nodes.map((node) =>
+        node.id === id
+          ? { ...node, data: { ...node.data, isCompromised: !node.data.isCompromised } }
+          : node,
+      ),
+    )
+  }, [id, setNodes])
+
+  const setInvestigationStatus = useCallback(
+    (investigationStatus: InvestigationStatus) => {
+      setNodes((nodes) =>
+        nodes.map((node) =>
+          node.id === id ? { ...node, data: { ...node.data, investigationStatus } } : node,
+        ),
+      )
+    },
+    [id, setNodes],
+  )
 
   return (
     <div
@@ -369,9 +408,20 @@ const CustomNode = memo(function CustomNode({ data, isConnectable, selected, id 
         selected && "animate-border-pulse border-4 border-blue-400"
       )}
       style={nodeStyle}
-      onMouseEnter={() => setIsHovered(true)}
-      onMouseLeave={() => setIsHovered(false)}
+      onMouseEnter={showToolbar}
+      onMouseLeave={hideToolbar}
     >
+      <NodeToolbar
+        nodeId={id}
+        isVisible={isHovered || selected || menuOpen}
+        isCompromised={data.isCompromised}
+        investigationStatus={data.investigationStatus}
+        onToggleCompromised={toggleCompromised}
+        onSetStatus={setInvestigationStatus}
+        onMouseEnter={showToolbar}
+        onMouseLeave={hideToolbar}
+        onMenuOpenChange={setMenuOpen}
+      />
       <NodeResizer
         isVisible={selected || isHovered}
         minWidth={200}
