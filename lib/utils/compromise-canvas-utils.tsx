@@ -1,6 +1,6 @@
 import type { Node, Edge } from "@xyflow/react"
 import CustomEdge from "@/components/custom-edge"
-import type { NodeData } from "@/lib/types"
+import type { NodeData, EdgeActionType } from "@/lib/types"
 
 /**
  * Create edge types with animation setting and selection state
@@ -10,6 +10,7 @@ export const createEdgeTypes = (
   animationsEnabled: boolean,
   selectedElement: Node | Edge | null,
   onDeleteEdge: (id: string) => void,
+  onSetEdgeActionType: (id: string, actionType: EdgeActionType) => void,
 ) => ({
   customEdge: (props: any) => (
     <CustomEdge
@@ -17,6 +18,7 @@ export const createEdgeTypes = (
       animationsEnabled={animationsEnabled}
       selected={selectedElement?.id === props.id && selectedElement?.type === "customEdge"}
       onDeleteEdge={onDeleteEdge}
+      onSetEdgeActionType={onSetEdgeActionType}
     />
   ),
 })

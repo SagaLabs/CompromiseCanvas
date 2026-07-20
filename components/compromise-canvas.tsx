@@ -1,7 +1,7 @@
 "use client"
 
 import type React from "react"
-import { useRef, useEffect, useMemo } from "react"
+import { useRef, useEffect, useMemo, useCallback } from "react"
 import {
   ReactFlow,
   Controls,
@@ -25,6 +25,7 @@ import TimelineModal from "./timeline-modal"
 import IncidentLogPanel from "./incident-log-panel"
 import DataHandlingModal from "./data-handling-modal"
 import { createEdgeTypes } from "@/lib/utils/compromise-canvas-utils"
+import type { EdgeActionType } from "@/lib/types"
 import { FIT_VIEW_OPTIONS } from "@/lib/utils/compromise-canvas-constants"
 import { useCompromiseCanvasState } from "@/hooks/use-compromise-canvas-state"
 import { useCompromiseCanvasHandlers } from "@/hooks/use-compromise-canvas-handlers"
@@ -168,10 +169,16 @@ export default function CompromiseCanvas() {
     toast,
   })
 
+  // Change an edge's action type (updates its color/icon), undo-safe via updateEdge
+  const handleSetEdgeActionType = useCallback(
+    (id: string, actionType: EdgeActionType) => updateEdge(id, { actionType }),
+    [updateEdge],
+  )
+
   // Memoize edge types to prevent recreation on every render during dragging
   const edgeTypes = useMemo(
-    () => createEdgeTypes(animationsEnabled, selectedElement, deleteEdgeById),
-    [animationsEnabled, selectedElement, deleteEdgeById],
+    () => createEdgeTypes(animationsEnabled, selectedElement, deleteEdgeById, handleSetEdgeActionType),
+    [animationsEnabled, selectedElement, deleteEdgeById, handleSetEdgeActionType],
   )
 
   // Keyboard event listener for Delete/Backspace and Undo/Redo

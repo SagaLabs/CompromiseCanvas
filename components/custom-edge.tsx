@@ -1,6 +1,6 @@
 import { memo, useState } from "react"
 import { type Edge, type EdgeProps, getSmoothStepPath, EdgeLabelRenderer, BaseEdge } from "@xyflow/react"
-import type { EdgeData } from "@/lib/types"
+import type { EdgeData, EdgeActionType } from "@/lib/types"
 import {
   MoveRight,
   Upload,
@@ -35,6 +35,7 @@ interface CustomEdgeProps extends EdgeProps<Edge<EdgeData>> {
   animationsEnabled?: boolean
   selected?: boolean
   onDeleteEdge?: (id: string) => void
+  onSetEdgeActionType?: (id: string, actionType: EdgeActionType) => void
 }
 
 const CustomEdge = memo(function CustomEdge({
@@ -51,9 +52,12 @@ const CustomEdge = memo(function CustomEdge({
   animationsEnabled = true,
   selected = false,
   onDeleteEdge,
+  onSetEdgeActionType,
 }: CustomEdgeProps) {
   // Track hover so the quick-action toolbar can appear without selecting the edge.
   const [hovered, setHovered] = useState(false)
+  // Keep the toolbar mounted while the action-type menu is open (pointer leaves the edge).
+  const [menuOpen, setMenuOpen] = useState(false)
 
   // Use React Flow's built-in smooth step path for better edge routing
   const [edgePath, labelX, labelY] = getSmoothStepPath({
@@ -330,10 +334,13 @@ const CustomEdge = memo(function CustomEdge({
         id={id}
         labelX={labelX}
         labelY={labelY}
-        isVisible={hovered || selected}
+        isVisible={hovered || selected || menuOpen}
+        currentActionType={data?.actionType}
+        onSetActionType={(actionType) => onSetEdgeActionType?.(id, actionType)}
         onDelete={() => onDeleteEdge?.(id)}
         onMouseEnter={() => setHovered(true)}
         onMouseLeave={() => setHovered(false)}
+        onMenuOpenChange={setMenuOpen}
       />
 
       {/* Animated circles only for specific action types and when animations are enabled */}
