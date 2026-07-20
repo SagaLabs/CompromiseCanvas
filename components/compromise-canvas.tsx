@@ -2,16 +2,16 @@
 
 import type React from "react"
 import { useRef, useEffect, useMemo } from "react"
-import ReactFlow, {
+import {
+  ReactFlow,
   Controls,
   Background,
   Panel,
   useReactFlow,
   type Node,
   type Edge,
-  MiniMap,
-} from "reactflow"
-import "reactflow/dist/style.css"
+} from "@xyflow/react"
+import "@xyflow/react/dist/style.css"
 import CustomNode from "./custom-node"
 import { GroupNode } from "./labeled-group-node"
 import AssetLibrary from "./asset-library"
@@ -24,6 +24,7 @@ import TemplatePanel from "./template-panel"
 import TimelineModal from "./timeline-modal"
 import IncidentLogPanel from "./incident-log-panel"
 import DataHandlingModal from "./data-handling-modal"
+import StatsPanel from "./stats-panel"
 import { createEdgeTypes } from "@/lib/utils/compromise-canvas-utils"
 import { useCompromiseCanvasState } from "@/hooks/use-compromise-canvas-state"
 import { useCompromiseCanvasHandlers } from "@/hooks/use-compromise-canvas-handlers"
@@ -279,6 +280,9 @@ export default function CompromiseCanvas() {
                   ? "Start by dragging assets from the left panel or open a template."
                   : "Drag assets from the left panel to add nodes."}
               </div>
+            </Panel>
+            <Panel position="top-right" className="p-2">
+              <StatsPanel nodes={nodes} />
             </Panel>
             <Panel position="bottom-right" className="p-2 text-xs text-gray-500">
               Created by SagaLabs - Train as you fight

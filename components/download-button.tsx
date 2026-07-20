@@ -1,7 +1,7 @@
 import { useCallback, useState } from 'react';
-import { useReactFlow } from 'reactflow';
+import { useReactFlow } from '@xyflow/react';
 import { toPng } from 'html-to-image';
-import { getNodesBounds } from 'reactflow';
+import { getNodesBounds } from '@xyflow/react';
 import { ChevronDown, Download, Image as ImageIcon } from 'lucide-react';
 import {
   DropdownMenu,

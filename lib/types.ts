@@ -1,4 +1,4 @@
-import type { Node, Edge } from "reactflow"
+import type { Node, Edge } from "@xyflow/react"
 
 export type AssetType =
   | "web-server"
@@ -252,7 +252,7 @@ export interface AttackerData {
   infrastructureType: "VPS" | "Dedicated Server" | "Cloud Instance" | "Botnet" | "Compromised Host" | "Other"
 }
 
-export interface NodeData {
+export interface NodeData extends Record<string, unknown> {
   label: string
   type: AssetType
   hostname?: string
@@ -301,7 +301,7 @@ export interface AnimationSettings {
   enableAnimations: boolean
 }
 
-export interface EdgeData {
+export interface EdgeData extends Record<string, unknown> {
   label?: string
   actionType: EdgeActionType
   toolUsed: string // For non-C2 edges, this is "Tool Used"

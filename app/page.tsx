@@ -1,6 +1,6 @@
 "use client"
 
-import { ReactFlowProvider } from "reactflow"
+import { ReactFlowProvider } from "@xyflow/react"
 import CompromiseCanvas from "@/components/compromise-canvas"
 import { useEffect } from "react"
 

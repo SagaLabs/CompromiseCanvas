@@ -1,19 +1,20 @@
 import { useCallback } from "react"
-import type { Node, Edge, ReactFlowInstance, FitViewOptions } from "reactflow"
+import type { ReactFlowInstance, FitViewOptions } from "@xyflow/react"
+import type { CustomNode, CustomEdge } from "@/lib/types"
 import type { Template } from "@/components/template-panel"
 import { defaultDisplaySettings, LAYER_Z_INDEX } from "@/lib/utils/compromise-canvas-constants"
 import { calculateAutoAlignedPositions } from "@/lib/utils/compromise-canvas-utils"
 
 interface UseCompromiseCanvasHandlersProps {
   reactFlowInstance: ReactFlowInstance | null
-  nodes: Node[]
-  edges: Edge[]
+  nodes: CustomNode[]
+  edges: CustomEdge[]
   canvasTitle: string
   incidentLog: any[]
-  setNodes: (nodes: Node[]) => void
-  setEdges: (edges: Edge[]) => void
-  updateNodes: (nodesOrUpdater: Node[] | ((nodes: Node[]) => Node[])) => void
-  setSelectedElement: (element: Node | Edge | null) => void
+  setNodes: (nodes: CustomNode[]) => void
+  setEdges: (edges: CustomEdge[]) => void
+  updateNodes: (nodesOrUpdater: CustomNode[] | ((nodes: CustomNode[]) => CustomNode[])) => void
+  setSelectedElement: (element: CustomNode | CustomEdge | null) => void
   setShowTemplatePanel: (show: boolean | ((prev: boolean) => boolean)) => void
   setShowTimelinePanel: (show: boolean | ((prev: boolean) => boolean)) => void
   setShowDataHandlingModal: (show: boolean | ((prev: boolean) => boolean)) => void
@@ -21,7 +22,7 @@ interface UseCompromiseCanvasHandlersProps {
   setSnapToGrid: (enabled: boolean | ((prev: boolean) => boolean)) => void
   setCanvasTitle: (title: string) => void
   setIncidentLog: (log: any[] | ((prev: any[]) => any[])) => void
-  reset: (state: { nodes: Node[]; edges: Edge[] }) => void
+  reset: (state: { nodes: CustomNode[]; edges: CustomEdge[] }) => void
   fitView: (options?: FitViewOptions) => void
   toast: (options: any) => void
 }
@@ -300,12 +301,12 @@ export const useCompromiseCanvasHandlers = ({
         },
       }))
       setNodes(nodesWithDisplaySettings)
-      setEdges(template.edges)
+      setEdges(template.edges as CustomEdge[])
       setIncidentLog(template.incidentLog ?? [])
       setSelectedElement(null)
       setShowTemplatePanel(false) // Close template panel after loading
       // Reset undo/redo history when loading template
-      reset({ nodes: nodesWithDisplaySettings, edges: template.edges })
+      reset({ nodes: nodesWithDisplaySettings, edges: template.edges as CustomEdge[] })
 
       // setTimeout(() => {
       //   if (onAutoAlign) onAutoAlign()

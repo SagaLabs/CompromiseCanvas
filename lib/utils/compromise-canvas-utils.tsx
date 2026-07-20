@@ -1,4 +1,4 @@
-import type { Node, Edge } from "reactflow"
+import type { Node, Edge } from "@xyflow/react"
 import CustomEdge from "@/components/custom-edge"
 import type { NodeData } from "@/lib/types"
 

@@ -1,5 +1,5 @@
 import { memo, useMemo, useState } from "react"
-import { Handle, Position, NodeResizer, type NodeProps, useReactFlow } from "reactflow"
+import { Handle, Position, NodeResizer, type Node, type NodeProps, useReactFlow } from "@xyflow/react"
 import {
   Server,
   Database,
@@ -92,7 +92,7 @@ const actionIcons = {
   Other: Info,
 }
 
-const CustomNode = memo(function CustomNode({ data, isConnectable, selected, id }: NodeProps<NodeData>) {
+const CustomNode = memo(function CustomNode({ data, isConnectable, selected, id }: NodeProps<Node<NodeData>>) {
   const { setNodes } = useReactFlow()
   const Icon = assetIcons[data.type] || ServerCog // Default icon
   const CriticalityColorClass = criticalityColors[data.criticality] || "bg-gray-500"

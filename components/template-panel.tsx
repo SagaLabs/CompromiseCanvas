@@ -29,7 +29,7 @@ import {
   X,
   Search,
 } from "lucide-react"
-import type { Node, Edge } from "reactflow"
+import type { Node, Edge } from "@xyflow/react"
 import type { IncidentLogEntry } from "@/lib/types"
 import { builtInTemplates } from "@/lib/templates"
 

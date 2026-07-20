@@ -1,12 +1,12 @@
 "use client"
 
 import { memo, useState } from "react"
-import { Handle, Position, type NodeProps, NodeResizer } from "reactflow"
+import { Handle, Position, type Node, type NodeProps, NodeResizer } from "@xyflow/react"
 
 import { cn } from "@/lib/utils"
 import type { NodeData } from "@/lib/types"
 
-const GroupNode = memo(function GroupNode({ data, selected }: NodeProps<NodeData>) {
+const GroupNode = memo(function GroupNode({ data, selected }: NodeProps<Node<NodeData>>) {
   const label = data.label || "Asset Group"
   const color = data.color || "blue"
   const transparency = data.transparency !== undefined ? data.transparency : 0.2

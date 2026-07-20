@@ -1,10 +1,10 @@
 import { useState, useCallback, useEffect, useMemo } from "react"
-import { useNodesState, useEdgesState, type Node, type Edge } from "reactflow"
+import { useNodesState, useEdgesState } from "@xyflow/react"
 import { useUndoRedo } from "@/hooks/use-undo-redo"
 import { useCopyPaste } from "@/hooks/use-copy-paste"
 import { useToast } from "@/components/ui/use-toast"
 import { initialNodes, initialEdges } from "@/lib/utils/compromise-canvas-constants"
-import type { ActivityLogEntry } from "@/lib/types"
+import type { ActivityLogEntry, CustomNode, CustomEdge } from "@/lib/types"
 
 export const useCompromiseCanvasState = () => {
   const { toast } = useToast()
@@ -21,7 +21,7 @@ export const useCompromiseCanvasState = () => {
   const [nodes, setNodes, onNodesChange] = useNodesState(initialNodes)
   const [edges, setEdges, setEdgesChange] = useEdgesState(initialEdges)
   const [reactFlowInstance, setReactFlowInstance] = useState<any>(null)
-  const [selectedElement, setSelectedElement] = useState<Node | Edge | null>(null)
+  const [selectedElement, setSelectedElement] = useState<CustomNode | CustomEdge | null>(null)
   const [snapToGrid, setSnapToGrid] = useState(true)
   const [showTemplatePanel, setShowTemplatePanel] = useState(false)
   const [showTimelinePanel, setShowTimelinePanel] = useState(false)
@@ -48,7 +48,7 @@ export const useCompromiseCanvasState = () => {
 
   // Custom setNodes and setEdges that also take snapshots
   const updateNodes = useCallback(
-    (nodesOrUpdater: Node[] | ((nodes: Node[]) => Node[])) => {
+    (nodesOrUpdater: CustomNode[] | ((nodes: CustomNode[]) => CustomNode[])) => {
       setNodes((currentNodes) => {
         const newNodes = typeof nodesOrUpdater === "function" ? nodesOrUpdater(currentNodes) : nodesOrUpdater
         // Take snapshot after state update
@@ -60,7 +60,7 @@ export const useCompromiseCanvasState = () => {
   )
 
   const updateEdges = useCallback(
-    (edgesOrUpdater: Edge[] | ((edges: Edge[]) => Edge[])) => {
+    (edgesOrUpdater: CustomEdge[] | ((edges: CustomEdge[]) => CustomEdge[])) => {
       setEdges((currentEdges) => {
         const newEdges = typeof edgesOrUpdater === "function" ? edgesOrUpdater(currentEdges) : edgesOrUpdater
         // Take snapshot after state update
@@ -99,9 +99,9 @@ export const useCompromiseCanvasState = () => {
       // If no multi-selection, copy the single selected element
       if (selectedElement) {
         if (selectedElement.type !== "customEdge") {
-          return copyElements([selectedElement as Node], [])
+          return copyElements([selectedElement as CustomNode], [])
         } else {
-          return copyElements([], [selectedElement as Edge])
+          return copyElements([], [selectedElement as CustomEdge])
         }
       }
       return false

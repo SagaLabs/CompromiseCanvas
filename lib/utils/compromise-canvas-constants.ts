@@ -1,5 +1,4 @@
-import type { Node, Edge } from "reactflow"
-import type { DisplaySettings, EdgeDisplaySettings } from "@/lib/types"
+import type { DisplaySettings, EdgeDisplaySettings, CustomNode, CustomEdge } from "@/lib/types"
 
 export const defaultDisplaySettings: DisplaySettings = {
   showHostname: true,
@@ -71,8 +70,8 @@ export const defaultEdgeDisplaySettings: EdgeDisplaySettings = {
 }
 
 // Start with empty canvas - no initial nodes or edges
-export const initialNodes: Node[] = []
-export const initialEdges: Edge[] = []
+export const initialNodes: CustomNode[] = []
+export const initialEdges: CustomEdge[] = []
 
 
 export const LAYER_Z_INDEX = {

@@ -1,5 +1,5 @@
 import { memo } from "react"
-import { type EdgeProps, getSmoothStepPath, EdgeLabelRenderer, BaseEdge } from "reactflow"
+import { type Edge, type EdgeProps, getSmoothStepPath, EdgeLabelRenderer, BaseEdge } from "@xyflow/react"
 import type { EdgeData } from "@/lib/types"
 import {
   MoveRight,
@@ -30,7 +30,7 @@ import {
 } from "lucide-react" // Import necessary icons
 import { cn } from "@/lib/utils" // Assuming cn utility is available
 
-interface CustomEdgeProps extends EdgeProps<EdgeData> {
+interface CustomEdgeProps extends EdgeProps<Edge<EdgeData>> {
   animationsEnabled?: boolean
   selected?: boolean
 }
