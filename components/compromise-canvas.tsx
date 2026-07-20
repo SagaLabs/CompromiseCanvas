@@ -24,7 +24,6 @@ import TemplatePanel from "./template-panel"
 import TimelineModal from "./timeline-modal"
 import IncidentLogPanel from "./incident-log-panel"
 import DataHandlingModal from "./data-handling-modal"
-import StatsPanel from "./stats-panel"
 import { createEdgeTypes } from "@/lib/utils/compromise-canvas-utils"
 import { FIT_VIEW_OPTIONS } from "@/lib/utils/compromise-canvas-constants"
 import { useCompromiseCanvasState } from "@/hooks/use-compromise-canvas-state"
@@ -287,9 +286,6 @@ export default function CompromiseCanvas() {
                   ? "Start by dragging assets from the left panel or open a template."
                   : "Drag assets from the left panel to add nodes."}
               </div>
-            </Panel>
-            <Panel position="top-right" className="p-2">
-              <StatsPanel nodes={nodes} />
             </Panel>
             <Panel position="bottom-right" className="p-2 text-xs text-gray-500">
               Created by SagaLabs - Train as you fight
