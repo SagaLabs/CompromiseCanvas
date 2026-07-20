@@ -1,4 +1,4 @@
-import { memo, useState } from "react"
+import { memo, useState, useRef, useCallback, useEffect } from "react"
 import { type Edge, type EdgeProps, getSmoothStepPath, EdgeLabelRenderer, BaseEdge } from "@xyflow/react"
 import type { EdgeData, EdgeActionType } from "@/lib/types"
 import {
@@ -58,6 +58,21 @@ const CustomEdge = memo(function CustomEdge({
   const [hovered, setHovered] = useState(false)
   // Keep the toolbar mounted while the action-type menu is open (pointer leaves the edge).
   const [menuOpen, setMenuOpen] = useState(false)
+
+  // Hover-intent: delay hiding so the pointer can travel from the edge to the
+  // toolbar (which floats above the label with a gap) without it vanishing.
+  const hideTimer = useRef<ReturnType<typeof setTimeout> | null>(null)
+  const showToolbar = useCallback(() => {
+    if (hideTimer.current) clearTimeout(hideTimer.current)
+    setHovered(true)
+  }, [])
+  const hideToolbar = useCallback(() => {
+    if (hideTimer.current) clearTimeout(hideTimer.current)
+    hideTimer.current = setTimeout(() => setHovered(false), 300)
+  }, [])
+  useEffect(() => () => {
+    if (hideTimer.current) clearTimeout(hideTimer.current)
+  }, [])
 
   // Use React Flow's built-in smooth step path for better edge routing
   const [edgePath, labelX, labelY] = getSmoothStepPath({
@@ -323,10 +338,10 @@ const CustomEdge = memo(function CustomEdge({
         d={edgePath}
         fill="none"
         stroke="transparent"
-        strokeWidth={20}
+        strokeWidth={30}
         style={{ cursor: "pointer" }}
-        onMouseEnter={() => setHovered(true)}
-        onMouseLeave={() => setHovered(false)}
+        onMouseEnter={showToolbar}
+        onMouseLeave={hideToolbar}
       />
 
       {/* Quick-action toolbar shown at the edge midpoint on hover or when selected */}
@@ -338,8 +353,8 @@ const CustomEdge = memo(function CustomEdge({
         currentActionType={data?.actionType}
         onSetActionType={(actionType) => onSetEdgeActionType?.(id, actionType)}
         onDelete={() => onDeleteEdge?.(id)}
-        onMouseEnter={() => setHovered(true)}
-        onMouseLeave={() => setHovered(false)}
+        onMouseEnter={showToolbar}
+        onMouseLeave={hideToolbar}
         onMenuOpenChange={setMenuOpen}
       />
 
