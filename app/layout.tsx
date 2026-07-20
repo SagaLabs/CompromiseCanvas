@@ -8,10 +8,14 @@ export const metadata: Metadata = {
   title: 'Compromise Canvas',
   description: 'Created by SagaLabs',
   icons: {
-    icon: '/favicons/favicon.ico',
+    icon: [
+      { url: '/favicons/favicon.ico', sizes: 'any' },
+      { url: '/favicons/favicon.svg', type: 'image/svg+xml' },
+    ],
     shortcut: '/favicons/favicon.ico',
     apple: '/favicons/apple-touch-icon.png',
   },
+  manifest: '/favicons/site.webmanifest',
 }
 
 export default function RootLayout({
@@ -32,9 +36,9 @@ html {
         `}</style>
         {/* Extra meta tags for favicons */}
         <link rel="icon" href="/favicons/favicon.ico" sizes="any" />
+        <link rel="icon" type="image/svg+xml" href="/favicons/favicon.svg" />
         <link rel="apple-touch-icon" href="/favicons/apple-touch-icon.png" />
-        <link rel="icon" type="image/png" sizes="192x192" href="/favicons/icon-192.png" />
-        <link rel="icon" type="image/png" sizes="512x512" href="/favicons/icon-512.png" />
+        <link rel="icon" type="image/png" sizes="96x96" href="/favicons/favicon-96x96.png" />
       </head>
       <body suppressHydrationWarning={true}>
         <ThemeProvider attribute="data-theme" defaultTheme="dark" enableSystem={false}>
