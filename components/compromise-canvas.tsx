@@ -58,6 +58,9 @@ export default function CompromiseCanvas() {
     isExporting,
     animationsEnabled,
     canvasTitle,
+    autosaveEnabled,
+    autosaveStatus,
+    lastAutosavedAt,
     incidentLog,
     setNodes,
     setEdges,
@@ -69,6 +72,7 @@ export default function CompromiseCanvas() {
     setShowDataHandlingModal,
     setAnimationsEnabled,
     setCanvasTitle,
+    handleToggleAutosave,
     setIncidentLog,
     onNodesChange,
     setEdgesChange,
@@ -213,6 +217,10 @@ export default function CompromiseCanvas() {
         canRedo={canRedo}
         canCopy={nodes.some((n) => n.selected) || edges.some((e) => e.selected) || selectedElement !== null}
         canPaste={hasClipboardData()}
+        autosaveEnabled={autosaveEnabled}
+        autosaveStatus={autosaveStatus}
+        lastAutosavedAt={lastAutosavedAt}
+        onToggleAutosave={handleToggleAutosave}
       />
       <div className="flex flex-1 overflow-hidden">
         {showTemplatePanel ? (

@@ -30,6 +30,8 @@ import {
 import ThemePicker from "./theme-picker"
 import { DownloadImageMenuItems } from "./download-button"
 import ExportReportButton from "./export-report-button"
+import { Switch } from "@/components/ui/switch"
+import type { AutosaveStatus } from "@/hooks/use-compromise-canvas-state"
 
 interface HeaderControlsProps {
   onSave: () => void
@@ -59,6 +61,10 @@ interface HeaderControlsProps {
   canRedo: boolean
   canCopy: boolean
   canPaste: boolean
+  autosaveEnabled: boolean
+  autosaveStatus: AutosaveStatus
+  lastAutosavedAt: string | null
+  onToggleAutosave: (enabled: boolean) => void
 }
 
 export default function HeaderControls({
@@ -89,7 +95,25 @@ export default function HeaderControls({
   canRedo,
   canCopy,
   canPaste,
+  autosaveEnabled,
+  autosaveStatus,
+  lastAutosavedAt,
+  onToggleAutosave,
 }: HeaderControlsProps) {
+  const autosaveLabel = !autosaveEnabled
+    ? "Autosave off"
+    : autosaveStatus === "pending"
+      ? "Changes pending"
+      : autosaveStatus === "saving"
+      ? "Saving…"
+      : autosaveStatus === "error"
+        ? "Autosave failed"
+        : "Autosaved"
+
+  const autosaveTitle = lastAutosavedAt
+    ? `${autosaveLabel} at ${new Date(lastAutosavedAt).toLocaleTimeString()}`
+    : autosaveLabel
+
   return (
     <header className="ip-header flex h-14 items-center justify-between border-b px-4">
       <div className="flex items-center gap-4">
@@ -110,6 +134,24 @@ export default function HeaderControls({
             <FilePlus className="h-5 w-5" aria-hidden="true" />
             <span className="sr-only">Start from scratch</span>
           </Button>
+          <div
+            className="flex items-center gap-2 rounded-md border border-gray-700 px-2 py-1"
+            title={autosaveTitle}
+          >
+            <Switch
+              checked={autosaveEnabled}
+              onCheckedChange={onToggleAutosave}
+              aria-label="Toggle autosave"
+            />
+            <span
+              className={`whitespace-nowrap text-xs ${
+                autosaveStatus === "error" ? "text-red-400" : autosaveEnabled ? "text-green-400" : "text-gray-500"
+              }`}
+              aria-live="polite"
+            >
+              {autosaveLabel}
+            </span>
+          </div>
           <Button
             variant="ghost"
             size="icon"
