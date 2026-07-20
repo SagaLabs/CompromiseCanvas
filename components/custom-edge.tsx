@@ -328,17 +328,16 @@ const CustomEdge = memo(function CustomEdge({
       />
 
       {/* Quick-action toolbar shown at the edge midpoint on hover or when selected */}
-      {(hovered || selected) && (
-        <EdgeToolbar
-          id={id}
-          labelX={labelX}
-          labelY={labelY}
-          onSelect={() => onSelectEdge?.(id)}
-          onDelete={() => onDeleteEdge?.(id)}
-          onMouseEnter={() => setHovered(true)}
-          onMouseLeave={() => setHovered(false)}
-        />
-      )}
+      <EdgeToolbar
+        id={id}
+        labelX={labelX}
+        labelY={labelY}
+        isVisible={hovered || selected}
+        onSelect={() => onSelectEdge?.(id)}
+        onDelete={() => onDeleteEdge?.(id)}
+        onMouseEnter={() => setHovered(true)}
+        onMouseLeave={() => setHovered(false)}
+      />
 
       {/* Animated circles only for specific action types and when animations are enabled */}
       {shouldAnimate && (
