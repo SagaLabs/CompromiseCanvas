@@ -411,17 +411,19 @@ const CustomNode = memo(function CustomNode({ data, isConnectable, selected, id 
       onMouseEnter={showToolbar}
       onMouseLeave={hideToolbar}
     >
-      <NodeToolbar
-        nodeId={id}
-        isVisible={isHovered || selected || menuOpen}
-        isCompromised={data.isCompromised}
-        investigationStatus={data.investigationStatus}
-        onToggleCompromised={toggleCompromised}
-        onSetStatus={setInvestigationStatus}
-        onMouseEnter={showToolbar}
-        onMouseLeave={hideToolbar}
-        onMenuOpenChange={setMenuOpen}
-      />
+      {data.type !== "attacker" && (
+        <NodeToolbar
+          nodeId={id}
+          isVisible={isHovered || selected || menuOpen}
+          isCompromised={data.isCompromised}
+          investigationStatus={data.investigationStatus}
+          onToggleCompromised={toggleCompromised}
+          onSetStatus={setInvestigationStatus}
+          onMouseEnter={showToolbar}
+          onMouseLeave={hideToolbar}
+          onMenuOpenChange={setMenuOpen}
+        />
+      )}
       <NodeResizer
         isVisible={selected || isHovered}
         minWidth={200}
