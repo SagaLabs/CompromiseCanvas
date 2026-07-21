@@ -58,6 +58,10 @@ const CustomEdge = memo(function CustomEdge({
   const [hovered, setHovered] = useState(false)
   // Keep the toolbar mounted while the action-type menu is open (pointer leaves the edge).
   const [menuOpen, setMenuOpen] = useState(false)
+  // Pin the toolbar once its menu has been engaged so it doesn't vanish when the
+  // mouse is released after picking. Unlike a node (which stays selected on click),
+  // an edge is never selected on hover, so we mimic that stickiness here.
+  const [pinned, setPinned] = useState(false)
 
   // Hover-intent: delay hiding so the pointer can travel from the edge to the
   // toolbar (which floats above the label with a gap) without it vanishing.
@@ -69,6 +73,20 @@ const CustomEdge = memo(function CustomEdge({
   const hideToolbar = useCallback(() => {
     if (hideTimer.current) clearTimeout(hideTimer.current)
     hideTimer.current = setTimeout(() => setHovered(false), 300)
+  }, [])
+  const handleMenuOpenChange = useCallback((open: boolean) => {
+    setMenuOpen(open)
+    if (open) {
+      // Opening: pin the toolbar so it survives the pointer leaving the edge and
+      // the mouse-release, matching the stickiness a selected node's toolbar has.
+      if (hideTimer.current) clearTimeout(hideTimer.current)
+      setHovered(true)
+      setPinned(true)
+    } else {
+      // Dismissed (picked an item or clicked outside): unpin and let hover-intent
+      // fade it out.
+      setPinned(false)
+    }
   }, [])
   useEffect(() => () => {
     if (hideTimer.current) clearTimeout(hideTimer.current)
@@ -349,13 +367,13 @@ const CustomEdge = memo(function CustomEdge({
         id={id}
         labelX={labelX}
         labelY={labelY}
-        isVisible={hovered || selected || menuOpen}
+        isVisible={hovered || selected || menuOpen || pinned}
         currentActionType={data?.actionType}
         onSetActionType={(actionType) => onSetEdgeActionType?.(id, actionType)}
         onDelete={() => onDeleteEdge?.(id)}
         onMouseEnter={showToolbar}
         onMouseLeave={hideToolbar}
-        onMenuOpenChange={setMenuOpen}
+        onMenuOpenChange={handleMenuOpenChange}
       />
 
       {/* Animated circles only for specific action types and when animations are enabled */}

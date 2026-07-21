@@ -58,7 +58,7 @@ export default function EdgeToolbar({
       onMouseEnter={onMouseEnter}
       onMouseLeave={onMouseLeave}
     >
-      <DropdownMenu onOpenChange={onMenuOpenChange}>
+      <DropdownMenu modal={false} onOpenChange={onMenuOpenChange}>
         <DropdownMenuTrigger asChild>
           <Button
             type="button"
