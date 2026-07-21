@@ -31,6 +31,7 @@ import {
 } from "lucide-react" // Import necessary icons
 import { cn } from "@/lib/utils" // Assuming cn utility is available
 import EdgeToolbar from "./edge-toolbar"
+import { getMitreTechniqueLabel, getMitreTechniqueUrl } from "@/lib/mitre-attack"
 
 interface CustomEdgeProps extends EdgeProps<Edge<EdgeData>> {
   animationsEnabled?: boolean
@@ -535,7 +536,16 @@ const CustomEdge = memo(function CustomEdge({
               {data?.mitreAttackId && data?.displaySettings?.showMitreId && (
                 <div className="flex items-center gap-1">
                   <Hash className="h-3 w-3" />
-                  <span>MITRE: {data.mitreAttackId}</span>
+                  <a
+                    href={getMitreTechniqueUrl(data.mitreAttackId)}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="hover:text-blue-300 hover:underline"
+                    onClick={(event) => event.stopPropagation()}
+                    onMouseDown={(event) => event.stopPropagation()}
+                  >
+                    MITRE: {getMitreTechniqueLabel(data.mitreAttackId, data.mitreAttackName)}
+                  </a>
                 </div>
               )}
 

@@ -6,6 +6,7 @@ import { Label } from "@/components/ui/label"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Textarea } from "@/components/ui/textarea"
 import { Button } from "@/components/ui/button"
+import { MitreTechniquePicker } from "@/components/mitre-technique-picker"
 import { Switch } from "@/components/ui/switch"
 import { Slider } from "@/components/ui/slider"
 import {
@@ -183,6 +184,18 @@ export default function PropertiesPanel({ selectedElement, updateNode, updateEdg
       const newData = { ...edgeData, [field]: value }
       setEdgeData(newData)
       updateEdge(selectedElement!.id, newData)
+    }
+  }
+
+  const handleMitreTechniqueChange = (technique?: { id: string; name: string }) => {
+    if (edgeData && selectedElement) {
+      const newData = {
+        ...edgeData,
+        mitreAttackId: technique?.id || "",
+        mitreAttackName: technique?.name || "",
+      }
+      setEdgeData(newData)
+      updateEdge(selectedElement.id, newData)
     }
   }
 
@@ -2476,11 +2489,10 @@ export default function PropertiesPanel({ selectedElement, updateNode, updateEdg
             <Label htmlFor="mitre-attack-id" className="text-sm">
               MITRE ATT&CK ID
             </Label>
-            <Input
-              id="mitre-attack-id"
-              value={edgeData.mitreAttackId || ""}
-              onChange={(e) => handleEdgeChange("mitreAttackId", e.target.value)}
-              className="mt-1 bg-gray-800 text-white border-gray-700"
+            <MitreTechniquePicker
+              id={edgeData.mitreAttackId}
+              name={edgeData.mitreAttackName}
+              onChange={handleMitreTechniqueChange}
             />
           </div>
           <div>

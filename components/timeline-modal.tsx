@@ -16,6 +16,7 @@ import {
   X,
 } from "lucide-react"
 import type { CustomEdge, EdgeData, EdgeActionType, IncidentLogEntry } from "@/lib/types"
+import { getMitreTechniqueLabel, getMitreTechniqueUrl } from "@/lib/mitre-attack"
 
 interface TimelineEvent {
   id: string
@@ -26,6 +27,7 @@ interface TimelineEvent {
   toolUsed?: string
   userUsed?: string
   mitreAttackId?: string
+  mitreAttackName?: string
   description: string
   sourceId?: string
   targetId?: string
@@ -152,6 +154,7 @@ export default function TimelineModal({
             toolUsed: edge.data.toolUsed,
             userUsed: edge.data.userUsed,
             mitreAttackId: edge.data.mitreAttackId,
+            mitreAttackName: edge.data.mitreAttackName,
             description: edge.data.description,
             sourceId: edge.source,
             targetId: edge.target,
@@ -215,6 +218,7 @@ export default function TimelineModal({
         event.toolUsed || "",
         event.userUsed || "",
         event.mitreAttackId || "",
+        event.mitreAttackName || "",
         event.incidentCategory || "",
         event.description,
         sourceLabel,
@@ -452,7 +456,19 @@ export default function TimelineModal({
                             <div className="mt-2 grid gap-1 text-xs ip-text-muted">
                               {event.toolUsed && <div>Tool: {event.toolUsed}</div>}
                               {event.userUsed && <div>User: {event.userUsed}</div>}
-                              {event.mitreAttackId && <div>MITRE: {event.mitreAttackId}</div>}
+                              {event.mitreAttackId && (
+                                <div>
+                                  <a
+                                    href={getMitreTechniqueUrl(event.mitreAttackId)}
+                                    target="_blank"
+                                    rel="noreferrer"
+                                    className="text-blue-400 hover:text-blue-300 hover:underline"
+                                    onClick={(clickEvent) => clickEvent.stopPropagation()}
+                                  >
+                                    MITRE: {getMitreTechniqueLabel(event.mitreAttackId, event.mitreAttackName)}
+                                  </a>
+                                </div>
+                              )}
                               {event.description && <div className="ip-text">{event.description}</div>}
                             </div>
                           )}

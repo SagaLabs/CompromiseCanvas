@@ -1,0 +1,73 @@
+name: Update MITRE ATT&CK techniques
+
+on:
+  schedule:
+    - cron: "17 7 1 * *"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  update-techniques:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Refresh Enterprise ATT&CK catalog
+        id: refresh
+        run: |
+          npm run update:mitre
+          if git diff --quiet -- lib/data/mitre-enterprise-techniques.json; then
+            echo "changed=false" >> "$GITHUB_OUTPUT"
+          else
+            echo "changed=true" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Test catalog
+        if: steps.refresh.outputs.changed == 'true'
+        run: npm run test:mitre
+
+      - name: Build application
+        if: steps.refresh.outputs.changed == 'true'
+        run: npm run build
+
+      - name: Push update branch
+        if: steps.refresh.outputs.changed == 'true'
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git switch -C automation/update-mitre-attack
+          git add lib/data/mitre-enterprise-techniques.json
+          git commit -m "Update MITRE ATT&CK techniques"
+          git push --force origin HEAD:automation/update-mitre-attack
+
+      - name: Open draft pull request
+        if: steps.refresh.outputs.changed == 'true'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          existing_pr=$(gh pr list --head automation/update-mitre-attack --state open --json url --jq '.[0].url')
+          if [ -n "$existing_pr" ]; then
+            echo "Updated existing draft PR: $existing_pr"
+          else
+            gh pr create \
+              --base main \
+              --head automation/update-mitre-attack \
+              --draft \
+              --title "Update MITRE ATT&CK techniques" \
+              --body "Refreshes the bundled Enterprise ATT&CK technique catalog from MITRE's official STIX data.\n\nThe catalog test and production build passed in the update workflow."
+          fi
