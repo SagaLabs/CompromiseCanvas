@@ -175,10 +175,16 @@ export default function CompromiseCanvas() {
     [updateEdge],
   )
 
+  // Reposition an edge's label card (dropped after a drag), undo-safe via updateEdge
+  const handleSetEdgeLabelOffset = useCallback(
+    (id: string, x: number, y: number) => updateEdge(id, { labelOffsetX: x, labelOffsetY: y }),
+    [updateEdge],
+  )
+
   // Memoize edge types to prevent recreation on every render during dragging
   const edgeTypes = useMemo(
-    () => createEdgeTypes(animationsEnabled, selectedElement, deleteEdgeById, handleSetEdgeActionType),
-    [animationsEnabled, selectedElement, deleteEdgeById, handleSetEdgeActionType],
+    () => createEdgeTypes(animationsEnabled, selectedElement, deleteEdgeById, handleSetEdgeActionType, handleSetEdgeLabelOffset),
+    [animationsEnabled, selectedElement, deleteEdgeById, handleSetEdgeActionType, handleSetEdgeLabelOffset],
   )
 
   // Keyboard event listener for Delete/Backspace and Undo/Redo

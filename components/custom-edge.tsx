@@ -1,5 +1,6 @@
+import type React from "react"
 import { memo, useState, useRef, useCallback, useEffect } from "react"
-import { type Edge, type EdgeProps, getSmoothStepPath, EdgeLabelRenderer, BaseEdge } from "@xyflow/react"
+import { type Edge, type EdgeProps, getSmoothStepPath, EdgeLabelRenderer, BaseEdge, useStore } from "@xyflow/react"
 import type { EdgeData, EdgeActionType } from "@/lib/types"
 import {
   MoveRight,
@@ -36,6 +37,7 @@ interface CustomEdgeProps extends EdgeProps<Edge<EdgeData>> {
   selected?: boolean
   onDeleteEdge?: (id: string) => void
   onSetEdgeActionType?: (id: string, actionType: EdgeActionType) => void
+  onSetEdgeLabelOffset?: (id: string, x: number, y: number) => void
 }
 
 const CustomEdge = memo(function CustomEdge({
@@ -53,6 +55,7 @@ const CustomEdge = memo(function CustomEdge({
   selected = false,
   onDeleteEdge,
   onSetEdgeActionType,
+  onSetEdgeLabelOffset,
 }: CustomEdgeProps) {
   // Track hover so the quick-action toolbar can appear without selecting the edge.
   const [hovered, setHovered] = useState(false)
@@ -91,6 +94,51 @@ const CustomEdge = memo(function CustomEdge({
   useEffect(() => () => {
     if (hideTimer.current) clearTimeout(hideTimer.current)
   }, [])
+
+  // Current viewport zoom, so a screen-space drag maps to the right flow-space delta.
+  const zoom = useStore((s) => s.transform[2])
+
+  // Draggable label card. `drag` holds the live offset while dragging; once
+  // released the committed offset lives on the edge data (undo-safe).
+  const [drag, setDrag] = useState<{ x: number; y: number } | null>(null)
+  const dragStart = useRef<{ px: number; py: number; ox: number; oy: number } | null>(null)
+  const offsetX = drag ? drag.x : data?.labelOffsetX ?? 0
+  const offsetY = drag ? drag.y : data?.labelOffsetY ?? 0
+
+  const onLabelPointerDown = useCallback(
+    (e: React.PointerEvent) => {
+      e.stopPropagation()
+      const ox = data?.labelOffsetX ?? 0
+      const oy = data?.labelOffsetY ?? 0
+      dragStart.current = { px: e.clientX, py: e.clientY, ox, oy }
+      setDrag({ x: ox, y: oy })
+      e.currentTarget.setPointerCapture(e.pointerId)
+    },
+    [data?.labelOffsetX, data?.labelOffsetY],
+  )
+  const onLabelPointerMove = useCallback(
+    (e: React.PointerEvent) => {
+      if (!dragStart.current) return
+      const dx = (e.clientX - dragStart.current.px) / zoom
+      const dy = (e.clientY - dragStart.current.py) / zoom
+      setDrag({ x: dragStart.current.ox + dx, y: dragStart.current.oy + dy })
+    },
+    [zoom],
+  )
+  const onLabelPointerUp = useCallback(
+    (e: React.PointerEvent) => {
+      if (!dragStart.current) return
+      const dx = (e.clientX - dragStart.current.px) / zoom
+      const dy = (e.clientY - dragStart.current.py) / zoom
+      const nx = dragStart.current.ox + dx
+      const ny = dragStart.current.oy + dy
+      dragStart.current = null
+      setDrag(null)
+      e.currentTarget.releasePointerCapture(e.pointerId)
+      onSetEdgeLabelOffset?.(id, nx, ny)
+    },
+    [zoom, id, onSetEdgeLabelOffset],
+  )
 
   // Use React Flow's built-in smooth step path for better edge routing
   const [edgePath, labelX, labelY] = getSmoothStepPath({
@@ -362,6 +410,21 @@ const CustomEdge = memo(function CustomEdge({
         onMouseLeave={hideToolbar}
       />
 
+      {/* Leader line tying a moved label card back to the edge midpoint */}
+      {(offsetX !== 0 || offsetY !== 0) && (
+        <line
+          x1={labelX}
+          y1={labelY}
+          x2={labelX + offsetX}
+          y2={labelY + offsetY}
+          stroke={edgeStyle.stroke}
+          strokeWidth={1}
+          strokeDasharray="2 3"
+          opacity={0.5}
+          pointerEvents="none"
+        />
+      )}
+
       {/* Quick-action toolbar shown at the edge midpoint on hover or when selected */}
       <EdgeToolbar
         id={id}
@@ -407,11 +470,15 @@ const CustomEdge = memo(function CustomEdge({
         <EdgeLabelRenderer>
           <div
             style={{
-              transform: `translate(-50%, -50%) translate(${labelX}px,${labelY}px)`,
+              transform: `translate(-50%, -50%) translate(${labelX + offsetX}px,${labelY + offsetY}px)`,
             }}
+            onPointerDown={onLabelPointerDown}
+            onPointerMove={onLabelPointerMove}
+            onPointerUp={onLabelPointerUp}
             className={cn(
-              "absolute pointer-events-auto rounded-lg border border-gray-700 bg-gray-800 p-3 shadow-lg",
+              "nodrag nopan absolute pointer-events-auto rounded-lg border border-gray-700 bg-gray-800 p-3 shadow-lg",
               "min-w-[220px] max-w-[300px] text-xs text-white", // Increased min-width for better readability
+              drag ? "cursor-grabbing select-none" : "cursor-grab",
             )}
           >
             {/* Main Label / Action Type */}
