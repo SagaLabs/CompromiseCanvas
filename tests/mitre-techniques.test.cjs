@@ -26,3 +26,10 @@ test("contains Unsecured Credentials and supports partial name and ID matching",
   assert.ok(search("unsec").some((technique) => technique.id === "T1552"))
   assert.ok(search("t1552").some((technique) => technique.id === "T1552"))
 })
+
+test("records parent context for sub-techniques", () => {
+  const privateKeys = techniques.find((technique) => technique.id === "T1552.004")
+  assert.equal(privateKeys?.isSubtechnique, true)
+  assert.equal(privateKeys?.parentId, "T1552")
+  assert.equal(privateKeys?.parentName, "Unsecured Credentials")
+})

@@ -46,7 +46,20 @@ const techniques = bundle.objects
   })
   .sort((left, right) => left.id.localeCompare(right.id, undefined, { numeric: true }))
 
-await mkdir(dirname(OUTPUT_PATH), { recursive: true })
-await writeFile(OUTPUT_PATH, `${JSON.stringify(techniques, null, 2)}\n`)
+const techniquesById = new Map(techniques.map((technique) => [technique.id, technique]))
+const techniquesWithParents = techniques.map((technique) => {
+  if (!technique.isSubtechnique) return technique
 
-console.log(`Wrote ${techniques.length} Enterprise ATT&CK techniques to ${OUTPUT_PATH}`)
+  const parentId = technique.id.split(".")[0]
+  const parent = techniquesById.get(parentId)
+  return {
+    ...technique,
+    parentId,
+    parentName: parent?.name || "Unknown parent technique",
+  }
+})
+
+await mkdir(dirname(OUTPUT_PATH), { recursive: true })
+await writeFile(OUTPUT_PATH, `${JSON.stringify(techniquesWithParents, null, 2)}\n`)
+
+console.log(`Wrote ${techniquesWithParents.length} Enterprise ATT&CK techniques to ${OUTPUT_PATH}`)

@@ -44,6 +44,7 @@ import {
   type InvestigationStatus,
 } from "@/lib/types"
 import type { CustomNode, CustomEdge } from "@/lib/types"
+import { normalizeMitreTechniqueReferences } from "@/lib/mitre-attack"
 
 // Define action icons mapping directly in this component
 const actionIcons = {
@@ -187,12 +188,14 @@ export default function PropertiesPanel({ selectedElement, updateNode, updateEdg
     }
   }
 
-  const handleMitreTechniqueChange = (technique?: { id: string; name: string }) => {
+  const handleMitreTechniqueChange = (techniques: Array<{ id: string; name: string }>) => {
     if (edgeData && selectedElement) {
+      const primaryTechnique = techniques[0]
       const newData = {
         ...edgeData,
-        mitreAttackId: technique?.id || "",
-        mitreAttackName: technique?.name || "",
+        mitreAttackId: primaryTechnique?.id || "",
+        mitreAttackName: primaryTechnique?.name || "",
+        mitreAttackTechniques: techniques,
       }
       setEdgeData(newData)
       updateEdge(selectedElement.id, newData)
@@ -2490,8 +2493,11 @@ export default function PropertiesPanel({ selectedElement, updateNode, updateEdg
               MITRE ATT&CK ID
             </Label>
             <MitreTechniquePicker
-              id={edgeData.mitreAttackId}
-              name={edgeData.mitreAttackName}
+              techniques={normalizeMitreTechniqueReferences(
+                edgeData.mitreAttackTechniques,
+                edgeData.mitreAttackId,
+                edgeData.mitreAttackName,
+              )}
               onChange={handleMitreTechniqueChange}
             />
           </div>

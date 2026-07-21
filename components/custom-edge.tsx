@@ -31,7 +31,11 @@ import {
 } from "lucide-react" // Import necessary icons
 import { cn } from "@/lib/utils" // Assuming cn utility is available
 import EdgeToolbar from "./edge-toolbar"
-import { getMitreTechniqueLabel, getMitreTechniqueUrl } from "@/lib/mitre-attack"
+import {
+  getMitreTechniqueLabel,
+  getMitreTechniqueUrl,
+  normalizeMitreTechniqueReferences,
+} from "@/lib/mitre-attack"
 
 interface CustomEdgeProps extends EdgeProps<Edge<EdgeData>> {
   animationsEnabled?: boolean
@@ -156,6 +160,11 @@ const CustomEdge = memo(function CustomEdge({
     targetPosition,
     borderRadius: 50, // Larger border radius to avoid obstacles
   })
+  const mitreTechniques = normalizeMitreTechniqueReferences(
+    data?.mitreAttackTechniques,
+    data?.mitreAttackId,
+    data?.mitreAttackName,
+  )
 
   // When unlocked, bend the edge through a draggable control point offset from the
   // geometric midpoint. A quadratic curve whose control is midpoint + 2*offset
@@ -533,19 +542,25 @@ const CustomEdge = memo(function CustomEdge({
               )}
 
               {/* MITRE ATT&CK ID */}
-              {data?.mitreAttackId && data?.displaySettings?.showMitreId && (
-                <div className="flex items-center gap-1">
-                  <Hash className="h-3 w-3" />
-                  <a
-                    href={getMitreTechniqueUrl(data.mitreAttackId)}
-                    target="_blank"
-                    rel="noreferrer"
-                    className="hover:text-blue-300 hover:underline"
-                    onClick={(event) => event.stopPropagation()}
-                    onMouseDown={(event) => event.stopPropagation()}
-                  >
-                    MITRE: {getMitreTechniqueLabel(data.mitreAttackId, data.mitreAttackName)}
-                  </a>
+              {mitreTechniques.length > 0 && data?.displaySettings?.showMitreId && (
+                <div className="flex items-start gap-1">
+                  <Hash className="mt-0.5 h-3 w-3 shrink-0" />
+                  <div className="min-w-0 space-y-0.5">
+                    {mitreTechniques.map((technique, index) => (
+                      <a
+                        key={technique.id}
+                        href={getMitreTechniqueUrl(technique.id)}
+                        target="_blank"
+                        rel="noreferrer"
+                        className="block break-words hover:text-blue-300 hover:underline"
+                        onClick={(event) => event.stopPropagation()}
+                        onMouseDown={(event) => event.stopPropagation()}
+                      >
+                        {index === 0 ? "MITRE: " : ""}
+                        {getMitreTechniqueLabel(technique.id, technique.name)}
+                      </a>
+                    ))}
+                  </div>
                 </div>
               )}
 

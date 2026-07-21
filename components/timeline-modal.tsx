@@ -15,8 +15,12 @@ import {
   StickyNote,
   X,
 } from "lucide-react"
-import type { CustomEdge, EdgeData, EdgeActionType, IncidentLogEntry } from "@/lib/types"
-import { getMitreTechniqueLabel, getMitreTechniqueUrl } from "@/lib/mitre-attack"
+import type { CustomEdge, EdgeData, EdgeActionType, IncidentLogEntry, MitreTechniqueReference } from "@/lib/types"
+import {
+  getMitreTechniqueLabel,
+  getMitreTechniqueUrl,
+  normalizeMitreTechniqueReferences,
+} from "@/lib/mitre-attack"
 
 interface TimelineEvent {
   id: string
@@ -28,6 +32,7 @@ interface TimelineEvent {
   userUsed?: string
   mitreAttackId?: string
   mitreAttackName?: string
+  mitreAttackTechniques?: MitreTechniqueReference[]
   description: string
   sourceId?: string
   targetId?: string
@@ -155,6 +160,11 @@ export default function TimelineModal({
             userUsed: edge.data.userUsed,
             mitreAttackId: edge.data.mitreAttackId,
             mitreAttackName: edge.data.mitreAttackName,
+            mitreAttackTechniques: normalizeMitreTechniqueReferences(
+              edge.data.mitreAttackTechniques,
+              edge.data.mitreAttackId,
+              edge.data.mitreAttackName,
+            ),
             description: edge.data.description,
             sourceId: edge.source,
             targetId: edge.target,
@@ -219,6 +229,9 @@ export default function TimelineModal({
         event.userUsed || "",
         event.mitreAttackId || "",
         event.mitreAttackName || "",
+        event.mitreAttackTechniques
+          ?.map((technique) => getMitreTechniqueLabel(technique.id, technique.name))
+          .join(" ") || "",
         event.incidentCategory || "",
         event.description,
         sourceLabel,
@@ -452,21 +465,29 @@ export default function TimelineModal({
                       ) : (
                         <>
                           {!isIncident &&
-                            (event.toolUsed || event.userUsed || event.mitreAttackId || event.description) && (
+                            (event.toolUsed ||
+                              event.userUsed ||
+                              event.mitreAttackTechniques?.length ||
+                              event.mitreAttackId ||
+                              event.description) && (
                             <div className="mt-2 grid gap-1 text-xs ip-text-muted">
                               {event.toolUsed && <div>Tool: {event.toolUsed}</div>}
                               {event.userUsed && <div>User: {event.userUsed}</div>}
-                              {event.mitreAttackId && (
-                                <div>
-                                  <a
-                                    href={getMitreTechniqueUrl(event.mitreAttackId)}
-                                    target="_blank"
-                                    rel="noreferrer"
-                                    className="text-blue-400 hover:text-blue-300 hover:underline"
-                                    onClick={(clickEvent) => clickEvent.stopPropagation()}
-                                  >
-                                    MITRE: {getMitreTechniqueLabel(event.mitreAttackId, event.mitreAttackName)}
-                                  </a>
+                              {event.mitreAttackTechniques && event.mitreAttackTechniques.length > 0 && (
+                                <div className="flex flex-wrap gap-x-2 gap-y-1">
+                                  {event.mitreAttackTechniques.map((technique, index) => (
+                                    <a
+                                      key={technique.id}
+                                      href={getMitreTechniqueUrl(technique.id)}
+                                      target="_blank"
+                                      rel="noreferrer"
+                                      className="text-blue-400 hover:text-blue-300 hover:underline"
+                                      onClick={(clickEvent) => clickEvent.stopPropagation()}
+                                    >
+                                      {index === 0 ? "MITRE: " : ""}
+                                      {getMitreTechniqueLabel(technique.id, technique.name)}
+                                    </a>
+                                  ))}
                                 </div>
                               )}
                               {event.description && <div className="ip-text">{event.description}</div>}

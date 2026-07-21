@@ -15,7 +15,9 @@
       "command-and-control"
     ],
     "isSubtechnique": true,
-    "url": "https://attack.mitre.org/techniques/T1001/001"
+    "url": "https://attack.mitre.org/techniques/T1001/001",
+    "parentId": "T1001",
+    "parentName": "Data Obfuscation"
   },
   {
     "id": "T1001.002",
@@ -24,7 +26,9 @@
       "command-and-control"
     ],
     "isSubtechnique": true,
-    "url": "https://attack.mitre.org/techniques/T1001/002"
+    "url": "https://attack.mitre.org/techniques/T1001/002",
+    "parentId": "T1001",
+    "parentName": "Data Obfuscation"
   },
   {
     "id": "T1001.003",
@@ -33,7 +37,9 @@
       "command-and-control"
     ],
     "isSubtechnique": true,
-    "url": "https://attack.mitre.org/techniques/T1001/003"
+    "url": "https://attack.mitre.org/techniques/T1001/003",
+    "parentId": "T1001",
+    "parentName": "Data Obfuscation"
   },
   {
     "id": "T1003",
@@ -51,7 +57,9 @@
       "credential-access"
     ],
     "isSubtechnique": true,
-    "url": "https://attack.mitre.org/techniques/T1003/001"
+    "url": "https://attack.mitre.org/techniques/T1003/001",
+    "parentId": "T1003",
+    "parentName": "OS Credential Dumping"
   },
   {
     "id": "T1003.002",
@@ -60,7 +68,9 @@
       "credential-access"
     ],
     "isSubtechnique": true,
-    "url": "https://attack.mitre.org/techniques/T1003/002"
+    "url": "https://attack.mitre.org/techniques/T1003/002",
+    "parentId": "T1003",
+    "parentName": "OS Credential Dumping"
   },
   {
     "id": "T1003.003",
@@ -69,7 +79,9 @@
       "credential-access"
     ],
     "isSubtechnique": true,
-    "url": "https://attack.mitre.org/techniques/T1003/003"
+    "url": "https://attack.mitre.org/techniques/T1003/003",
+    "parentId": "T1003",
+    "parentName": "OS Credential Dumping"
   },
   {
     "id": "T1003.004",
@@ -78,7 +90,9 @@
       "credential-access"
     ],
     "isSubtechnique": true,
-    "url": "https://attack.mitre.org/techniques/T1003/004"
+    "url": "https://attack.mitre.org/techniques/T1003/004",
+    "parentId": "T1003",
+    "parentName": "OS Credential Dumping"
   },
   {
     "id": "T1003.005",
@@ -87,7 +101,9 @@
       "credential-access"
     ],
     "isSubtechnique": true,
-    "url": "https://attack.mitre.org/techniques/T1003/005"
+    "url": "https://attack.mitre.org/techniques/T1003/005",
+    "parentId": "T1003",
+    "parentName": "OS Credential Dumping"
   },
   {
     "id": "T1003.006",
@@ -96,7 +112,9 @@
       "credential-access"
     ],
     "isSubtechnique": true,
-    "url": "https://attack.mitre.org/techniques/T1003/006"
+    "url": "https://attack.mitre.org/techniques/T1003/006",
+    "parentId": "T1003",
+    "parentName": "OS Credential Dumping"
   },
   {
     "id": "T1003.007",
@@ -105,7 +123,9 @@
       "credential-access"
     ],
     "isSubtechnique": true,
-    "url": "https://attack.mitre.org/techniques/T1003/007"
+    "url": "https://attack.mitre.org/techniques/T1003/007",
+    "parentId": "T1003",
+    "parentName": "OS Credential Dumping"
   },
   {
     "id": "T1003.008",
@@ -114,7 +134,9 @@
       "credential-access"
     ],
     "isSubtechnique": true,
-    "url": "https://attack.mitre.org/techniques/T1003/008"
+    "url": "https://attack.mitre.org/techniques/T1003/008",
+    "parentId": "T1003",
+    "parentName": "OS Credential Dumping"
   },
   {
     "id": "T1005",
@@ -177,7 +199,9 @@
       "exfiltration"
     ],
     "isSubtechnique": true,
-    "url": "https://attack.mitre.org/techniques/T1011/001"
+    "url": "https://attack.mitre.org/techniques/T1011/001",
+    "parentId": "T1011",
+    "parentName": "Exfiltration Over Other Network Medium"
   },
   {
     "id": "T1012",
@@ -213,7 +237,9 @@
       "discovery"
     ],
     "isSubtechnique": true,
-    "url": "https://attack.mitre.org/techniques/T1016/001"
+    "url": "https://attack.mitre.org/techniques/T1016/001",
+    "parentId": "T1016",
+    "parentName": "System Network Configuration Discovery"
   },
   {
     "id": "T1016.002",
@@ -222,7 +248,9 @@
       "discovery"
     ],
     "isSubtechnique": true,
-    "url": "https://attack.mitre.org/techniques/T1016/002"
+    "url": "https://attack.mitre.org/techniques/T1016/002",
+    "parentId": "T1016",
+    "parentName": "System Network Configuration Discovery"
   },
   {
     "id": "T1018",
@@ -249,7 +277,9 @@
       "exfiltration"
     ],
     "isSubtechnique": true,
-    "url": "https://attack.mitre.org/techniques/T1020/001"
+    "url": "https://attack.mitre.org/techniques/T1020/001",
+    "parentId": "T1020",
+    "parentName": "Automated Exfiltration"
   },
   {
     "id": "T1021",
@@ -267,7 +297,9 @@
       "lateral-movement"
     ],
     "isSubtechnique": true,
-    "url": "https://attack.mitre.org/techniques/T1021/001"
+    "url": "https://attack.mitre.org/techniques/T1021/001",
+    "parentId": "T1021",
+    "parentName": "Remote Services"
   },
   {
     "id": "T1021.002",
@@ -276,7 +308,9 @@
       "lateral-movement"
     ],
     "isSubtechnique": true,
-    "url": "https://attack.mitre.org/techniques/T1021/002"
+    "url": "https://attack.mitre.org/techniques/T1021/002",
+    "parentId": "T1021",
+    "parentName": "Remote Services"
   },
   {
     "id": "T1021.003",
@@ -285,7 +319,9 @@
       "lateral-movement"
     ],
     "isSubtechnique": true,
-    "url": "https://attack.mitre.org/techniques/T1021/003"
+    "url": "https://attack.mitre.org/techniques/T1021/003",
+    "parentId": "T1021",
+    "parentName": "Remote Services"
   },
   {
     "id": "T1021.004",
@@ -294,7 +330,9 @@
       "lateral-movement"
     ],
     "isSubtechnique": true,
-    "url": "https://attack.mitre.org/techniques/T1021/004"
+    "url": "https://attack.mitre.org/techniques/T1021/004",
+    "parentId": "T1021",
+    "parentName": "Remote Services"
   },
   {
     "id": "T1021.005",
@@ -303,7 +341,9 @@
       "lateral-movement"
     ],
     "isSubtechnique": true,
-    "url": "https://attack.mitre.org/techniques/T1021/005"
+    "url": "https://attack.mitre.org/techniques/T1021/005",
+    "parentId": "T1021",
+    "parentName": "Remote Services"
   },
   {
     "id": "T1021.006",
@@ -312,7 +352,9 @@
       "lateral-movement"
     ],
     "isSubtechnique": true,
-    "url": "https://attack.mitre.org/techniques/T1021/006"
+    "url": "https://attack.mitre.org/techniques/T1021/006",
+    "parentId": "T1021",
+    "parentName": "Remote Services"
   },
   {
     "id": "T1021.007",
@@ -321,7 +363,9 @@
       "lateral-movement"
     ],
     "isSubtechnique": true,
-    "url": "https://attack.mitre.org/techniques/T1021/007"
+    "url": "https://attack.mitre.org/techniques/T1021/007",
+    "parentId": "T1021",
+    "parentName": "Remote Services"
   },
   {
     "id": "T1021.008",
@@ -330,7 +374,9 @@
       "lateral-movement"
     ],
     "isSubtechnique": true,
-    "url": "https://attack.mitre.org/techniques/T1021/008"
+    "url": "https://attack.mitre.org/techniques/T1021/008",
+    "parentId": "T1021",
+    "parentName": "Remote Services"
   },
   {
     "id": "T1025",
@@ -357,7 +403,9 @@
       "stealth"
     ],
     "isSubtechnique": true,
-    "url": "https://attack.mitre.org/techniques/T1027/001"
+    "url": "https://attack.mitre.org/techniques/T1027/001",
+    "parentId": "T1027",
+    "parentName": "Obfuscated Files or Information"
   },
   {
     "id": "T1027.002",
@@ -366,7 +414,9 @@
       "stealth"
     ],
     "isSubtechnique": true,
-    "url": "https://attack.mitre.org/techniques/T1027/002"
+    "url": "https://attack.mitre.org/techniques/T1027/002",
+    "parentId": "T1027",
+    "parentName": "Obfuscated Files or Information"
   },
   {
     "id": "T1027.003",
@@ -375,7 +425,9 @@
       "stealth"
     ],
     "isSubtechnique": true,
-    "url": "https://attack.mitre.org/techniques/T1027/003"
+    "url": "https://attack.mitre.org/techniques/T1027/003",
+    "parentId": "T1027",
+    "parentName": "Obfuscated Files or Information"
   },
   {
     "id": "T1027.004",
@@ -384,7 +436,9 @@
       "stealth"
     ],
     "isSubtechnique": true,
-    "url": "https://attack.mitre.org/techniques/T1027/004"
+    "url": "https://attack.mitre.org/techniques/T1027/004",
+    "parentId": "T1027",
+    "parentName": "Obfuscated Files or Information"
   },
   {
     "id": "T1027.005",
@@ -393,7 +447,9 @@
       "stealth"
     ],
     "isSubtechnique": true,
-    "url": "https://attack.mitre.org/techniques/T1027/005"
+    "url": "https://attack.mitre.org/techniques/T1027/005",
+    "parentId": "T1027",
+    "parentName": "Obfuscated Files or Information"
   },
   {
     "id": "T1027.006",
@@ -402,7 +458,9 @@
       "stealth"
     ],
     "isSubtechnique": true,
-    "url": "https://attack.mitre.org/techniques/T1027/006"
+    "url": "https://attack.mitre.org/techniques/T1027/006",
+    "parentId": "T1027",
+    "parentName": "Obfuscated Files or Information"
   },
   {
     "id": "T1027.007",
@@ -411,7 +469,9 @@
       "stealth"
     ],
     "isSubtechnique": true,
-    "url": "https://attack.mitre.org/techniques/T1027/007"
+    "url": "https://attack.mitre.org/techniques/T1027/007",
+    "parentId": "T1027",
+    "parentName": "Obfuscated Files or Information"
   },
   {
     "id": "T1027.008",
@@ -420,7 +480,9 @@
       "stealth"
     ],
     "isSubtechnique": true,
-    "url": "https://attack.mitre.org/techniques/T1027/008"
+    "url": "https://attack.mitre.org/techniques/T1027/008",
+    "parentId": "T1027",
+    "parentName": "Obfuscated Files or Information"
   },
   {
     "id": "T1027.009",
@@ -429,7 +491,9 @@
       "stealth"
     ],
     "isSubtechnique": true,
-    "url": "https://attack.mitre.org/techniques/T1027/009"
+    "url": "https://attack.mitre.org/techniques/T1027/009",
+    "parentId": "T1027",
+    "parentName": "Obfuscated Files or Information"
   },
   {
     "id": "T1027.010",
@@ -438,7 +502,9 @@
       "stealth"
     ],
     "isSubtechnique": true,
-    "url": "https://attack.mitre.org/techniques/T1027/010"
+    "url": "https://attack.mitre.org/techniques/T1027/010",
+    "parentId": "T1027",
+    "parentName": "Obfuscated Files or Information"
   },
   {
     "id": "T1027.011",
@@ -447,7 +513,9 @@
       "stealth"
     ],
     "isSubtechnique": true,
-    "url": "https://attack.mitre.org/techniques/T1027/011"
+    "url": "https://attack.mitre.org/techniques/T1027/011",
+    "parentId": "T1027",
+    "parentName": "Obfuscated Files or Information"
   },
   {
     "id": "T1027.012",
@@ -456,7 +524,9 @@
       "stealth"
     ],
     "isSubtechnique": true,
-    "url": "https://attack.mitre.org/techniques/T1027/012"
+    "url": "https://attack.mitre.org/techniques/T1027/012",
+    "parentId": "T1027",
+    "parentName": "Obfuscated Files or Information"
   },
   {
     "id": "T1027.013",
@@ -465,7 +535,9 @@
       "stealth"
     ],
     "isSubtechnique": true,
-    "url": "https://attack.mitre.org/techniques/T1027/013"
+    "url": "https://attack.mitre.org/techniques/T1027/013",
+    "parentId": "T1027",
+    "parentName": "Obfuscated Files or Information"
   },
   {
     "id": "T1027.014",
@@ -474,7 +546,9 @@
       "stealth"
     ],
     "isSubtechnique": true,
-    "url": "https://attack.mitre.org/techniques/T1027/014"
+    "url": "https://attack.mitre.org/techniques/T1027/014",
+    "parentId": "T1027",
+    "parentName": "Obfuscated Files or Information"
   },
   {
     "id": "T1027.015",
@@ -483,7 +557,9 @@
       "stealth"
     ],
     "isSubtechnique": true,
-    "url": "https://attack.mitre.org/techniques/T1027/015"
+    "url": "https://attack.mitre.org/techniques/T1027/015",
+    "parentId": "T1027",
+    "parentName": "Obfuscated Files or Information"
   },
   {
     "id": "T1027.016",
@@ -492,7 +568,9 @@
       "stealth"
     ],
     "isSubtechnique": true,
-    "url": "https://attack.mitre.org/techniques/T1027/016"
+    "url": "https://attack.mitre.org/techniques/T1027/016",
+    "parentId": "T1027",
+    "parentName": "Obfuscated Files or Information"
   },
   {
     "id": "T1027.017",
@@ -501,7 +579,9 @@
       "stealth"
     ],
     "isSubtechnique": true,
-    "url": "https://attack.mitre.org/techniques/T1027/017"
+    "url": "https://attack.mitre.org/techniques/T1027/017",
+    "parentId": "T1027",
+    "parentName": "Obfuscated Files or Information"
   },
   {
     "id": "T1027.018",
@@ -510,7 +590,9 @@
       "stealth"
     ],
     "isSubtechnique": true,
-    "url": "https://attack.mitre.org/techniques/T1027/018"
+    "url": "https://attack.mitre.org/techniques/T1027/018",
+    "parentId": "T1027",
+    "parentName": "Obfuscated Files or Information"
   },
   {
     "id": "T1029",
@@ -555,7 +637,9 @@
       "stealth"
     ],
     "isSubtechnique": true,
-    "url": "https://attack.mitre.org/techniques/T1036/001"
+    "url": "https://attack.mitre.org/techniques/T1036/001",
+    "parentId": "T1036",
+    "parentName": "Masquerading"
   },
   {
     "id": "T1036.002",
@@ -564,7 +648,9 @@
       "stealth"
     ],
     "isSubtechnique": true,
-    "url": "https://attack.mitre.org/techniques/T1036/002"
+    "url": "https://attack.mitre.org/techniques/T1036/002",
+    "parentId": "T1036",
+    "parentName": "Masquerading"
   },
   {
     "id": "T1036.003",
@@ -573,7 +659,9 @@
       "stealth"
     ],
     "isSubtechnique": true,
-    "url": "https://attack.mitre.org/techniques/T1036/003"
+    "url": "https://attack.mitre.org/techniques/T1036/003",
+    "parentId": "T1036",
+    "parentName": "Masquerading"
   },
   {
     "id": "T1036.004",
@@ -582,7 +670,9 @@
       "stealth"
     ],
     "isSubtechnique": true,
-    "url": "https://attack.mitre.org/techniques/T1036/004"
+    "url": "https://attack.mitre.org/techniques/T1036/004",
+    "parentId": "T1036",
+    "parentName": "Masquerading"
   },
   {
     "id": "T1036.005",
@@ -591,7 +681,9 @@
       "stealth"
     ],
     "isSubtechnique": true,
-    "url": "https://attack.mitre.org/techniques/T1036/005"
+    "url": "https://attack.mitre.org/techniques/T1036/005",
+    "parentId": "T1036",
+    "parentName": "Masquerading"
   },
   {
     "id": "T1036.006",
@@ -600,7 +692,9 @@
       "stealth"
     ],
     "isSubtechnique": true,
-    "url": "https://attack.mitre.org/techniques/T1036/006"
+    "url": "https://attack.mitre.org/techniques/T1036/006",
+    "parentId": "T1036",
+    "parentName": "Masquerading"
   },
   {
     "id": "T1036.007",
@@ -609,7 +703,9 @@
       "stealth"
     ],
     "isSubtechnique": true,
-    "url": "https://attack.mitre.org/techniques/T1036/007"
+    "url": "https://attack.mitre.org/techniques/T1036/007",
+    "parentId": "T1036",
+    "parentName": "Masquerading"
   },
   {
     "id": "T1036.008",
@@ -618,7 +714,9 @@
       "stealth"
     ],
     "isSubtechnique": true,
-    "url": "https://attack.mitre.org/techniques/T1036/008"
+    "url": "https://attack.mitre.org/techniques/T1036/008",
+    "parentId": "T1036",
+    "parentName": "Masquerading"
   },
   {
     "id": "T1036.009",
@@ -627,7 +725,9 @@
       "stealth"
     ],
     "isSubtechnique": true,
-    "url": "https://attack.mitre.org/techniques/T1036/009"
+    "url": "https://attack.mitre.org/techniques/T1036/009",
+    "parentId": "T1036",
+    "parentName": "Masquerading"
   },
   {
     "id": "T1036.010",
@@ -636,7 +736,9 @@
       "stealth"
     ],
     "isSubtechnique": true,
-    "url": "https://attack.mitre.org/techniques/T1036/010"
+    "url": "https://attack.mitre.org/techniques/T1036/010",
+    "parentId": "T1036",
+    "parentName": "Masquerading"
   },
   {
     "id": "T1036.011",
@@ -645,7 +747,9 @@
       "stealth"
     ],
     "isSubtechnique": true,
-    "url": "https://attack.mitre.org/techniques/T1036/011"
+    "url": "https://attack.mitre.org/techniques/T1036/011",
+    "parentId": "T1036",
+    "parentName": "Masquerading"
   },
   {
     "id": "T1036.012",
@@ -654,7 +758,9 @@
       "stealth"
     ],
     "isSubtechnique": true,
-    "url": "https://attack.mitre.org/techniques/T1036/012"
+    "url": "https://attack.mitre.org/techniques/T1036/012",
+    "parentId": "T1036",
+    "parentName": "Masquerading"
   },
   {
     "id": "T1037",
@@ -674,7 +780,9 @@
       "privilege-escalation"
     ],
     "isSubtechnique": true,
-    "url": "https://attack.mitre.org/techniques/T1037/001"
+    "url": "https://attack.mitre.org/techniques/T1037/001",
+    "parentId": "T1037",
+    "parentName": "Boot or Logon Initialization Scripts"
   },
   {
     "id": "T1037.002",
@@ -684,7 +792,9 @@
       "privilege-escalation"
     ],
     "isSubtechnique": true,
-    "url": "https://attack.mitre.org/techniques/T1037/002"
+    "url": "https://attack.mitre.org/techniques/T1037/002",
+    "parentId": "T1037",
+    "parentName": "Boot or Logon Initialization Scripts"
   },
   {
     "id": "T1037.003",
@@ -694,7 +804,9 @@
       "privilege-escalation"
     ],
     "isSubtechnique": true,
-    "url": "https://attack.mitre.org/techniques/T1037/003"
+    "url": "https://attack.mitre.org/techniques/T1037/003",
+    "parentId": "T1037",
+    "parentName": "Boot or Logon Initialization Scripts"
   },
   {
     "id": "T1037.004",
@@ -704,7 +816,9 @@
       "privilege-escalation"
     ],
     "isSubtechnique": true,
-    "url": "https://attack.mitre.org/techniques/T1037/004"
+    "url": "https://attack.mitre.org/techniques/T1037/004",
+    "parentId": "T1037",
+    "parentName": "Boot or Logon Initialization Scripts"
   },
   {
     "id": "T1037.005",
@@ -714,7 +828,9 @@
       "privilege-escalation"
     ],
     "isSubtechnique": true,
-    "url": "https://attack.mitre.org/techniques/T1037/005"
+    "url": "https://attack.mitre.org/techniques/T1037/005",
+    "parentId": "T1037",
+    "parentName": "Boot or Logon Initialization Scripts"
   },
   {
     "id": "T1039",
@@ -778,7 +894,9 @@
       "exfiltration"
     ],
     "isSubtechnique": true,
-    "url": "https://attack.mitre.org/techniques/T1048/001"
+    "url": "https://attack.mitre.org/techniques/T1048/001",
+    "parentId": "T1048",
+    "parentName": "Exfiltration Over Alternative Protocol"
   },
   {
     "id": "T1048.002",
@@ -787,7 +905,9 @@
       "exfiltration"
     ],
     "isSubtechnique": true,
-    "url": "https://attack.mitre.org/techniques/T1048/002"
+    "url": "https://attack.mitre.org/techniques/T1048/002",
+    "parentId": "T1048",
+    "parentName": "Exfiltration Over Alternative Protocol"
   },
   {
     "id": "T1048.003",
@@ -796,7 +916,9 @@
       "exfiltration"
     ],
     "isSubtechnique": true,
-    "url": "https://attack.mitre.org/techniques/T1048/003"
+    "url": "https://attack.mitre.org/techniques/T1048/003",
+    "parentId": "T1048",
+    "parentName": "Exfiltration Over Alternative Protocol"
   },
   {
     "id": "T1049",
@@ -823,7 +945,9 @@
       "exfiltration"
     ],
     "isSubtechnique": true,
-    "url": "https://attack.mitre.org/techniques/T1052/001"
+    "url": "https://attack.mitre.org/techniques/T1052/001",
+    "parentId": "T1052",
+    "parentName": "Exfiltration Over Physical Medium"
   },
   {
     "id": "T1053",
@@ -845,7 +969,9 @@
       "privilege-escalation"
     ],
     "isSubtechnique": true,
-    "url": "https://attack.mitre.org/techniques/T1053/002"
+    "url": "https://attack.mitre.org/techniques/T1053/002",
+    "parentId": "T1053",
+    "parentName": "Scheduled Task/Job"
   },
   {
     "id": "T1053.003",
@@ -856,7 +982,9 @@
       "privilege-escalation"
     ],
     "isSubtechnique": true,
-    "url": "https://attack.mitre.org/techniques/T1053/003"
+    "url": "https://attack.mitre.org/techniques/T1053/003",
+    "parentId": "T1053",
+    "parentName": "Scheduled Task/Job"
   },
   {
     "id": "T1053.005",
@@ -867,7 +995,9 @@
       "privilege-escalation"
     ],
     "isSubtechnique": true,
-    "url": "https://attack.mitre.org/techniques/T1053/005"
+    "url": "https://attack.mitre.org/techniques/T1053/005",
+    "parentId": "T1053",
+    "parentName": "Scheduled Task/Job"
   },
   {
     "id": "T1053.006",
@@ -878,7 +1008,9 @@
       "privilege-escalation"
     ],
     "isSubtechnique": true,
-    "url": "https://attack.mitre.org/techniques/T1053/006"
+    "url": "https://attack.mitre.org/techniques/T1053/006",
+    "parentId": "T1053",
+    "parentName": "Scheduled Task/Job"
   },
   {
     "id": "T1053.007",
@@ -889,7 +1021,9 @@
       "privilege-escalation"
     ],
     "isSubtechnique": true,
-    "url": "https://attack.mitre.org/techniques/T1053/007"
+    "url": "https://attack.mitre.org/techniques/T1053/007",
+    "parentId": "T1053",
+    "parentName": "Scheduled Task/Job"
   },
   {
     "id": "T1055",
@@ -909,7 +1043,9 @@
       "stealth"
     ],
     "isSubtechnique": true,
-    "url": "https://attack.mitre.org/techniques/T1055/001"
+    "url": "https://attack.mitre.org/techniques/T1055/001",
+    "parentId": "T1055",
+    "parentName": "Process Injection"
   },
   {
     "id": "T1055.002",
@@ -919,7 +1055,9 @@
       "stealth"
     ],
     "isSubtechnique": true,
-    "url": "https://attack.mitre.org/techniques/T1055/002"
+    "url": "https://attack.mitre.org/techniques/T1055/002",
+    "parentId": "T1055",
+    "parentName": "Process Injection"
   },
   {
     "id": "T1055.003",
@@ -929,7 +1067,9 @@
       "stealth"
     ],
     "isSubtechnique": true,
-    "url": "https://attack.mitre.org/techniques/T1055/003"
+    "url": "https://attack.mitre.org/techniques/T1055/003",
+    "parentId": "T1055",
+    "parentName": "Process Injection"
   },
   {
     "id": "T1055.004",
@@ -939,7 +1079,9 @@
       "stealth"
     ],
     "isSubtechnique": true,
-    "url": "https://attack.mitre.org/techniques/T1055/004"
+    "url": "https://attack.mitre.org/techniques/T1055/004",
+    "parentId": "T1055",
+    "parentName": "Process Injection"
   },
   {
     "id": "T1055.005",
@@ -949,7 +1091,9 @@
       "stealth"
     ],
     "isSubtechnique": true,
-    "url": "https://attack.mitre.org/techniques/T1055/005"
+    "url": "https://attack.mitre.org/techniques/T1055/005",
+    "parentId": "T1055",
+    "parentName": "Process Injection"
   },
   {
     "id": "T1055.008",
@@ -959,7 +1103,9 @@
       "stealth"
     ],
     "isSubtechnique": true,
-    "url": "https://attack.mitre.org/techniques/T1055/008"
+    "url": "https://attack.mitre.org/techniques/T1055/008",
+    "parentId": "T1055",
+    "parentName": "Process Injection"
   },
   {
     "id": "T1055.009",
@@ -969,7 +1115,9 @@
       "stealth"
     ],
     "isSubtechnique": true,
-    "url": "https://attack.mitre.org/techniques/T1055/009"
+    "url": "https://attack.mitre.org/techniques/T1055/009",
+    "parentId": "T1055",
+    "parentName": "Process Injection"
   },
   {
     "id": "T1055.011",
@@ -979,7 +1127,9 @@
       "stealth"
     ],
     "isSubtechnique": true,
-    "url": "https://attack.mitre.org/techniques/T1055/011"
+    "url": "https://attack.mitre.org/techniques/T1055/011",
+    "parentId": "T1055",
+    "parentName": "Process Injection"
   },
   {
     "id": "T1055.012",
@@ -989,7 +1139,9 @@
       "stealth"
     ],
     "isSubtechnique": true,
-    "url": "https://attack.mitre.org/techniques/T1055/012"
+    "url": "https://attack.mitre.org/techniques/T1055/012",
+    "parentId": "T1055",
+    "parentName": "Process Injection"
   },
   {
     "id": "T1055.013",
@@ -999,7 +1151,9 @@
       "stealth"
     ],
     "isSubtechnique": true,
-    "url": "https://attack.mitre.org/techniques/T1055/013"
+    "url": "https://attack.mitre.org/techniques/T1055/013",
+    "parentId": "T1055",
+    "parentName": "Process Injection"
   },
   {
     "id": "T1055.014",
@@ -1009,7 +1163,9 @@
       "stealth"
     ],
     "isSubtechnique": true,
-    "url": "https://attack.mitre.org/techniques/T1055/014"
+    "url": "https://attack.mitre.org/techniques/T1055/014",
+    "parentId": "T1055",
+    "parentName": "Process Injection"
   },
   {
     "id": "T1055.015",
@@ -1019,7 +1175,9 @@
       "stealth"
     ],
     "isSubtechnique": true,
-    "url": "https://attack.mitre.org/techniques/T1055/015"
+    "url": "https://attack.mitre.org/techniques/T1055/015",
+    "parentId": "T1055",
+    "parentName": "Process Injection"
   },
   {
     "id": "T1056",
@@ -1039,7 +1197,9 @@
       "credential-access"
     ],
     "isSubtechnique": true,
-    "url": "https://attack.mitre.org/techniques/T1056/001"
+    "url": "https://attack.mitre.org/techniques/T1056/001",
+    "parentId": "T1056",
+    "parentName": "Input Capture"
   },
   {
     "id": "T1056.002",
@@ -1049,7 +1209,9 @@
       "credential-access"
     ],
     "isSubtechnique": true,
-    "url": "https://attack.mitre.org/techniques/T1056/002"
+    "url": "https://attack.mitre.org/techniques/T1056/002",
+    "parentId": "T1056",
+    "parentName": "Input Capture"
   },
   {
     "id": "T1056.003",
@@ -1059,7 +1221,9 @@
       "credential-access"
     ],
     "isSubtechnique": true,
-    "url": "https://attack.mitre.org/techniques/T1056/003"
+    "url": "https://attack.mitre.org/techniques/T1056/003",
+    "parentId": "T1056",
+    "parentName": "Input Capture"
   },
   {
     "id": "T1056.004",
@@ -1069,7 +1233,9 @@
       "credential-access"
     ],
     "isSubtechnique": true,
-    "url": "https://attack.mitre.org/techniques/T1056/004"
+    "url": "https://attack.mitre.org/techniques/T1056/004",
+    "parentId": "T1056",
+    "parentName": "Input Capture"
   },
   {
     "id": "T1057",
@@ -1096,7 +1262,9 @@
       "execution"
     ],
     "isSubtechnique": true,
-    "url": "https://attack.mitre.org/techniques/T1059/001"
+    "url": "https://attack.mitre.org/techniques/T1059/001",
+    "parentId": "T1059",
+    "parentName": "Command and Scripting Interpreter"
   },
   {
     "id": "T1059.002",
@@ -1105,7 +1273,9 @@
       "execution"
     ],
     "isSubtechnique": true,
-    "url": "https://attack.mitre.org/techniques/T1059/002"
+    "url": "https://attack.mitre.org/techniques/T1059/002",
+    "parentId": "T1059",
+    "parentName": "Command and Scripting Interpreter"
   },
   {
     "id": "T1059.003",
@@ -1114,7 +1284,9 @@
       "execution"
     ],
     "isSubtechnique": true,
-    "url": "https://attack.mitre.org/techniques/T1059/003"
+    "url": "https://attack.mitre.org/techniques/T1059/003",
+    "parentId": "T1059",
+    "parentName": "Command and Scripting Interpreter"
   },
   {
     "id": "T1059.004",
@@ -1123,7 +1295,9 @@
       "execution"
     ],
     "isSubtechnique": true,
-    "url": "https://attack.mitre.org/techniques/T1059/004"
+    "url": "https://attack.mitre.org/techniques/T1059/004",
+    "parentId": "T1059",
+    "parentName": "Command and Scripting Interpreter"
   },
   {
     "id": "T1059.005",
@@ -1132,7 +1306,9 @@
       "execution"
     ],
     "isSubtechnique": true,
-    "url": "https://attack.mitre.org/techniques/T1059/005"
+    "url": "https://attack.mitre.org/techniques/T1059/005",
+    "parentId": "T1059",
+    "parentName": "Command and Scripting Interpreter"
   },
   {
     "id": "T1059.006",
@@ -1141,7 +1317,9 @@
       "execution"
     ],
     "isSubtechnique": true,
-    "url": "https://attack.mitre.org/techniques/T1059/006"
+    "url": "https://attack.mitre.org/techniques/T1059/006",
+    "parentId": "T1059",
+    "parentName": "Command and Scripting Interpreter"
   },
   {
     "id": "T1059.007",
@@ -1150,7 +1328,9 @@
       "execution"
     ],
     "isSubtechnique": true,
-    "url": "https://attack.mitre.org/techniques/T1059/007"
+    "url": "https://attack.mitre.org/techniques/T1059/007",
+    "parentId": "T1059",
+    "parentName": "Command and Scripting Interpreter"
   },
   {
     "id": "T1059.008",
@@ -1159,7 +1339,9 @@
       "execution"
     ],
     "isSubtechnique": true,
-    "url": "https://attack.mitre.org/techniques/T1059/008"
+    "url": "https://attack.mitre.org/techniques/T1059/008",
+    "parentId": "T1059",
+    "parentName": "Command and Scripting Interpreter"
   },
   {
     "id": "T1059.009",
@@ -1168,7 +1350,9 @@
       "execution"
     ],
     "isSubtechnique": true,
-    "url": "https://attack.mitre.org/techniques/T1059/009"
+    "url": "https://attack.mitre.org/techniques/T1059/009",
+    "parentId": "T1059",
+    "parentName": "Command and Scripting Interpreter"
   },
   {
     "id": "T1059.010",
@@ -1177,7 +1361,9 @@
       "execution"
     ],
     "isSubtechnique": true,
-    "url": "https://attack.mitre.org/techniques/T1059/010"
+    "url": "https://attack.mitre.org/techniques/T1059/010",
+    "parentId": "T1059",
+    "parentName": "Command and Scripting Interpreter"
   },
   {
     "id": "T1059.011",
@@ -1186,7 +1372,9 @@
       "execution"
     ],
     "isSubtechnique": true,
-    "url": "https://attack.mitre.org/techniques/T1059/011"
+    "url": "https://attack.mitre.org/techniques/T1059/011",
+    "parentId": "T1059",
+    "parentName": "Command and Scripting Interpreter"
   },
   {
     "id": "T1059.012",
@@ -1195,7 +1383,9 @@
       "execution"
     ],
     "isSubtechnique": true,
-    "url": "https://attack.mitre.org/techniques/T1059/012"
+    "url": "https://attack.mitre.org/techniques/T1059/012",
+    "parentId": "T1059",
+    "parentName": "Command and Scripting Interpreter"
   },
   {
     "id": "T1059.013",
@@ -1204,7 +1394,9 @@
       "execution"
     ],
     "isSubtechnique": true,
-    "url": "https://attack.mitre.org/techniques/T1059/013"
+    "url": "https://attack.mitre.org/techniques/T1059/013",
+    "parentId": "T1059",
+    "parentName": "Command and Scripting Interpreter"
   },
   {
     "id": "T1068",
@@ -1231,7 +1423,9 @@
       "discovery"
     ],
     "isSubtechnique": true,
-    "url": "https://attack.mitre.org/techniques/T1069/001"
+    "url": "https://attack.mitre.org/techniques/T1069/001",
+    "parentId": "T1069",
+    "parentName": "Permission Groups Discovery"
   },
   {
     "id": "T1069.002",
@@ -1240,7 +1434,9 @@
       "discovery"
     ],
     "isSubtechnique": true,
-    "url": "https://attack.mitre.org/techniques/T1069/002"
+    "url": "https://attack.mitre.org/techniques/T1069/002",
+    "parentId": "T1069",
+    "parentName": "Permission Groups Discovery"
   },
   {
     "id": "T1069.003",
@@ -1249,7 +1445,9 @@
       "discovery"
     ],
     "isSubtechnique": true,
-    "url": "https://attack.mitre.org/techniques/T1069/003"
+    "url": "https://attack.mitre.org/techniques/T1069/003",
+    "parentId": "T1069",
+    "parentName": "Permission Groups Discovery"
   },
   {
     "id": "T1070",
@@ -1267,7 +1465,9 @@
       "stealth"
     ],
     "isSubtechnique": true,
-    "url": "https://attack.mitre.org/techniques/T1070/003"
+    "url": "https://attack.mitre.org/techniques/T1070/003",
+    "parentId": "T1070",
+    "parentName": "Indicator Removal"
   },
   {
     "id": "T1070.004",
@@ -1276,7 +1476,9 @@
       "stealth"
     ],
     "isSubtechnique": true,
-    "url": "https://attack.mitre.org/techniques/T1070/004"
+    "url": "https://attack.mitre.org/techniques/T1070/004",
+    "parentId": "T1070",
+    "parentName": "Indicator Removal"
   },
   {
     "id": "T1070.005",
@@ -1285,7 +1487,9 @@
       "stealth"
     ],
     "isSubtechnique": true,
-    "url": "https://attack.mitre.org/techniques/T1070/005"
+    "url": "https://attack.mitre.org/techniques/T1070/005",
+    "parentId": "T1070",
+    "parentName": "Indicator Removal"
   },
   {
     "id": "T1070.006",
@@ -1294,7 +1498,9 @@
       "stealth"
     ],
     "isSubtechnique": true,
-    "url": "https://attack.mitre.org/techniques/T1070/006"
+    "url": "https://attack.mitre.org/techniques/T1070/006",
+    "parentId": "T1070",
+    "parentName": "Indicator Removal"
   },
   {
     "id": "T1070.007",
@@ -1303,7 +1509,9 @@
       "stealth"
     ],
     "isSubtechnique": true,
-    "url": "https://attack.mitre.org/techniques/T1070/007"
+    "url": "https://attack.mitre.org/techniques/T1070/007",
+    "parentId": "T1070",
+    "parentName": "Indicator Removal"
   },
   {
     "id": "T1070.008",
@@ -1312,7 +1520,9 @@
       "stealth"
     ],
     "isSubtechnique": true,
-    "url": "https://attack.mitre.org/techniques/T1070/008"
+    "url": "https://attack.mitre.org/techniques/T1070/008",
+    "parentId": "T1070",
+    "parentName": "Indicator Removal"
   },
   {
     "id": "T1070.009",
@@ -1321,7 +1531,9 @@
       "stealth"
     ],
     "isSubtechnique": true,
-    "url": "https://attack.mitre.org/techniques/T1070/009"
+    "url": "https://attack.mitre.org/techniques/T1070/009",
+    "parentId": "T1070",
+    "parentName": "Indicator Removal"
   },
   {
     "id": "T1070.010",
@@ -1330,7 +1542,9 @@
       "stealth"
     ],
     "isSubtechnique": true,
-    "url": "https://attack.mitre.org/techniques/T1070/010"
+    "url": "https://attack.mitre.org/techniques/T1070/010",
+    "parentId": "T1070",
+    "parentName": "Indicator Removal"
   },
   {
     "id": "T1071",
@@ -1348,7 +1562,9 @@
       "command-and-control"
     ],
     "isSubtechnique": true,
-    "url": "https://attack.mitre.org/techniques/T1071/001"
+    "url": "https://attack.mitre.org/techniques/T1071/001",
+    "parentId": "T1071",
+    "parentName": "Application Layer Protocol"
   },
   {
     "id": "T1071.002",
@@ -1357,7 +1573,9 @@
       "command-and-control"
     ],
     "isSubtechnique": true,
-    "url": "https://attack.mitre.org/techniques/T1071/002"
+    "url": "https://attack.mitre.org/techniques/T1071/002",
+    "parentId": "T1071",
+    "parentName": "Application Layer Protocol"
   },
   {
     "id": "T1071.003",
@@ -1366,7 +1584,9 @@
       "command-and-control"
     ],
     "isSubtechnique": true,
-    "url": "https://attack.mitre.org/techniques/T1071/003"
+    "url": "https://attack.mitre.org/techniques/T1071/003",
+    "parentId": "T1071",
+    "parentName": "Application Layer Protocol"
   },
   {
     "id": "T1071.004",
@@ -1375,7 +1595,9 @@
       "command-and-control"
     ],
     "isSubtechnique": true,
-    "url": "https://attack.mitre.org/techniques/T1071/004"
+    "url": "https://attack.mitre.org/techniques/T1071/004",
+    "parentId": "T1071",
+    "parentName": "Application Layer Protocol"
   },
   {
     "id": "T1071.005",
@@ -1384,7 +1606,9 @@
       "command-and-control"
     ],
     "isSubtechnique": true,
-    "url": "https://attack.mitre.org/techniques/T1071/005"
+    "url": "https://attack.mitre.org/techniques/T1071/005",
+    "parentId": "T1071",
+    "parentName": "Application Layer Protocol"
   },
   {
     "id": "T1072",
@@ -1412,7 +1636,9 @@
       "collection"
     ],
     "isSubtechnique": true,
-    "url": "https://attack.mitre.org/techniques/T1074/001"
+    "url": "https://attack.mitre.org/techniques/T1074/001",
+    "parentId": "T1074",
+    "parentName": "Data Staged"
   },
   {
     "id": "T1074.002",
@@ -1421,7 +1647,9 @@
       "collection"
     ],
     "isSubtechnique": true,
-    "url": "https://attack.mitre.org/techniques/T1074/002"
+    "url": "https://attack.mitre.org/techniques/T1074/002",
+    "parentId": "T1074",
+    "parentName": "Data Staged"
   },
   {
     "id": "T1078",
@@ -1445,7 +1673,9 @@
       "stealth"
     ],
     "isSubtechnique": true,
-    "url": "https://attack.mitre.org/techniques/T1078/001"
+    "url": "https://attack.mitre.org/techniques/T1078/001",
+    "parentId": "T1078",
+    "parentName": "Valid Accounts"
   },
   {
     "id": "T1078.002",
@@ -1457,7 +1687,9 @@
       "stealth"
     ],
     "isSubtechnique": true,
-    "url": "https://attack.mitre.org/techniques/T1078/002"
+    "url": "https://attack.mitre.org/techniques/T1078/002",
+    "parentId": "T1078",
+    "parentName": "Valid Accounts"
   },
   {
     "id": "T1078.003",
@@ -1469,7 +1701,9 @@
       "stealth"
     ],
     "isSubtechnique": true,
-    "url": "https://attack.mitre.org/techniques/T1078/003"
+    "url": "https://attack.mitre.org/techniques/T1078/003",
+    "parentId": "T1078",
+    "parentName": "Valid Accounts"
   },
   {
     "id": "T1078.004",
@@ -1481,7 +1715,9 @@
       "stealth"
     ],
     "isSubtechnique": true,
-    "url": "https://attack.mitre.org/techniques/T1078/004"
+    "url": "https://attack.mitre.org/techniques/T1078/004",
+    "parentId": "T1078",
+    "parentName": "Valid Accounts"
   },
   {
     "id": "T1080",
@@ -1526,7 +1762,9 @@
       "discovery"
     ],
     "isSubtechnique": true,
-    "url": "https://attack.mitre.org/techniques/T1087/001"
+    "url": "https://attack.mitre.org/techniques/T1087/001",
+    "parentId": "T1087",
+    "parentName": "Account Discovery"
   },
   {
     "id": "T1087.002",
@@ -1535,7 +1773,9 @@
       "discovery"
     ],
     "isSubtechnique": true,
-    "url": "https://attack.mitre.org/techniques/T1087/002"
+    "url": "https://attack.mitre.org/techniques/T1087/002",
+    "parentId": "T1087",
+    "parentName": "Account Discovery"
   },
   {
     "id": "T1087.003",
@@ -1544,7 +1784,9 @@
       "discovery"
     ],
     "isSubtechnique": true,
-    "url": "https://attack.mitre.org/techniques/T1087/003"
+    "url": "https://attack.mitre.org/techniques/T1087/003",
+    "parentId": "T1087",
+    "parentName": "Account Discovery"
   },
   {
     "id": "T1087.004",
@@ -1553,7 +1795,9 @@
       "discovery"
     ],
     "isSubtechnique": true,
-    "url": "https://attack.mitre.org/techniques/T1087/004"
+    "url": "https://attack.mitre.org/techniques/T1087/004",
+    "parentId": "T1087",
+    "parentName": "Account Discovery"
   },
   {
     "id": "T1090",
@@ -1571,7 +1815,9 @@
       "command-and-control"
     ],
     "isSubtechnique": true,
-    "url": "https://attack.mitre.org/techniques/T1090/001"
+    "url": "https://attack.mitre.org/techniques/T1090/001",
+    "parentId": "T1090",
+    "parentName": "Proxy"
   },
   {
     "id": "T1090.002",
@@ -1580,7 +1826,9 @@
       "command-and-control"
     ],
     "isSubtechnique": true,
-    "url": "https://attack.mitre.org/techniques/T1090/002"
+    "url": "https://attack.mitre.org/techniques/T1090/002",
+    "parentId": "T1090",
+    "parentName": "Proxy"
   },
   {
     "id": "T1090.003",
@@ -1589,7 +1837,9 @@
       "command-and-control"
     ],
     "isSubtechnique": true,
-    "url": "https://attack.mitre.org/techniques/T1090/003"
+    "url": "https://attack.mitre.org/techniques/T1090/003",
+    "parentId": "T1090",
+    "parentName": "Proxy"
   },
   {
     "id": "T1090.004",
@@ -1598,7 +1848,9 @@
       "command-and-control"
     ],
     "isSubtechnique": true,
-    "url": "https://attack.mitre.org/techniques/T1090/004"
+    "url": "https://attack.mitre.org/techniques/T1090/004",
+    "parentId": "T1090",
+    "parentName": "Proxy"
   },
   {
     "id": "T1091",
@@ -1646,7 +1898,9 @@
       "privilege-escalation"
     ],
     "isSubtechnique": true,
-    "url": "https://attack.mitre.org/techniques/T1098/001"
+    "url": "https://attack.mitre.org/techniques/T1098/001",
+    "parentId": "T1098",
+    "parentName": "Account Manipulation"
   },
   {
     "id": "T1098.002",
@@ -1656,7 +1910,9 @@
       "privilege-escalation"
     ],
     "isSubtechnique": true,
-    "url": "https://attack.mitre.org/techniques/T1098/002"
+    "url": "https://attack.mitre.org/techniques/T1098/002",
+    "parentId": "T1098",
+    "parentName": "Account Manipulation"
   },
   {
     "id": "T1098.003",
@@ -1666,7 +1922,9 @@
       "privilege-escalation"
     ],
     "isSubtechnique": true,
-    "url": "https://attack.mitre.org/techniques/T1098/003"
+    "url": "https://attack.mitre.org/techniques/T1098/003",
+    "parentId": "T1098",
+    "parentName": "Account Manipulation"
   },
   {
     "id": "T1098.004",
@@ -1676,7 +1934,9 @@
       "privilege-escalation"
     ],
     "isSubtechnique": true,
-    "url": "https://attack.mitre.org/techniques/T1098/004"
+    "url": "https://attack.mitre.org/techniques/T1098/004",
+    "parentId": "T1098",
+    "parentName": "Account Manipulation"
   },
   {
     "id": "T1098.005",
@@ -1686,7 +1946,9 @@
       "privilege-escalation"
     ],
     "isSubtechnique": true,
-    "url": "https://attack.mitre.org/techniques/T1098/005"
+    "url": "https://attack.mitre.org/techniques/T1098/005",
+    "parentId": "T1098",
+    "parentName": "Account Manipulation"
   },
   {
     "id": "T1098.006",
@@ -1696,7 +1958,9 @@
       "privilege-escalation"
     ],
     "isSubtechnique": true,
-    "url": "https://attack.mitre.org/techniques/T1098/006"
+    "url": "https://attack.mitre.org/techniques/T1098/006",
+    "parentId": "T1098",
+    "parentName": "Account Manipulation"
   },
   {
     "id": "T1098.007",
@@ -1706,7 +1970,9 @@
       "privilege-escalation"
     ],
     "isSubtechnique": true,
-    "url": "https://attack.mitre.org/techniques/T1098/007"
+    "url": "https://attack.mitre.org/techniques/T1098/007",
+    "parentId": "T1098",
+    "parentName": "Account Manipulation"
   },
   {
     "id": "T1102",
@@ -1724,7 +1990,9 @@
       "command-and-control"
     ],
     "isSubtechnique": true,
-    "url": "https://attack.mitre.org/techniques/T1102/001"
+    "url": "https://attack.mitre.org/techniques/T1102/001",
+    "parentId": "T1102",
+    "parentName": "Web Service"
   },
   {
     "id": "T1102.002",
@@ -1733,7 +2001,9 @@
       "command-and-control"
     ],
     "isSubtechnique": true,
-    "url": "https://attack.mitre.org/techniques/T1102/002"
+    "url": "https://attack.mitre.org/techniques/T1102/002",
+    "parentId": "T1102",
+    "parentName": "Web Service"
   },
   {
     "id": "T1102.003",
@@ -1742,7 +2012,9 @@
       "command-and-control"
     ],
     "isSubtechnique": true,
-    "url": "https://attack.mitre.org/techniques/T1102/003"
+    "url": "https://attack.mitre.org/techniques/T1102/003",
+    "parentId": "T1102",
+    "parentName": "Web Service"
   },
   {
     "id": "T1104",
@@ -1787,7 +2059,9 @@
       "credential-access"
     ],
     "isSubtechnique": true,
-    "url": "https://attack.mitre.org/techniques/T1110/001"
+    "url": "https://attack.mitre.org/techniques/T1110/001",
+    "parentId": "T1110",
+    "parentName": "Brute Force"
   },
   {
     "id": "T1110.002",
@@ -1796,7 +2070,9 @@
       "credential-access"
     ],
     "isSubtechnique": true,
-    "url": "https://attack.mitre.org/techniques/T1110/002"
+    "url": "https://attack.mitre.org/techniques/T1110/002",
+    "parentId": "T1110",
+    "parentName": "Brute Force"
   },
   {
     "id": "T1110.003",
@@ -1805,7 +2081,9 @@
       "credential-access"
     ],
     "isSubtechnique": true,
-    "url": "https://attack.mitre.org/techniques/T1110/003"
+    "url": "https://attack.mitre.org/techniques/T1110/003",
+    "parentId": "T1110",
+    "parentName": "Brute Force"
   },
   {
     "id": "T1110.004",
@@ -1814,7 +2092,9 @@
       "credential-access"
     ],
     "isSubtechnique": true,
-    "url": "https://attack.mitre.org/techniques/T1110/004"
+    "url": "https://attack.mitre.org/techniques/T1110/004",
+    "parentId": "T1110",
+    "parentName": "Brute Force"
   },
   {
     "id": "T1111",
@@ -1860,7 +2140,9 @@
       "collection"
     ],
     "isSubtechnique": true,
-    "url": "https://attack.mitre.org/techniques/T1114/001"
+    "url": "https://attack.mitre.org/techniques/T1114/001",
+    "parentId": "T1114",
+    "parentName": "Email Collection"
   },
   {
     "id": "T1114.002",
@@ -1869,7 +2151,9 @@
       "collection"
     ],
     "isSubtechnique": true,
-    "url": "https://attack.mitre.org/techniques/T1114/002"
+    "url": "https://attack.mitre.org/techniques/T1114/002",
+    "parentId": "T1114",
+    "parentName": "Email Collection"
   },
   {
     "id": "T1114.003",
@@ -1878,7 +2162,9 @@
       "collection"
     ],
     "isSubtechnique": true,
-    "url": "https://attack.mitre.org/techniques/T1114/003"
+    "url": "https://attack.mitre.org/techniques/T1114/003",
+    "parentId": "T1114",
+    "parentName": "Email Collection"
   },
   {
     "id": "T1115",
@@ -1952,7 +2238,9 @@
       "stealth"
     ],
     "isSubtechnique": true,
-    "url": "https://attack.mitre.org/techniques/T1127/001"
+    "url": "https://attack.mitre.org/techniques/T1127/001",
+    "parentId": "T1127",
+    "parentName": "Trusted Developer Utilities Proxy Execution"
   },
   {
     "id": "T1127.002",
@@ -1962,7 +2250,9 @@
       "stealth"
     ],
     "isSubtechnique": true,
-    "url": "https://attack.mitre.org/techniques/T1127/002"
+    "url": "https://attack.mitre.org/techniques/T1127/002",
+    "parentId": "T1127",
+    "parentName": "Trusted Developer Utilities Proxy Execution"
   },
   {
     "id": "T1127.003",
@@ -1972,7 +2262,9 @@
       "stealth"
     ],
     "isSubtechnique": true,
-    "url": "https://attack.mitre.org/techniques/T1127/003"
+    "url": "https://attack.mitre.org/techniques/T1127/003",
+    "parentId": "T1127",
+    "parentName": "Trusted Developer Utilities Proxy Execution"
   },
   {
     "id": "T1129",
@@ -1999,7 +2291,9 @@
       "command-and-control"
     ],
     "isSubtechnique": true,
-    "url": "https://attack.mitre.org/techniques/T1132/001"
+    "url": "https://attack.mitre.org/techniques/T1132/001",
+    "parentId": "T1132",
+    "parentName": "Data Encoding"
   },
   {
     "id": "T1132.002",
@@ -2008,7 +2302,9 @@
       "command-and-control"
     ],
     "isSubtechnique": true,
-    "url": "https://attack.mitre.org/techniques/T1132/002"
+    "url": "https://attack.mitre.org/techniques/T1132/002",
+    "parentId": "T1132",
+    "parentName": "Data Encoding"
   },
   {
     "id": "T1133",
@@ -2038,7 +2334,9 @@
       "stealth"
     ],
     "isSubtechnique": true,
-    "url": "https://attack.mitre.org/techniques/T1134/001"
+    "url": "https://attack.mitre.org/techniques/T1134/001",
+    "parentId": "T1134",
+    "parentName": "Access Token Manipulation"
   },
   {
     "id": "T1134.002",
@@ -2048,7 +2346,9 @@
       "stealth"
     ],
     "isSubtechnique": true,
-    "url": "https://attack.mitre.org/techniques/T1134/002"
+    "url": "https://attack.mitre.org/techniques/T1134/002",
+    "parentId": "T1134",
+    "parentName": "Access Token Manipulation"
   },
   {
     "id": "T1134.003",
@@ -2058,7 +2358,9 @@
       "stealth"
     ],
     "isSubtechnique": true,
-    "url": "https://attack.mitre.org/techniques/T1134/003"
+    "url": "https://attack.mitre.org/techniques/T1134/003",
+    "parentId": "T1134",
+    "parentName": "Access Token Manipulation"
   },
   {
     "id": "T1134.004",
@@ -2068,7 +2370,9 @@
       "stealth"
     ],
     "isSubtechnique": true,
-    "url": "https://attack.mitre.org/techniques/T1134/004"
+    "url": "https://attack.mitre.org/techniques/T1134/004",
+    "parentId": "T1134",
+    "parentName": "Access Token Manipulation"
   },
   {
     "id": "T1134.005",
@@ -2078,7 +2382,9 @@
       "stealth"
     ],
     "isSubtechnique": true,
-    "url": "https://attack.mitre.org/techniques/T1134/005"
+    "url": "https://attack.mitre.org/techniques/T1134/005",
+    "parentId": "T1134",
+    "parentName": "Access Token Manipulation"
   },
   {
     "id": "T1135",
@@ -2105,7 +2411,9 @@
       "persistence"
     ],
     "isSubtechnique": true,
-    "url": "https://attack.mitre.org/techniques/T1136/001"
+    "url": "https://attack.mitre.org/techniques/T1136/001",
+    "parentId": "T1136",
+    "parentName": "Create Account"
   },
   {
     "id": "T1136.002",
@@ -2114,7 +2422,9 @@
       "persistence"
     ],
     "isSubtechnique": true,
-    "url": "https://attack.mitre.org/techniques/T1136/002"
+    "url": "https://attack.mitre.org/techniques/T1136/002",
+    "parentId": "T1136",
+    "parentName": "Create Account"
   },
   {
     "id": "T1136.003",
@@ -2123,7 +2433,9 @@
       "persistence"
     ],
     "isSubtechnique": true,
-    "url": "https://attack.mitre.org/techniques/T1136/003"
+    "url": "https://attack.mitre.org/techniques/T1136/003",
+    "parentId": "T1136",
+    "parentName": "Create Account"
   },
   {
     "id": "T1137",
@@ -2141,7 +2453,9 @@
       "persistence"
     ],
     "isSubtechnique": true,
-    "url": "https://attack.mitre.org/techniques/T1137/001"
+    "url": "https://attack.mitre.org/techniques/T1137/001",
+    "parentId": "T1137",
+    "parentName": "Office Application Startup"
   },
   {
     "id": "T1137.002",
@@ -2150,7 +2464,9 @@
       "persistence"
     ],
     "isSubtechnique": true,
-    "url": "https://attack.mitre.org/techniques/T1137/002"
+    "url": "https://attack.mitre.org/techniques/T1137/002",
+    "parentId": "T1137",
+    "parentName": "Office Application Startup"
   },
   {
     "id": "T1137.003",
@@ -2159,7 +2475,9 @@
       "persistence"
     ],
     "isSubtechnique": true,
-    "url": "https://attack.mitre.org/techniques/T1137/003"
+    "url": "https://attack.mitre.org/techniques/T1137/003",
+    "parentId": "T1137",
+    "parentName": "Office Application Startup"
   },
   {
     "id": "T1137.004",
@@ -2168,7 +2486,9 @@
       "persistence"
     ],
     "isSubtechnique": true,
-    "url": "https://attack.mitre.org/techniques/T1137/004"
+    "url": "https://attack.mitre.org/techniques/T1137/004",
+    "parentId": "T1137",
+    "parentName": "Office Application Startup"
   },
   {
     "id": "T1137.005",
@@ -2177,7 +2497,9 @@
       "persistence"
     ],
     "isSubtechnique": true,
-    "url": "https://attack.mitre.org/techniques/T1137/005"
+    "url": "https://attack.mitre.org/techniques/T1137/005",
+    "parentId": "T1137",
+    "parentName": "Office Application Startup"
   },
   {
     "id": "T1137.006",
@@ -2186,7 +2508,9 @@
       "persistence"
     ],
     "isSubtechnique": true,
-    "url": "https://attack.mitre.org/techniques/T1137/006"
+    "url": "https://attack.mitre.org/techniques/T1137/006",
+    "parentId": "T1137",
+    "parentName": "Office Application Startup"
   },
   {
     "id": "T1140",
@@ -2213,7 +2537,9 @@
       "persistence"
     ],
     "isSubtechnique": true,
-    "url": "https://attack.mitre.org/techniques/T1176/001"
+    "url": "https://attack.mitre.org/techniques/T1176/001",
+    "parentId": "T1176",
+    "parentName": "Software Extensions"
   },
   {
     "id": "T1176.002",
@@ -2222,7 +2548,9 @@
       "persistence"
     ],
     "isSubtechnique": true,
-    "url": "https://attack.mitre.org/techniques/T1176/002"
+    "url": "https://attack.mitre.org/techniques/T1176/002",
+    "parentId": "T1176",
+    "parentName": "Software Extensions"
   },
   {
     "id": "T1185",
@@ -2276,7 +2604,9 @@
       "initial-access"
     ],
     "isSubtechnique": true,
-    "url": "https://attack.mitre.org/techniques/T1195/001"
+    "url": "https://attack.mitre.org/techniques/T1195/001",
+    "parentId": "T1195",
+    "parentName": "Supply Chain Compromise"
   },
   {
     "id": "T1195.002",
@@ -2285,7 +2615,9 @@
       "initial-access"
     ],
     "isSubtechnique": true,
-    "url": "https://attack.mitre.org/techniques/T1195/002"
+    "url": "https://attack.mitre.org/techniques/T1195/002",
+    "parentId": "T1195",
+    "parentName": "Supply Chain Compromise"
   },
   {
     "id": "T1195.003",
@@ -2294,7 +2626,9 @@
       "initial-access"
     ],
     "isSubtechnique": true,
-    "url": "https://attack.mitre.org/techniques/T1195/003"
+    "url": "https://attack.mitre.org/techniques/T1195/003",
+    "parentId": "T1195",
+    "parentName": "Supply Chain Compromise"
   },
   {
     "id": "T1197",
@@ -2368,7 +2702,9 @@
       "execution"
     ],
     "isSubtechnique": true,
-    "url": "https://attack.mitre.org/techniques/T1204/001"
+    "url": "https://attack.mitre.org/techniques/T1204/001",
+    "parentId": "T1204",
+    "parentName": "User Execution"
   },
   {
     "id": "T1204.002",
@@ -2377,7 +2713,9 @@
       "execution"
     ],
     "isSubtechnique": true,
-    "url": "https://attack.mitre.org/techniques/T1204/002"
+    "url": "https://attack.mitre.org/techniques/T1204/002",
+    "parentId": "T1204",
+    "parentName": "User Execution"
   },
   {
     "id": "T1204.003",
@@ -2386,7 +2724,9 @@
       "execution"
     ],
     "isSubtechnique": true,
-    "url": "https://attack.mitre.org/techniques/T1204/003"
+    "url": "https://attack.mitre.org/techniques/T1204/003",
+    "parentId": "T1204",
+    "parentName": "User Execution"
   },
   {
     "id": "T1204.004",
@@ -2395,7 +2735,9 @@
       "execution"
     ],
     "isSubtechnique": true,
-    "url": "https://attack.mitre.org/techniques/T1204/004"
+    "url": "https://attack.mitre.org/techniques/T1204/004",
+    "parentId": "T1204",
+    "parentName": "User Execution"
   },
   {
     "id": "T1204.005",
@@ -2404,7 +2746,9 @@
       "execution"
     ],
     "isSubtechnique": true,
-    "url": "https://attack.mitre.org/techniques/T1204/005"
+    "url": "https://attack.mitre.org/techniques/T1204/005",
+    "parentId": "T1204",
+    "parentName": "User Execution"
   },
   {
     "id": "T1205",
@@ -2426,7 +2770,9 @@
       "stealth"
     ],
     "isSubtechnique": true,
-    "url": "https://attack.mitre.org/techniques/T1205/001"
+    "url": "https://attack.mitre.org/techniques/T1205/001",
+    "parentId": "T1205",
+    "parentName": "Traffic Signaling"
   },
   {
     "id": "T1205.002",
@@ -2437,7 +2783,9 @@
       "stealth"
     ],
     "isSubtechnique": true,
-    "url": "https://attack.mitre.org/techniques/T1205/002"
+    "url": "https://attack.mitre.org/techniques/T1205/002",
+    "parentId": "T1205",
+    "parentName": "Traffic Signaling"
   },
   {
     "id": "T1207",
@@ -2491,7 +2839,9 @@
       "collection"
     ],
     "isSubtechnique": true,
-    "url": "https://attack.mitre.org/techniques/T1213/001"
+    "url": "https://attack.mitre.org/techniques/T1213/001",
+    "parentId": "T1213",
+    "parentName": "Data from Information Repositories"
   },
   {
     "id": "T1213.002",
@@ -2500,7 +2850,9 @@
       "collection"
     ],
     "isSubtechnique": true,
-    "url": "https://attack.mitre.org/techniques/T1213/002"
+    "url": "https://attack.mitre.org/techniques/T1213/002",
+    "parentId": "T1213",
+    "parentName": "Data from Information Repositories"
   },
   {
     "id": "T1213.003",
@@ -2509,7 +2861,9 @@
       "collection"
     ],
     "isSubtechnique": true,
-    "url": "https://attack.mitre.org/techniques/T1213/003"
+    "url": "https://attack.mitre.org/techniques/T1213/003",
+    "parentId": "T1213",
+    "parentName": "Data from Information Repositories"
   },
   {
     "id": "T1213.004",
@@ -2518,7 +2872,9 @@
       "collection"
     ],
     "isSubtechnique": true,
-    "url": "https://attack.mitre.org/techniques/T1213/004"
+    "url": "https://attack.mitre.org/techniques/T1213/004",
+    "parentId": "T1213",
+    "parentName": "Data from Information Repositories"
   },
   {
     "id": "T1213.005",
@@ -2527,7 +2883,9 @@
       "collection"
     ],
     "isSubtechnique": true,
-    "url": "https://attack.mitre.org/techniques/T1213/005"
+    "url": "https://attack.mitre.org/techniques/T1213/005",
+    "parentId": "T1213",
+    "parentName": "Data from Information Repositories"
   },
   {
     "id": "T1213.006",
@@ -2536,7 +2894,9 @@
       "collection"
     ],
     "isSubtechnique": true,
-    "url": "https://attack.mitre.org/techniques/T1213/006"
+    "url": "https://attack.mitre.org/techniques/T1213/006",
+    "parentId": "T1213",
+    "parentName": "Data from Information Repositories"
   },
   {
     "id": "T1216",
@@ -2554,7 +2914,9 @@
       "stealth"
     ],
     "isSubtechnique": true,
-    "url": "https://attack.mitre.org/techniques/T1216/001"
+    "url": "https://attack.mitre.org/techniques/T1216/001",
+    "parentId": "T1216",
+    "parentName": "System Script Proxy Execution"
   },
   {
     "id": "T1216.002",
@@ -2563,7 +2925,9 @@
       "stealth"
     ],
     "isSubtechnique": true,
-    "url": "https://attack.mitre.org/techniques/T1216/002"
+    "url": "https://attack.mitre.org/techniques/T1216/002",
+    "parentId": "T1216",
+    "parentName": "System Script Proxy Execution"
   },
   {
     "id": "T1217",
@@ -2590,7 +2954,9 @@
       "stealth"
     ],
     "isSubtechnique": true,
-    "url": "https://attack.mitre.org/techniques/T1218/001"
+    "url": "https://attack.mitre.org/techniques/T1218/001",
+    "parentId": "T1218",
+    "parentName": "System Binary Proxy Execution"
   },
   {
     "id": "T1218.002",
@@ -2599,7 +2965,9 @@
       "stealth"
     ],
     "isSubtechnique": true,
-    "url": "https://attack.mitre.org/techniques/T1218/002"
+    "url": "https://attack.mitre.org/techniques/T1218/002",
+    "parentId": "T1218",
+    "parentName": "System Binary Proxy Execution"
   },
   {
     "id": "T1218.003",
@@ -2608,7 +2976,9 @@
       "stealth"
     ],
     "isSubtechnique": true,
-    "url": "https://attack.mitre.org/techniques/T1218/003"
+    "url": "https://attack.mitre.org/techniques/T1218/003",
+    "parentId": "T1218",
+    "parentName": "System Binary Proxy Execution"
   },
   {
     "id": "T1218.004",
@@ -2617,7 +2987,9 @@
       "stealth"
     ],
     "isSubtechnique": true,
-    "url": "https://attack.mitre.org/techniques/T1218/004"
+    "url": "https://attack.mitre.org/techniques/T1218/004",
+    "parentId": "T1218",
+    "parentName": "System Binary Proxy Execution"
   },
   {
     "id": "T1218.005",
@@ -2626,7 +2998,9 @@
       "stealth"
     ],
     "isSubtechnique": true,
-    "url": "https://attack.mitre.org/techniques/T1218/005"
+    "url": "https://attack.mitre.org/techniques/T1218/005",
+    "parentId": "T1218",
+    "parentName": "System Binary Proxy Execution"
   },
   {
     "id": "T1218.007",
@@ -2635,7 +3009,9 @@
       "stealth"
     ],
     "isSubtechnique": true,
-    "url": "https://attack.mitre.org/techniques/T1218/007"
+    "url": "https://attack.mitre.org/techniques/T1218/007",
+    "parentId": "T1218",
+    "parentName": "System Binary Proxy Execution"
   },
   {
     "id": "T1218.008",
@@ -2644,7 +3020,9 @@
       "stealth"
     ],
     "isSubtechnique": true,
-    "url": "https://attack.mitre.org/techniques/T1218/008"
+    "url": "https://attack.mitre.org/techniques/T1218/008",
+    "parentId": "T1218",
+    "parentName": "System Binary Proxy Execution"
   },
   {
     "id": "T1218.009",
@@ -2653,7 +3031,9 @@
       "stealth"
     ],
     "isSubtechnique": true,
-    "url": "https://attack.mitre.org/techniques/T1218/009"
+    "url": "https://attack.mitre.org/techniques/T1218/009",
+    "parentId": "T1218",
+    "parentName": "System Binary Proxy Execution"
   },
   {
     "id": "T1218.010",
@@ -2662,7 +3042,9 @@
       "stealth"
     ],
     "isSubtechnique": true,
-    "url": "https://attack.mitre.org/techniques/T1218/010"
+    "url": "https://attack.mitre.org/techniques/T1218/010",
+    "parentId": "T1218",
+    "parentName": "System Binary Proxy Execution"
   },
   {
     "id": "T1218.011",
@@ -2671,7 +3053,9 @@
       "stealth"
     ],
     "isSubtechnique": true,
-    "url": "https://attack.mitre.org/techniques/T1218/011"
+    "url": "https://attack.mitre.org/techniques/T1218/011",
+    "parentId": "T1218",
+    "parentName": "System Binary Proxy Execution"
   },
   {
     "id": "T1218.012",
@@ -2680,7 +3064,9 @@
       "stealth"
     ],
     "isSubtechnique": true,
-    "url": "https://attack.mitre.org/techniques/T1218/012"
+    "url": "https://attack.mitre.org/techniques/T1218/012",
+    "parentId": "T1218",
+    "parentName": "System Binary Proxy Execution"
   },
   {
     "id": "T1218.013",
@@ -2689,7 +3075,9 @@
       "stealth"
     ],
     "isSubtechnique": true,
-    "url": "https://attack.mitre.org/techniques/T1218/013"
+    "url": "https://attack.mitre.org/techniques/T1218/013",
+    "parentId": "T1218",
+    "parentName": "System Binary Proxy Execution"
   },
   {
     "id": "T1218.014",
@@ -2698,7 +3086,9 @@
       "stealth"
     ],
     "isSubtechnique": true,
-    "url": "https://attack.mitre.org/techniques/T1218/014"
+    "url": "https://attack.mitre.org/techniques/T1218/014",
+    "parentId": "T1218",
+    "parentName": "System Binary Proxy Execution"
   },
   {
     "id": "T1218.015",
@@ -2707,7 +3097,9 @@
       "stealth"
     ],
     "isSubtechnique": true,
-    "url": "https://attack.mitre.org/techniques/T1218/015"
+    "url": "https://attack.mitre.org/techniques/T1218/015",
+    "parentId": "T1218",
+    "parentName": "System Binary Proxy Execution"
   },
   {
     "id": "T1219",
@@ -2725,7 +3117,9 @@
       "command-and-control"
     ],
     "isSubtechnique": true,
-    "url": "https://attack.mitre.org/techniques/T1219/001"
+    "url": "https://attack.mitre.org/techniques/T1219/001",
+    "parentId": "T1219",
+    "parentName": "Remote Access Tools"
   },
   {
     "id": "T1219.002",
@@ -2734,7 +3128,9 @@
       "command-and-control"
     ],
     "isSubtechnique": true,
-    "url": "https://attack.mitre.org/techniques/T1219/002"
+    "url": "https://attack.mitre.org/techniques/T1219/002",
+    "parentId": "T1219",
+    "parentName": "Remote Access Tools"
   },
   {
     "id": "T1219.003",
@@ -2743,7 +3139,9 @@
       "command-and-control"
     ],
     "isSubtechnique": true,
-    "url": "https://attack.mitre.org/techniques/T1219/003"
+    "url": "https://attack.mitre.org/techniques/T1219/003",
+    "parentId": "T1219",
+    "parentName": "Remote Access Tools"
   },
   {
     "id": "T1220",
@@ -2779,7 +3177,9 @@
       "defense-impairment"
     ],
     "isSubtechnique": true,
-    "url": "https://attack.mitre.org/techniques/T1222/001"
+    "url": "https://attack.mitre.org/techniques/T1222/001",
+    "parentId": "T1222",
+    "parentName": "File and Directory Permissions Modification"
   },
   {
     "id": "T1222.002",
@@ -2788,7 +3188,9 @@
       "defense-impairment"
     ],
     "isSubtechnique": true,
-    "url": "https://attack.mitre.org/techniques/T1222/002"
+    "url": "https://attack.mitre.org/techniques/T1222/002",
+    "parentId": "T1222",
+    "parentName": "File and Directory Permissions Modification"
   },
   {
     "id": "T1480",
@@ -2806,7 +3208,9 @@
       "stealth"
     ],
     "isSubtechnique": true,
-    "url": "https://attack.mitre.org/techniques/T1480/001"
+    "url": "https://attack.mitre.org/techniques/T1480/001",
+    "parentId": "T1480",
+    "parentName": "Execution Guardrails"
   },
   {
     "id": "T1480.002",
@@ -2815,7 +3219,9 @@
       "stealth"
     ],
     "isSubtechnique": true,
-    "url": "https://attack.mitre.org/techniques/T1480/002"
+    "url": "https://attack.mitre.org/techniques/T1480/002",
+    "parentId": "T1480",
+    "parentName": "Execution Guardrails"
   },
   {
     "id": "T1482",
@@ -2844,7 +3250,9 @@
       "privilege-escalation"
     ],
     "isSubtechnique": true,
-    "url": "https://attack.mitre.org/techniques/T1484/001"
+    "url": "https://attack.mitre.org/techniques/T1484/001",
+    "parentId": "T1484",
+    "parentName": "Domain or Tenant Policy Modification"
   },
   {
     "id": "T1484.002",
@@ -2854,7 +3262,9 @@
       "privilege-escalation"
     ],
     "isSubtechnique": true,
-    "url": "https://attack.mitre.org/techniques/T1484/002"
+    "url": "https://attack.mitre.org/techniques/T1484/002",
+    "parentId": "T1484",
+    "parentName": "Domain or Tenant Policy Modification"
   },
   {
     "id": "T1485",
@@ -2872,7 +3282,9 @@
       "impact"
     ],
     "isSubtechnique": true,
-    "url": "https://attack.mitre.org/techniques/T1485/001"
+    "url": "https://attack.mitre.org/techniques/T1485/001",
+    "parentId": "T1485",
+    "parentName": "Data Destruction"
   },
   {
     "id": "T1486",
@@ -2917,7 +3329,9 @@
       "impact"
     ],
     "isSubtechnique": true,
-    "url": "https://attack.mitre.org/techniques/T1491/001"
+    "url": "https://attack.mitre.org/techniques/T1491/001",
+    "parentId": "T1491",
+    "parentName": "Defacement"
   },
   {
     "id": "T1491.002",
@@ -2926,7 +3340,9 @@
       "impact"
     ],
     "isSubtechnique": true,
-    "url": "https://attack.mitre.org/techniques/T1491/002"
+    "url": "https://attack.mitre.org/techniques/T1491/002",
+    "parentId": "T1491",
+    "parentName": "Defacement"
   },
   {
     "id": "T1495",
@@ -2953,7 +3369,9 @@
       "impact"
     ],
     "isSubtechnique": true,
-    "url": "https://attack.mitre.org/techniques/T1496/001"
+    "url": "https://attack.mitre.org/techniques/T1496/001",
+    "parentId": "T1496",
+    "parentName": "Resource Hijacking"
   },
   {
     "id": "T1496.002",
@@ -2962,7 +3380,9 @@
       "impact"
     ],
     "isSubtechnique": true,
-    "url": "https://attack.mitre.org/techniques/T1496/002"
+    "url": "https://attack.mitre.org/techniques/T1496/002",
+    "parentId": "T1496",
+    "parentName": "Resource Hijacking"
   },
   {
     "id": "T1496.003",
@@ -2971,7 +3391,9 @@
       "impact"
     ],
     "isSubtechnique": true,
-    "url": "https://attack.mitre.org/techniques/T1496/003"
+    "url": "https://attack.mitre.org/techniques/T1496/003",
+    "parentId": "T1496",
+    "parentName": "Resource Hijacking"
   },
   {
     "id": "T1496.004",
@@ -2980,7 +3402,9 @@
       "impact"
     ],
     "isSubtechnique": true,
-    "url": "https://attack.mitre.org/techniques/T1496/004"
+    "url": "https://attack.mitre.org/techniques/T1496/004",
+    "parentId": "T1496",
+    "parentName": "Resource Hijacking"
   },
   {
     "id": "T1497",
@@ -3000,7 +3424,9 @@
       "stealth"
     ],
     "isSubtechnique": true,
-    "url": "https://attack.mitre.org/techniques/T1497/001"
+    "url": "https://attack.mitre.org/techniques/T1497/001",
+    "parentId": "T1497",
+    "parentName": "Virtualization/Sandbox Evasion"
   },
   {
     "id": "T1497.002",
@@ -3010,7 +3436,9 @@
       "stealth"
     ],
     "isSubtechnique": true,
-    "url": "https://attack.mitre.org/techniques/T1497/002"
+    "url": "https://attack.mitre.org/techniques/T1497/002",
+    "parentId": "T1497",
+    "parentName": "Virtualization/Sandbox Evasion"
   },
   {
     "id": "T1497.003",
@@ -3020,7 +3448,9 @@
       "stealth"
     ],
     "isSubtechnique": true,
-    "url": "https://attack.mitre.org/techniques/T1497/003"
+    "url": "https://attack.mitre.org/techniques/T1497/003",
+    "parentId": "T1497",
+    "parentName": "Virtualization/Sandbox Evasion"
   },
   {
     "id": "T1498",
@@ -3038,7 +3468,9 @@
       "impact"
     ],
     "isSubtechnique": true,
-    "url": "https://attack.mitre.org/techniques/T1498/001"
+    "url": "https://attack.mitre.org/techniques/T1498/001",
+    "parentId": "T1498",
+    "parentName": "Network Denial of Service"
   },
   {
     "id": "T1498.002",
@@ -3047,7 +3479,9 @@
       "impact"
     ],
     "isSubtechnique": true,
-    "url": "https://attack.mitre.org/techniques/T1498/002"
+    "url": "https://attack.mitre.org/techniques/T1498/002",
+    "parentId": "T1498",
+    "parentName": "Network Denial of Service"
   },
   {
     "id": "T1499",
@@ -3065,7 +3499,9 @@
       "impact"
     ],
     "isSubtechnique": true,
-    "url": "https://attack.mitre.org/techniques/T1499/001"
+    "url": "https://attack.mitre.org/techniques/T1499/001",
+    "parentId": "T1499",
+    "parentName": "Endpoint Denial of Service"
   },
   {
     "id": "T1499.002",
@@ -3074,7 +3510,9 @@
       "impact"
     ],
     "isSubtechnique": true,
-    "url": "https://attack.mitre.org/techniques/T1499/002"
+    "url": "https://attack.mitre.org/techniques/T1499/002",
+    "parentId": "T1499",
+    "parentName": "Endpoint Denial of Service"
   },
   {
     "id": "T1499.003",
@@ -3083,7 +3521,9 @@
       "impact"
     ],
     "isSubtechnique": true,
-    "url": "https://attack.mitre.org/techniques/T1499/003"
+    "url": "https://attack.mitre.org/techniques/T1499/003",
+    "parentId": "T1499",
+    "parentName": "Endpoint Denial of Service"
   },
   {
     "id": "T1499.004",
@@ -3092,7 +3532,9 @@
       "impact"
     ],
     "isSubtechnique": true,
-    "url": "https://attack.mitre.org/techniques/T1499/004"
+    "url": "https://attack.mitre.org/techniques/T1499/004",
+    "parentId": "T1499",
+    "parentName": "Endpoint Denial of Service"
   },
   {
     "id": "T1505",
@@ -3110,7 +3552,9 @@
       "persistence"
     ],
     "isSubtechnique": true,
-    "url": "https://attack.mitre.org/techniques/T1505/001"
+    "url": "https://attack.mitre.org/techniques/T1505/001",
+    "parentId": "T1505",
+    "parentName": "Server Software Component"
   },
   {
     "id": "T1505.002",
@@ -3119,7 +3563,9 @@
       "persistence"
     ],
     "isSubtechnique": true,
-    "url": "https://attack.mitre.org/techniques/T1505/002"
+    "url": "https://attack.mitre.org/techniques/T1505/002",
+    "parentId": "T1505",
+    "parentName": "Server Software Component"
   },
   {
     "id": "T1505.003",
@@ -3128,7 +3574,9 @@
       "persistence"
     ],
     "isSubtechnique": true,
-    "url": "https://attack.mitre.org/techniques/T1505/003"
+    "url": "https://attack.mitre.org/techniques/T1505/003",
+    "parentId": "T1505",
+    "parentName": "Server Software Component"
   },
   {
     "id": "T1505.004",
@@ -3137,7 +3585,9 @@
       "persistence"
     ],
     "isSubtechnique": true,
-    "url": "https://attack.mitre.org/techniques/T1505/004"
+    "url": "https://attack.mitre.org/techniques/T1505/004",
+    "parentId": "T1505",
+    "parentName": "Server Software Component"
   },
   {
     "id": "T1505.005",
@@ -3146,7 +3596,9 @@
       "persistence"
     ],
     "isSubtechnique": true,
-    "url": "https://attack.mitre.org/techniques/T1505/005"
+    "url": "https://attack.mitre.org/techniques/T1505/005",
+    "parentId": "T1505",
+    "parentName": "Server Software Component"
   },
   {
     "id": "T1505.006",
@@ -3155,7 +3607,9 @@
       "persistence"
     ],
     "isSubtechnique": true,
-    "url": "https://attack.mitre.org/techniques/T1505/006"
+    "url": "https://attack.mitre.org/techniques/T1505/006",
+    "parentId": "T1505",
+    "parentName": "Server Software Component"
   },
   {
     "id": "T1518",
@@ -3173,7 +3627,9 @@
       "discovery"
     ],
     "isSubtechnique": true,
-    "url": "https://attack.mitre.org/techniques/T1518/001"
+    "url": "https://attack.mitre.org/techniques/T1518/001",
+    "parentId": "T1518",
+    "parentName": "Software Discovery"
   },
   {
     "id": "T1518.002",
@@ -3182,7 +3638,9 @@
       "discovery"
     ],
     "isSubtechnique": true,
-    "url": "https://attack.mitre.org/techniques/T1518/002"
+    "url": "https://attack.mitre.org/techniques/T1518/002",
+    "parentId": "T1518",
+    "parentName": "Software Discovery"
   },
   {
     "id": "T1525",
@@ -3301,7 +3759,9 @@
       "stealth"
     ],
     "isSubtechnique": true,
-    "url": "https://attack.mitre.org/techniques/T1542/001"
+    "url": "https://attack.mitre.org/techniques/T1542/001",
+    "parentId": "T1542",
+    "parentName": "Pre-OS Boot"
   },
   {
     "id": "T1542.002",
@@ -3311,7 +3771,9 @@
       "stealth"
     ],
     "isSubtechnique": true,
-    "url": "https://attack.mitre.org/techniques/T1542/002"
+    "url": "https://attack.mitre.org/techniques/T1542/002",
+    "parentId": "T1542",
+    "parentName": "Pre-OS Boot"
   },
   {
     "id": "T1542.003",
@@ -3321,7 +3783,9 @@
       "stealth"
     ],
     "isSubtechnique": true,
-    "url": "https://attack.mitre.org/techniques/T1542/003"
+    "url": "https://attack.mitre.org/techniques/T1542/003",
+    "parentId": "T1542",
+    "parentName": "Pre-OS Boot"
   },
   {
     "id": "T1542.004",
@@ -3331,7 +3795,9 @@
       "stealth"
     ],
     "isSubtechnique": true,
-    "url": "https://attack.mitre.org/techniques/T1542/004"
+    "url": "https://attack.mitre.org/techniques/T1542/004",
+    "parentId": "T1542",
+    "parentName": "Pre-OS Boot"
   },
   {
     "id": "T1542.005",
@@ -3341,7 +3807,9 @@
       "stealth"
     ],
     "isSubtechnique": true,
-    "url": "https://attack.mitre.org/techniques/T1542/005"
+    "url": "https://attack.mitre.org/techniques/T1542/005",
+    "parentId": "T1542",
+    "parentName": "Pre-OS Boot"
   },
   {
     "id": "T1543",
@@ -3361,7 +3829,9 @@
       "privilege-escalation"
     ],
     "isSubtechnique": true,
-    "url": "https://attack.mitre.org/techniques/T1543/001"
+    "url": "https://attack.mitre.org/techniques/T1543/001",
+    "parentId": "T1543",
+    "parentName": "Create or Modify System Process"
   },
   {
     "id": "T1543.002",
@@ -3371,7 +3841,9 @@
       "privilege-escalation"
     ],
     "isSubtechnique": true,
-    "url": "https://attack.mitre.org/techniques/T1543/002"
+    "url": "https://attack.mitre.org/techniques/T1543/002",
+    "parentId": "T1543",
+    "parentName": "Create or Modify System Process"
   },
   {
     "id": "T1543.003",
@@ -3381,7 +3853,9 @@
       "privilege-escalation"
     ],
     "isSubtechnique": true,
-    "url": "https://attack.mitre.org/techniques/T1543/003"
+    "url": "https://attack.mitre.org/techniques/T1543/003",
+    "parentId": "T1543",
+    "parentName": "Create or Modify System Process"
   },
   {
     "id": "T1543.004",
@@ -3391,7 +3865,9 @@
       "privilege-escalation"
     ],
     "isSubtechnique": true,
-    "url": "https://attack.mitre.org/techniques/T1543/004"
+    "url": "https://attack.mitre.org/techniques/T1543/004",
+    "parentId": "T1543",
+    "parentName": "Create or Modify System Process"
   },
   {
     "id": "T1543.005",
@@ -3401,7 +3877,9 @@
       "privilege-escalation"
     ],
     "isSubtechnique": true,
-    "url": "https://attack.mitre.org/techniques/T1543/005"
+    "url": "https://attack.mitre.org/techniques/T1543/005",
+    "parentId": "T1543",
+    "parentName": "Create or Modify System Process"
   },
   {
     "id": "T1546",
@@ -3421,7 +3899,9 @@
       "privilege-escalation"
     ],
     "isSubtechnique": true,
-    "url": "https://attack.mitre.org/techniques/T1546/001"
+    "url": "https://attack.mitre.org/techniques/T1546/001",
+    "parentId": "T1546",
+    "parentName": "Event Triggered Execution"
   },
   {
     "id": "T1546.002",
@@ -3431,7 +3911,9 @@
       "privilege-escalation"
     ],
     "isSubtechnique": true,
-    "url": "https://attack.mitre.org/techniques/T1546/002"
+    "url": "https://attack.mitre.org/techniques/T1546/002",
+    "parentId": "T1546",
+    "parentName": "Event Triggered Execution"
   },
   {
     "id": "T1546.003",
@@ -3441,7 +3923,9 @@
       "privilege-escalation"
     ],
     "isSubtechnique": true,
-    "url": "https://attack.mitre.org/techniques/T1546/003"
+    "url": "https://attack.mitre.org/techniques/T1546/003",
+    "parentId": "T1546",
+    "parentName": "Event Triggered Execution"
   },
   {
     "id": "T1546.004",
@@ -3451,7 +3935,9 @@
       "privilege-escalation"
     ],
     "isSubtechnique": true,
-    "url": "https://attack.mitre.org/techniques/T1546/004"
+    "url": "https://attack.mitre.org/techniques/T1546/004",
+    "parentId": "T1546",
+    "parentName": "Event Triggered Execution"
   },
   {
     "id": "T1546.005",
@@ -3461,7 +3947,9 @@
       "privilege-escalation"
     ],
     "isSubtechnique": true,
-    "url": "https://attack.mitre.org/techniques/T1546/005"
+    "url": "https://attack.mitre.org/techniques/T1546/005",
+    "parentId": "T1546",
+    "parentName": "Event Triggered Execution"
   },
   {
     "id": "T1546.006",
@@ -3471,7 +3959,9 @@
       "privilege-escalation"
     ],
     "isSubtechnique": true,
-    "url": "https://attack.mitre.org/techniques/T1546/006"
+    "url": "https://attack.mitre.org/techniques/T1546/006",
+    "parentId": "T1546",
+    "parentName": "Event Triggered Execution"
   },
   {
     "id": "T1546.007",
@@ -3481,7 +3971,9 @@
       "privilege-escalation"
     ],
     "isSubtechnique": true,
-    "url": "https://attack.mitre.org/techniques/T1546/007"
+    "url": "https://attack.mitre.org/techniques/T1546/007",
+    "parentId": "T1546",
+    "parentName": "Event Triggered Execution"
   },
   {
     "id": "T1546.008",
@@ -3491,7 +3983,9 @@
       "privilege-escalation"
     ],
     "isSubtechnique": true,
-    "url": "https://attack.mitre.org/techniques/T1546/008"
+    "url": "https://attack.mitre.org/techniques/T1546/008",
+    "parentId": "T1546",
+    "parentName": "Event Triggered Execution"
   },
   {
     "id": "T1546.009",
@@ -3501,7 +3995,9 @@
       "privilege-escalation"
     ],
     "isSubtechnique": true,
-    "url": "https://attack.mitre.org/techniques/T1546/009"
+    "url": "https://attack.mitre.org/techniques/T1546/009",
+    "parentId": "T1546",
+    "parentName": "Event Triggered Execution"
   },
   {
     "id": "T1546.010",
@@ -3511,7 +4007,9 @@
       "privilege-escalation"
     ],
     "isSubtechnique": true,
-    "url": "https://attack.mitre.org/techniques/T1546/010"
+    "url": "https://attack.mitre.org/techniques/T1546/010",
+    "parentId": "T1546",
+    "parentName": "Event Triggered Execution"
   },
   {
     "id": "T1546.011",
@@ -3521,7 +4019,9 @@
       "privilege-escalation"
     ],
     "isSubtechnique": true,
-    "url": "https://attack.mitre.org/techniques/T1546/011"
+    "url": "https://attack.mitre.org/techniques/T1546/011",
+    "parentId": "T1546",
+    "parentName": "Event Triggered Execution"
   },
   {
     "id": "T1546.012",
@@ -3531,7 +4031,9 @@
       "privilege-escalation"
     ],
     "isSubtechnique": true,
-    "url": "https://attack.mitre.org/techniques/T1546/012"
+    "url": "https://attack.mitre.org/techniques/T1546/012",
+    "parentId": "T1546",
+    "parentName": "Event Triggered Execution"
   },
   {
     "id": "T1546.013",
@@ -3541,7 +4043,9 @@
       "privilege-escalation"
     ],
     "isSubtechnique": true,
-    "url": "https://attack.mitre.org/techniques/T1546/013"
+    "url": "https://attack.mitre.org/techniques/T1546/013",
+    "parentId": "T1546",
+    "parentName": "Event Triggered Execution"
   },
   {
     "id": "T1546.014",
@@ -3551,7 +4055,9 @@
       "privilege-escalation"
     ],
     "isSubtechnique": true,
-    "url": "https://attack.mitre.org/techniques/T1546/014"
+    "url": "https://attack.mitre.org/techniques/T1546/014",
+    "parentId": "T1546",
+    "parentName": "Event Triggered Execution"
   },
   {
     "id": "T1546.015",
@@ -3561,7 +4067,9 @@
       "privilege-escalation"
     ],
     "isSubtechnique": true,
-    "url": "https://attack.mitre.org/techniques/T1546/015"
+    "url": "https://attack.mitre.org/techniques/T1546/015",
+    "parentId": "T1546",
+    "parentName": "Event Triggered Execution"
   },
   {
     "id": "T1546.016",
@@ -3571,7 +4079,9 @@
       "privilege-escalation"
     ],
     "isSubtechnique": true,
-    "url": "https://attack.mitre.org/techniques/T1546/016"
+    "url": "https://attack.mitre.org/techniques/T1546/016",
+    "parentId": "T1546",
+    "parentName": "Event Triggered Execution"
   },
   {
     "id": "T1546.017",
@@ -3581,7 +4091,9 @@
       "privilege-escalation"
     ],
     "isSubtechnique": true,
-    "url": "https://attack.mitre.org/techniques/T1546/017"
+    "url": "https://attack.mitre.org/techniques/T1546/017",
+    "parentId": "T1546",
+    "parentName": "Event Triggered Execution"
   },
   {
     "id": "T1546.018",
@@ -3591,7 +4103,9 @@
       "privilege-escalation"
     ],
     "isSubtechnique": true,
-    "url": "https://attack.mitre.org/techniques/T1546/018"
+    "url": "https://attack.mitre.org/techniques/T1546/018",
+    "parentId": "T1546",
+    "parentName": "Event Triggered Execution"
   },
   {
     "id": "T1547",
@@ -3611,7 +4125,9 @@
       "privilege-escalation"
     ],
     "isSubtechnique": true,
-    "url": "https://attack.mitre.org/techniques/T1547/001"
+    "url": "https://attack.mitre.org/techniques/T1547/001",
+    "parentId": "T1547",
+    "parentName": "Boot or Logon Autostart Execution"
   },
   {
     "id": "T1547.002",
@@ -3621,7 +4137,9 @@
       "privilege-escalation"
     ],
     "isSubtechnique": true,
-    "url": "https://attack.mitre.org/techniques/T1547/002"
+    "url": "https://attack.mitre.org/techniques/T1547/002",
+    "parentId": "T1547",
+    "parentName": "Boot or Logon Autostart Execution"
   },
   {
     "id": "T1547.003",
@@ -3631,7 +4149,9 @@
       "privilege-escalation"
     ],
     "isSubtechnique": true,
-    "url": "https://attack.mitre.org/techniques/T1547/003"
+    "url": "https://attack.mitre.org/techniques/T1547/003",
+    "parentId": "T1547",
+    "parentName": "Boot or Logon Autostart Execution"
   },
   {
     "id": "T1547.004",
@@ -3641,7 +4161,9 @@
       "privilege-escalation"
     ],
     "isSubtechnique": true,
-    "url": "https://attack.mitre.org/techniques/T1547/004"
+    "url": "https://attack.mitre.org/techniques/T1547/004",
+    "parentId": "T1547",
+    "parentName": "Boot or Logon Autostart Execution"
   },
   {
     "id": "T1547.005",
@@ -3651,7 +4173,9 @@
       "privilege-escalation"
     ],
     "isSubtechnique": true,
-    "url": "https://attack.mitre.org/techniques/T1547/005"
+    "url": "https://attack.mitre.org/techniques/T1547/005",
+    "parentId": "T1547",
+    "parentName": "Boot or Logon Autostart Execution"
   },
   {
     "id": "T1547.006",
@@ -3661,7 +4185,9 @@
       "privilege-escalation"
     ],
     "isSubtechnique": true,
-    "url": "https://attack.mitre.org/techniques/T1547/006"
+    "url": "https://attack.mitre.org/techniques/T1547/006",
+    "parentId": "T1547",
+    "parentName": "Boot or Logon Autostart Execution"
   },
   {
     "id": "T1547.007",
@@ -3671,7 +4197,9 @@
       "privilege-escalation"
     ],
     "isSubtechnique": true,
-    "url": "https://attack.mitre.org/techniques/T1547/007"
+    "url": "https://attack.mitre.org/techniques/T1547/007",
+    "parentId": "T1547",
+    "parentName": "Boot or Logon Autostart Execution"
   },
   {
     "id": "T1547.008",
@@ -3681,7 +4209,9 @@
       "privilege-escalation"
     ],
     "isSubtechnique": true,
-    "url": "https://attack.mitre.org/techniques/T1547/008"
+    "url": "https://attack.mitre.org/techniques/T1547/008",
+    "parentId": "T1547",
+    "parentName": "Boot or Logon Autostart Execution"
   },
   {
     "id": "T1547.009",
@@ -3691,7 +4221,9 @@
       "privilege-escalation"
     ],
     "isSubtechnique": true,
-    "url": "https://attack.mitre.org/techniques/T1547/009"
+    "url": "https://attack.mitre.org/techniques/T1547/009",
+    "parentId": "T1547",
+    "parentName": "Boot or Logon Autostart Execution"
   },
   {
     "id": "T1547.010",
@@ -3701,7 +4233,9 @@
       "privilege-escalation"
     ],
     "isSubtechnique": true,
-    "url": "https://attack.mitre.org/techniques/T1547/010"
+    "url": "https://attack.mitre.org/techniques/T1547/010",
+    "parentId": "T1547",
+    "parentName": "Boot or Logon Autostart Execution"
   },
   {
     "id": "T1547.012",
@@ -3711,7 +4245,9 @@
       "privilege-escalation"
     ],
     "isSubtechnique": true,
-    "url": "https://attack.mitre.org/techniques/T1547/012"
+    "url": "https://attack.mitre.org/techniques/T1547/012",
+    "parentId": "T1547",
+    "parentName": "Boot or Logon Autostart Execution"
   },
   {
     "id": "T1547.013",
@@ -3721,7 +4257,9 @@
       "privilege-escalation"
     ],
     "isSubtechnique": true,
-    "url": "https://attack.mitre.org/techniques/T1547/013"
+    "url": "https://attack.mitre.org/techniques/T1547/013",
+    "parentId": "T1547",
+    "parentName": "Boot or Logon Autostart Execution"
   },
   {
     "id": "T1547.014",
@@ -3731,7 +4269,9 @@
       "privilege-escalation"
     ],
     "isSubtechnique": true,
-    "url": "https://attack.mitre.org/techniques/T1547/014"
+    "url": "https://attack.mitre.org/techniques/T1547/014",
+    "parentId": "T1547",
+    "parentName": "Boot or Logon Autostart Execution"
   },
   {
     "id": "T1547.015",
@@ -3741,7 +4281,9 @@
       "privilege-escalation"
     ],
     "isSubtechnique": true,
-    "url": "https://attack.mitre.org/techniques/T1547/015"
+    "url": "https://attack.mitre.org/techniques/T1547/015",
+    "parentId": "T1547",
+    "parentName": "Boot or Logon Autostart Execution"
   },
   {
     "id": "T1548",
@@ -3759,7 +4301,9 @@
       "privilege-escalation"
     ],
     "isSubtechnique": true,
-    "url": "https://attack.mitre.org/techniques/T1548/001"
+    "url": "https://attack.mitre.org/techniques/T1548/001",
+    "parentId": "T1548",
+    "parentName": "Abuse Elevation Control Mechanism"
   },
   {
     "id": "T1548.002",
@@ -3768,7 +4312,9 @@
       "privilege-escalation"
     ],
     "isSubtechnique": true,
-    "url": "https://attack.mitre.org/techniques/T1548/002"
+    "url": "https://attack.mitre.org/techniques/T1548/002",
+    "parentId": "T1548",
+    "parentName": "Abuse Elevation Control Mechanism"
   },
   {
     "id": "T1548.003",
@@ -3777,7 +4323,9 @@
       "privilege-escalation"
     ],
     "isSubtechnique": true,
-    "url": "https://attack.mitre.org/techniques/T1548/003"
+    "url": "https://attack.mitre.org/techniques/T1548/003",
+    "parentId": "T1548",
+    "parentName": "Abuse Elevation Control Mechanism"
   },
   {
     "id": "T1548.004",
@@ -3786,7 +4334,9 @@
       "privilege-escalation"
     ],
     "isSubtechnique": true,
-    "url": "https://attack.mitre.org/techniques/T1548/004"
+    "url": "https://attack.mitre.org/techniques/T1548/004",
+    "parentId": "T1548",
+    "parentName": "Abuse Elevation Control Mechanism"
   },
   {
     "id": "T1548.005",
@@ -3795,7 +4345,9 @@
       "privilege-escalation"
     ],
     "isSubtechnique": true,
-    "url": "https://attack.mitre.org/techniques/T1548/005"
+    "url": "https://attack.mitre.org/techniques/T1548/005",
+    "parentId": "T1548",
+    "parentName": "Abuse Elevation Control Mechanism"
   },
   {
     "id": "T1548.006",
@@ -3804,7 +4356,9 @@
       "privilege-escalation"
     ],
     "isSubtechnique": true,
-    "url": "https://attack.mitre.org/techniques/T1548/006"
+    "url": "https://attack.mitre.org/techniques/T1548/006",
+    "parentId": "T1548",
+    "parentName": "Abuse Elevation Control Mechanism"
   },
   {
     "id": "T1550",
@@ -3822,7 +4376,9 @@
       "lateral-movement"
     ],
     "isSubtechnique": true,
-    "url": "https://attack.mitre.org/techniques/T1550/001"
+    "url": "https://attack.mitre.org/techniques/T1550/001",
+    "parentId": "T1550",
+    "parentName": "Use Alternate Authentication Material"
   },
   {
     "id": "T1550.002",
@@ -3831,7 +4387,9 @@
       "lateral-movement"
     ],
     "isSubtechnique": true,
-    "url": "https://attack.mitre.org/techniques/T1550/002"
+    "url": "https://attack.mitre.org/techniques/T1550/002",
+    "parentId": "T1550",
+    "parentName": "Use Alternate Authentication Material"
   },
   {
     "id": "T1550.003",
@@ -3840,7 +4398,9 @@
       "lateral-movement"
     ],
     "isSubtechnique": true,
-    "url": "https://attack.mitre.org/techniques/T1550/003"
+    "url": "https://attack.mitre.org/techniques/T1550/003",
+    "parentId": "T1550",
+    "parentName": "Use Alternate Authentication Material"
   },
   {
     "id": "T1550.004",
@@ -3849,7 +4409,9 @@
       "lateral-movement"
     ],
     "isSubtechnique": true,
-    "url": "https://attack.mitre.org/techniques/T1550/004"
+    "url": "https://attack.mitre.org/techniques/T1550/004",
+    "parentId": "T1550",
+    "parentName": "Use Alternate Authentication Material"
   },
   {
     "id": "T1552",
@@ -3867,7 +4429,9 @@
       "credential-access"
     ],
     "isSubtechnique": true,
-    "url": "https://attack.mitre.org/techniques/T1552/001"
+    "url": "https://attack.mitre.org/techniques/T1552/001",
+    "parentId": "T1552",
+    "parentName": "Unsecured Credentials"
   },
   {
     "id": "T1552.002",
@@ -3876,7 +4440,9 @@
       "credential-access"
     ],
     "isSubtechnique": true,
-    "url": "https://attack.mitre.org/techniques/T1552/002"
+    "url": "https://attack.mitre.org/techniques/T1552/002",
+    "parentId": "T1552",
+    "parentName": "Unsecured Credentials"
   },
   {
     "id": "T1552.003",
@@ -3885,7 +4451,9 @@
       "credential-access"
     ],
     "isSubtechnique": true,
-    "url": "https://attack.mitre.org/techniques/T1552/003"
+    "url": "https://attack.mitre.org/techniques/T1552/003",
+    "parentId": "T1552",
+    "parentName": "Unsecured Credentials"
   },
   {
     "id": "T1552.004",
@@ -3894,7 +4462,9 @@
       "credential-access"
     ],
     "isSubtechnique": true,
-    "url": "https://attack.mitre.org/techniques/T1552/004"
+    "url": "https://attack.mitre.org/techniques/T1552/004",
+    "parentId": "T1552",
+    "parentName": "Unsecured Credentials"
   },
   {
     "id": "T1552.005",
@@ -3903,7 +4473,9 @@
       "credential-access"
     ],
     "isSubtechnique": true,
-    "url": "https://attack.mitre.org/techniques/T1552/005"
+    "url": "https://attack.mitre.org/techniques/T1552/005",
+    "parentId": "T1552",
+    "parentName": "Unsecured Credentials"
   },
   {
     "id": "T1552.006",
@@ -3912,7 +4484,9 @@
       "credential-access"
     ],
     "isSubtechnique": true,
-    "url": "https://attack.mitre.org/techniques/T1552/006"
+    "url": "https://attack.mitre.org/techniques/T1552/006",
+    "parentId": "T1552",
+    "parentName": "Unsecured Credentials"
   },
   {
     "id": "T1552.007",
@@ -3921,7 +4495,9 @@
       "credential-access"
     ],
     "isSubtechnique": true,
-    "url": "https://attack.mitre.org/techniques/T1552/007"
+    "url": "https://attack.mitre.org/techniques/T1552/007",
+    "parentId": "T1552",
+    "parentName": "Unsecured Credentials"
   },
   {
     "id": "T1552.008",
@@ -3930,7 +4506,9 @@
       "credential-access"
     ],
     "isSubtechnique": true,
-    "url": "https://attack.mitre.org/techniques/T1552/008"
+    "url": "https://attack.mitre.org/techniques/T1552/008",
+    "parentId": "T1552",
+    "parentName": "Unsecured Credentials"
   },
   {
     "id": "T1553",
@@ -3948,7 +4526,9 @@
       "defense-impairment"
     ],
     "isSubtechnique": true,
-    "url": "https://attack.mitre.org/techniques/T1553/001"
+    "url": "https://attack.mitre.org/techniques/T1553/001",
+    "parentId": "T1553",
+    "parentName": "Subvert Trust Controls"
   },
   {
     "id": "T1553.002",
@@ -3957,7 +4537,9 @@
       "defense-impairment"
     ],
     "isSubtechnique": true,
-    "url": "https://attack.mitre.org/techniques/T1553/002"
+    "url": "https://attack.mitre.org/techniques/T1553/002",
+    "parentId": "T1553",
+    "parentName": "Subvert Trust Controls"
   },
   {
     "id": "T1553.003",
@@ -3966,7 +4548,9 @@
       "defense-impairment"
     ],
     "isSubtechnique": true,
-    "url": "https://attack.mitre.org/techniques/T1553/003"
+    "url": "https://attack.mitre.org/techniques/T1553/003",
+    "parentId": "T1553",
+    "parentName": "Subvert Trust Controls"
   },
   {
     "id": "T1553.004",
@@ -3975,7 +4559,9 @@
       "defense-impairment"
     ],
     "isSubtechnique": true,
-    "url": "https://attack.mitre.org/techniques/T1553/004"
+    "url": "https://attack.mitre.org/techniques/T1553/004",
+    "parentId": "T1553",
+    "parentName": "Subvert Trust Controls"
   },
   {
     "id": "T1553.005",
@@ -3984,7 +4570,9 @@
       "defense-impairment"
     ],
     "isSubtechnique": true,
-    "url": "https://attack.mitre.org/techniques/T1553/005"
+    "url": "https://attack.mitre.org/techniques/T1553/005",
+    "parentId": "T1553",
+    "parentName": "Subvert Trust Controls"
   },
   {
     "id": "T1553.006",
@@ -3993,7 +4581,9 @@
       "defense-impairment"
     ],
     "isSubtechnique": true,
-    "url": "https://attack.mitre.org/techniques/T1553/006"
+    "url": "https://attack.mitre.org/techniques/T1553/006",
+    "parentId": "T1553",
+    "parentName": "Subvert Trust Controls"
   },
   {
     "id": "T1554",
@@ -4020,7 +4610,9 @@
       "credential-access"
     ],
     "isSubtechnique": true,
-    "url": "https://attack.mitre.org/techniques/T1555/001"
+    "url": "https://attack.mitre.org/techniques/T1555/001",
+    "parentId": "T1555",
+    "parentName": "Credentials from Password Stores"
   },
   {
     "id": "T1555.002",
@@ -4029,7 +4621,9 @@
       "credential-access"
     ],
     "isSubtechnique": true,
-    "url": "https://attack.mitre.org/techniques/T1555/002"
+    "url": "https://attack.mitre.org/techniques/T1555/002",
+    "parentId": "T1555",
+    "parentName": "Credentials from Password Stores"
   },
   {
     "id": "T1555.003",
@@ -4038,7 +4632,9 @@
       "credential-access"
     ],
     "isSubtechnique": true,
-    "url": "https://attack.mitre.org/techniques/T1555/003"
+    "url": "https://attack.mitre.org/techniques/T1555/003",
+    "parentId": "T1555",
+    "parentName": "Credentials from Password Stores"
   },
   {
     "id": "T1555.004",
@@ -4047,7 +4643,9 @@
       "credential-access"
     ],
     "isSubtechnique": true,
-    "url": "https://attack.mitre.org/techniques/T1555/004"
+    "url": "https://attack.mitre.org/techniques/T1555/004",
+    "parentId": "T1555",
+    "parentName": "Credentials from Password Stores"
   },
   {
     "id": "T1555.005",
@@ -4056,7 +4654,9 @@
       "credential-access"
     ],
     "isSubtechnique": true,
-    "url": "https://attack.mitre.org/techniques/T1555/005"
+    "url": "https://attack.mitre.org/techniques/T1555/005",
+    "parentId": "T1555",
+    "parentName": "Credentials from Password Stores"
   },
   {
     "id": "T1555.006",
@@ -4065,7 +4665,9 @@
       "credential-access"
     ],
     "isSubtechnique": true,
-    "url": "https://attack.mitre.org/techniques/T1555/006"
+    "url": "https://attack.mitre.org/techniques/T1555/006",
+    "parentId": "T1555",
+    "parentName": "Credentials from Password Stores"
   },
   {
     "id": "T1556",
@@ -4087,7 +4689,9 @@
       "persistence"
     ],
     "isSubtechnique": true,
-    "url": "https://attack.mitre.org/techniques/T1556/001"
+    "url": "https://attack.mitre.org/techniques/T1556/001",
+    "parentId": "T1556",
+    "parentName": "Modify Authentication Process"
   },
   {
     "id": "T1556.002",
@@ -4098,7 +4702,9 @@
       "persistence"
     ],
     "isSubtechnique": true,
-    "url": "https://attack.mitre.org/techniques/T1556/002"
+    "url": "https://attack.mitre.org/techniques/T1556/002",
+    "parentId": "T1556",
+    "parentName": "Modify Authentication Process"
   },
   {
     "id": "T1556.003",
@@ -4109,7 +4715,9 @@
       "persistence"
     ],
     "isSubtechnique": true,
-    "url": "https://attack.mitre.org/techniques/T1556/003"
+    "url": "https://attack.mitre.org/techniques/T1556/003",
+    "parentId": "T1556",
+    "parentName": "Modify Authentication Process"
   },
   {
     "id": "T1556.004",
@@ -4120,7 +4728,9 @@
       "persistence"
     ],
     "isSubtechnique": true,
-    "url": "https://attack.mitre.org/techniques/T1556/004"
+    "url": "https://attack.mitre.org/techniques/T1556/004",
+    "parentId": "T1556",
+    "parentName": "Modify Authentication Process"
   },
   {
     "id": "T1556.005",
@@ -4131,7 +4741,9 @@
       "persistence"
     ],
     "isSubtechnique": true,
-    "url": "https://attack.mitre.org/techniques/T1556/005"
+    "url": "https://attack.mitre.org/techniques/T1556/005",
+    "parentId": "T1556",
+    "parentName": "Modify Authentication Process"
   },
   {
     "id": "T1556.006",
@@ -4142,7 +4754,9 @@
       "persistence"
     ],
     "isSubtechnique": true,
-    "url": "https://attack.mitre.org/techniques/T1556/006"
+    "url": "https://attack.mitre.org/techniques/T1556/006",
+    "parentId": "T1556",
+    "parentName": "Modify Authentication Process"
   },
   {
     "id": "T1556.007",
@@ -4153,7 +4767,9 @@
       "persistence"
     ],
     "isSubtechnique": true,
-    "url": "https://attack.mitre.org/techniques/T1556/007"
+    "url": "https://attack.mitre.org/techniques/T1556/007",
+    "parentId": "T1556",
+    "parentName": "Modify Authentication Process"
   },
   {
     "id": "T1556.008",
@@ -4164,7 +4780,9 @@
       "persistence"
     ],
     "isSubtechnique": true,
-    "url": "https://attack.mitre.org/techniques/T1556/008"
+    "url": "https://attack.mitre.org/techniques/T1556/008",
+    "parentId": "T1556",
+    "parentName": "Modify Authentication Process"
   },
   {
     "id": "T1556.009",
@@ -4175,7 +4793,9 @@
       "persistence"
     ],
     "isSubtechnique": true,
-    "url": "https://attack.mitre.org/techniques/T1556/009"
+    "url": "https://attack.mitre.org/techniques/T1556/009",
+    "parentId": "T1556",
+    "parentName": "Modify Authentication Process"
   },
   {
     "id": "T1557",
@@ -4195,7 +4815,9 @@
       "credential-access"
     ],
     "isSubtechnique": true,
-    "url": "https://attack.mitre.org/techniques/T1557/001"
+    "url": "https://attack.mitre.org/techniques/T1557/001",
+    "parentId": "T1557",
+    "parentName": "Adversary-in-the-Middle"
   },
   {
     "id": "T1557.002",
@@ -4205,7 +4827,9 @@
       "credential-access"
     ],
     "isSubtechnique": true,
-    "url": "https://attack.mitre.org/techniques/T1557/002"
+    "url": "https://attack.mitre.org/techniques/T1557/002",
+    "parentId": "T1557",
+    "parentName": "Adversary-in-the-Middle"
   },
   {
     "id": "T1557.003",
@@ -4215,7 +4839,9 @@
       "credential-access"
     ],
     "isSubtechnique": true,
-    "url": "https://attack.mitre.org/techniques/T1557/003"
+    "url": "https://attack.mitre.org/techniques/T1557/003",
+    "parentId": "T1557",
+    "parentName": "Adversary-in-the-Middle"
   },
   {
     "id": "T1557.004",
@@ -4225,7 +4851,9 @@
       "credential-access"
     ],
     "isSubtechnique": true,
-    "url": "https://attack.mitre.org/techniques/T1557/004"
+    "url": "https://attack.mitre.org/techniques/T1557/004",
+    "parentId": "T1557",
+    "parentName": "Adversary-in-the-Middle"
   },
   {
     "id": "T1558",
@@ -4243,7 +4871,9 @@
       "credential-access"
     ],
     "isSubtechnique": true,
-    "url": "https://attack.mitre.org/techniques/T1558/001"
+    "url": "https://attack.mitre.org/techniques/T1558/001",
+    "parentId": "T1558",
+    "parentName": "Steal or Forge Kerberos Tickets"
   },
   {
     "id": "T1558.002",
@@ -4252,7 +4882,9 @@
       "credential-access"
     ],
     "isSubtechnique": true,
-    "url": "https://attack.mitre.org/techniques/T1558/002"
+    "url": "https://attack.mitre.org/techniques/T1558/002",
+    "parentId": "T1558",
+    "parentName": "Steal or Forge Kerberos Tickets"
   },
   {
     "id": "T1558.003",
@@ -4261,7 +4893,9 @@
       "credential-access"
     ],
     "isSubtechnique": true,
-    "url": "https://attack.mitre.org/techniques/T1558/003"
+    "url": "https://attack.mitre.org/techniques/T1558/003",
+    "parentId": "T1558",
+    "parentName": "Steal or Forge Kerberos Tickets"
   },
   {
     "id": "T1558.004",
@@ -4270,7 +4904,9 @@
       "credential-access"
     ],
     "isSubtechnique": true,
-    "url": "https://attack.mitre.org/techniques/T1558/004"
+    "url": "https://attack.mitre.org/techniques/T1558/004",
+    "parentId": "T1558",
+    "parentName": "Steal or Forge Kerberos Tickets"
   },
   {
     "id": "T1558.005",
@@ -4279,7 +4915,9 @@
       "credential-access"
     ],
     "isSubtechnique": true,
-    "url": "https://attack.mitre.org/techniques/T1558/005"
+    "url": "https://attack.mitre.org/techniques/T1558/005",
+    "parentId": "T1558",
+    "parentName": "Steal or Forge Kerberos Tickets"
   },
   {
     "id": "T1559",
@@ -4297,7 +4935,9 @@
       "execution"
     ],
     "isSubtechnique": true,
-    "url": "https://attack.mitre.org/techniques/T1559/001"
+    "url": "https://attack.mitre.org/techniques/T1559/001",
+    "parentId": "T1559",
+    "parentName": "Inter-Process Communication"
   },
   {
     "id": "T1559.002",
@@ -4306,7 +4946,9 @@
       "execution"
     ],
     "isSubtechnique": true,
-    "url": "https://attack.mitre.org/techniques/T1559/002"
+    "url": "https://attack.mitre.org/techniques/T1559/002",
+    "parentId": "T1559",
+    "parentName": "Inter-Process Communication"
   },
   {
     "id": "T1559.003",
@@ -4315,7 +4957,9 @@
       "execution"
     ],
     "isSubtechnique": true,
-    "url": "https://attack.mitre.org/techniques/T1559/003"
+    "url": "https://attack.mitre.org/techniques/T1559/003",
+    "parentId": "T1559",
+    "parentName": "Inter-Process Communication"
   },
   {
     "id": "T1560",
@@ -4333,7 +4977,9 @@
       "collection"
     ],
     "isSubtechnique": true,
-    "url": "https://attack.mitre.org/techniques/T1560/001"
+    "url": "https://attack.mitre.org/techniques/T1560/001",
+    "parentId": "T1560",
+    "parentName": "Archive Collected Data"
   },
   {
     "id": "T1560.002",
@@ -4342,7 +4988,9 @@
       "collection"
     ],
     "isSubtechnique": true,
-    "url": "https://attack.mitre.org/techniques/T1560/002"
+    "url": "https://attack.mitre.org/techniques/T1560/002",
+    "parentId": "T1560",
+    "parentName": "Archive Collected Data"
   },
   {
     "id": "T1560.003",
@@ -4351,7 +4999,9 @@
       "collection"
     ],
     "isSubtechnique": true,
-    "url": "https://attack.mitre.org/techniques/T1560/003"
+    "url": "https://attack.mitre.org/techniques/T1560/003",
+    "parentId": "T1560",
+    "parentName": "Archive Collected Data"
   },
   {
     "id": "T1561",
@@ -4369,7 +5019,9 @@
       "impact"
     ],
     "isSubtechnique": true,
-    "url": "https://attack.mitre.org/techniques/T1561/001"
+    "url": "https://attack.mitre.org/techniques/T1561/001",
+    "parentId": "T1561",
+    "parentName": "Disk Wipe"
   },
   {
     "id": "T1561.002",
@@ -4378,7 +5030,9 @@
       "impact"
     ],
     "isSubtechnique": true,
-    "url": "https://attack.mitre.org/techniques/T1561/002"
+    "url": "https://attack.mitre.org/techniques/T1561/002",
+    "parentId": "T1561",
+    "parentName": "Disk Wipe"
   },
   {
     "id": "T1563",
@@ -4396,7 +5050,9 @@
       "lateral-movement"
     ],
     "isSubtechnique": true,
-    "url": "https://attack.mitre.org/techniques/T1563/001"
+    "url": "https://attack.mitre.org/techniques/T1563/001",
+    "parentId": "T1563",
+    "parentName": "Remote Service Session Hijacking"
   },
   {
     "id": "T1563.002",
@@ -4405,7 +5061,9 @@
       "lateral-movement"
     ],
     "isSubtechnique": true,
-    "url": "https://attack.mitre.org/techniques/T1563/002"
+    "url": "https://attack.mitre.org/techniques/T1563/002",
+    "parentId": "T1563",
+    "parentName": "Remote Service Session Hijacking"
   },
   {
     "id": "T1564",
@@ -4423,7 +5081,9 @@
       "stealth"
     ],
     "isSubtechnique": true,
-    "url": "https://attack.mitre.org/techniques/T1564/001"
+    "url": "https://attack.mitre.org/techniques/T1564/001",
+    "parentId": "T1564",
+    "parentName": "Hide Artifacts"
   },
   {
     "id": "T1564.002",
@@ -4432,7 +5092,9 @@
       "stealth"
     ],
     "isSubtechnique": true,
-    "url": "https://attack.mitre.org/techniques/T1564/002"
+    "url": "https://attack.mitre.org/techniques/T1564/002",
+    "parentId": "T1564",
+    "parentName": "Hide Artifacts"
   },
   {
     "id": "T1564.003",
@@ -4441,7 +5103,9 @@
       "stealth"
     ],
     "isSubtechnique": true,
-    "url": "https://attack.mitre.org/techniques/T1564/003"
+    "url": "https://attack.mitre.org/techniques/T1564/003",
+    "parentId": "T1564",
+    "parentName": "Hide Artifacts"
   },
   {
     "id": "T1564.004",
@@ -4450,7 +5114,9 @@
       "stealth"
     ],
     "isSubtechnique": true,
-    "url": "https://attack.mitre.org/techniques/T1564/004"
+    "url": "https://attack.mitre.org/techniques/T1564/004",
+    "parentId": "T1564",
+    "parentName": "Hide Artifacts"
   },
   {
     "id": "T1564.005",
@@ -4459,7 +5125,9 @@
       "stealth"
     ],
     "isSubtechnique": true,
-    "url": "https://attack.mitre.org/techniques/T1564/005"
+    "url": "https://attack.mitre.org/techniques/T1564/005",
+    "parentId": "T1564",
+    "parentName": "Hide Artifacts"
   },
   {
     "id": "T1564.006",
@@ -4468,7 +5136,9 @@
       "stealth"
     ],
     "isSubtechnique": true,
-    "url": "https://attack.mitre.org/techniques/T1564/006"
+    "url": "https://attack.mitre.org/techniques/T1564/006",
+    "parentId": "T1564",
+    "parentName": "Hide Artifacts"
   },
   {
     "id": "T1564.007",
@@ -4477,7 +5147,9 @@
       "stealth"
     ],
     "isSubtechnique": true,
-    "url": "https://attack.mitre.org/techniques/T1564/007"
+    "url": "https://attack.mitre.org/techniques/T1564/007",
+    "parentId": "T1564",
+    "parentName": "Hide Artifacts"
   },
   {
     "id": "T1564.008",
@@ -4486,7 +5158,9 @@
       "stealth"
     ],
     "isSubtechnique": true,
-    "url": "https://attack.mitre.org/techniques/T1564/008"
+    "url": "https://attack.mitre.org/techniques/T1564/008",
+    "parentId": "T1564",
+    "parentName": "Hide Artifacts"
   },
   {
     "id": "T1564.009",
@@ -4495,7 +5169,9 @@
       "stealth"
     ],
     "isSubtechnique": true,
-    "url": "https://attack.mitre.org/techniques/T1564/009"
+    "url": "https://attack.mitre.org/techniques/T1564/009",
+    "parentId": "T1564",
+    "parentName": "Hide Artifacts"
   },
   {
     "id": "T1564.010",
@@ -4504,7 +5180,9 @@
       "stealth"
     ],
     "isSubtechnique": true,
-    "url": "https://attack.mitre.org/techniques/T1564/010"
+    "url": "https://attack.mitre.org/techniques/T1564/010",
+    "parentId": "T1564",
+    "parentName": "Hide Artifacts"
   },
   {
     "id": "T1564.011",
@@ -4513,7 +5191,9 @@
       "stealth"
     ],
     "isSubtechnique": true,
-    "url": "https://attack.mitre.org/techniques/T1564/011"
+    "url": "https://attack.mitre.org/techniques/T1564/011",
+    "parentId": "T1564",
+    "parentName": "Hide Artifacts"
   },
   {
     "id": "T1564.012",
@@ -4522,7 +5202,9 @@
       "stealth"
     ],
     "isSubtechnique": true,
-    "url": "https://attack.mitre.org/techniques/T1564/012"
+    "url": "https://attack.mitre.org/techniques/T1564/012",
+    "parentId": "T1564",
+    "parentName": "Hide Artifacts"
   },
   {
     "id": "T1564.013",
@@ -4531,7 +5213,9 @@
       "stealth"
     ],
     "isSubtechnique": true,
-    "url": "https://attack.mitre.org/techniques/T1564/013"
+    "url": "https://attack.mitre.org/techniques/T1564/013",
+    "parentId": "T1564",
+    "parentName": "Hide Artifacts"
   },
   {
     "id": "T1564.014",
@@ -4540,7 +5224,9 @@
       "stealth"
     ],
     "isSubtechnique": true,
-    "url": "https://attack.mitre.org/techniques/T1564/014"
+    "url": "https://attack.mitre.org/techniques/T1564/014",
+    "parentId": "T1564",
+    "parentName": "Hide Artifacts"
   },
   {
     "id": "T1565",
@@ -4558,7 +5244,9 @@
       "impact"
     ],
     "isSubtechnique": true,
-    "url": "https://attack.mitre.org/techniques/T1565/001"
+    "url": "https://attack.mitre.org/techniques/T1565/001",
+    "parentId": "T1565",
+    "parentName": "Data Manipulation"
   },
   {
     "id": "T1565.002",
@@ -4567,7 +5255,9 @@
       "impact"
     ],
     "isSubtechnique": true,
-    "url": "https://attack.mitre.org/techniques/T1565/002"
+    "url": "https://attack.mitre.org/techniques/T1565/002",
+    "parentId": "T1565",
+    "parentName": "Data Manipulation"
   },
   {
     "id": "T1565.003",
@@ -4576,7 +5266,9 @@
       "impact"
     ],
     "isSubtechnique": true,
-    "url": "https://attack.mitre.org/techniques/T1565/003"
+    "url": "https://attack.mitre.org/techniques/T1565/003",
+    "parentId": "T1565",
+    "parentName": "Data Manipulation"
   },
   {
     "id": "T1566",
@@ -4594,7 +5286,9 @@
       "initial-access"
     ],
     "isSubtechnique": true,
-    "url": "https://attack.mitre.org/techniques/T1566/001"
+    "url": "https://attack.mitre.org/techniques/T1566/001",
+    "parentId": "T1566",
+    "parentName": "Phishing"
   },
   {
     "id": "T1566.002",
@@ -4603,7 +5297,9 @@
       "initial-access"
     ],
     "isSubtechnique": true,
-    "url": "https://attack.mitre.org/techniques/T1566/002"
+    "url": "https://attack.mitre.org/techniques/T1566/002",
+    "parentId": "T1566",
+    "parentName": "Phishing"
   },
   {
     "id": "T1566.003",
@@ -4612,7 +5308,9 @@
       "initial-access"
     ],
     "isSubtechnique": true,
-    "url": "https://attack.mitre.org/techniques/T1566/003"
+    "url": "https://attack.mitre.org/techniques/T1566/003",
+    "parentId": "T1566",
+    "parentName": "Phishing"
   },
   {
     "id": "T1566.004",
@@ -4621,7 +5319,9 @@
       "initial-access"
     ],
     "isSubtechnique": true,
-    "url": "https://attack.mitre.org/techniques/T1566/004"
+    "url": "https://attack.mitre.org/techniques/T1566/004",
+    "parentId": "T1566",
+    "parentName": "Phishing"
   },
   {
     "id": "T1567",
@@ -4639,7 +5339,9 @@
       "exfiltration"
     ],
     "isSubtechnique": true,
-    "url": "https://attack.mitre.org/techniques/T1567/001"
+    "url": "https://attack.mitre.org/techniques/T1567/001",
+    "parentId": "T1567",
+    "parentName": "Exfiltration Over Web Service"
   },
   {
     "id": "T1567.002",
@@ -4648,7 +5350,9 @@
       "exfiltration"
     ],
     "isSubtechnique": true,
-    "url": "https://attack.mitre.org/techniques/T1567/002"
+    "url": "https://attack.mitre.org/techniques/T1567/002",
+    "parentId": "T1567",
+    "parentName": "Exfiltration Over Web Service"
   },
   {
     "id": "T1567.003",
@@ -4657,7 +5361,9 @@
       "exfiltration"
     ],
     "isSubtechnique": true,
-    "url": "https://attack.mitre.org/techniques/T1567/003"
+    "url": "https://attack.mitre.org/techniques/T1567/003",
+    "parentId": "T1567",
+    "parentName": "Exfiltration Over Web Service"
   },
   {
     "id": "T1567.004",
@@ -4666,7 +5372,9 @@
       "exfiltration"
     ],
     "isSubtechnique": true,
-    "url": "https://attack.mitre.org/techniques/T1567/004"
+    "url": "https://attack.mitre.org/techniques/T1567/004",
+    "parentId": "T1567",
+    "parentName": "Exfiltration Over Web Service"
   },
   {
     "id": "T1568",
@@ -4684,7 +5392,9 @@
       "command-and-control"
     ],
     "isSubtechnique": true,
-    "url": "https://attack.mitre.org/techniques/T1568/001"
+    "url": "https://attack.mitre.org/techniques/T1568/001",
+    "parentId": "T1568",
+    "parentName": "Dynamic Resolution"
   },
   {
     "id": "T1568.002",
@@ -4693,7 +5403,9 @@
       "command-and-control"
     ],
     "isSubtechnique": true,
-    "url": "https://attack.mitre.org/techniques/T1568/002"
+    "url": "https://attack.mitre.org/techniques/T1568/002",
+    "parentId": "T1568",
+    "parentName": "Dynamic Resolution"
   },
   {
     "id": "T1568.003",
@@ -4702,7 +5414,9 @@
       "command-and-control"
     ],
     "isSubtechnique": true,
-    "url": "https://attack.mitre.org/techniques/T1568/003"
+    "url": "https://attack.mitre.org/techniques/T1568/003",
+    "parentId": "T1568",
+    "parentName": "Dynamic Resolution"
   },
   {
     "id": "T1569",
@@ -4720,7 +5434,9 @@
       "execution"
     ],
     "isSubtechnique": true,
-    "url": "https://attack.mitre.org/techniques/T1569/001"
+    "url": "https://attack.mitre.org/techniques/T1569/001",
+    "parentId": "T1569",
+    "parentName": "System Services"
   },
   {
     "id": "T1569.002",
@@ -4729,7 +5445,9 @@
       "execution"
     ],
     "isSubtechnique": true,
-    "url": "https://attack.mitre.org/techniques/T1569/002"
+    "url": "https://attack.mitre.org/techniques/T1569/002",
+    "parentId": "T1569",
+    "parentName": "System Services"
   },
   {
     "id": "T1569.003",
@@ -4738,7 +5456,9 @@
       "execution"
     ],
     "isSubtechnique": true,
-    "url": "https://attack.mitre.org/techniques/T1569/003"
+    "url": "https://attack.mitre.org/techniques/T1569/003",
+    "parentId": "T1569",
+    "parentName": "System Services"
   },
   {
     "id": "T1570",
@@ -4783,7 +5503,9 @@
       "command-and-control"
     ],
     "isSubtechnique": true,
-    "url": "https://attack.mitre.org/techniques/T1573/001"
+    "url": "https://attack.mitre.org/techniques/T1573/001",
+    "parentId": "T1573",
+    "parentName": "Encrypted Channel"
   },
   {
     "id": "T1573.002",
@@ -4792,7 +5514,9 @@
       "command-and-control"
     ],
     "isSubtechnique": true,
-    "url": "https://attack.mitre.org/techniques/T1573/002"
+    "url": "https://attack.mitre.org/techniques/T1573/002",
+    "parentId": "T1573",
+    "parentName": "Encrypted Channel"
   },
   {
     "id": "T1574",
@@ -4812,7 +5536,9 @@
       "stealth"
     ],
     "isSubtechnique": true,
-    "url": "https://attack.mitre.org/techniques/T1574/001"
+    "url": "https://attack.mitre.org/techniques/T1574/001",
+    "parentId": "T1574",
+    "parentName": "Hijack Execution Flow"
   },
   {
     "id": "T1574.004",
@@ -4822,7 +5548,9 @@
       "stealth"
     ],
     "isSubtechnique": true,
-    "url": "https://attack.mitre.org/techniques/T1574/004"
+    "url": "https://attack.mitre.org/techniques/T1574/004",
+    "parentId": "T1574",
+    "parentName": "Hijack Execution Flow"
   },
   {
     "id": "T1574.005",
@@ -4832,7 +5560,9 @@
       "stealth"
     ],
     "isSubtechnique": true,
-    "url": "https://attack.mitre.org/techniques/T1574/005"
+    "url": "https://attack.mitre.org/techniques/T1574/005",
+    "parentId": "T1574",
+    "parentName": "Hijack Execution Flow"
   },
   {
     "id": "T1574.006",
@@ -4842,7 +5572,9 @@
       "stealth"
     ],
     "isSubtechnique": true,
-    "url": "https://attack.mitre.org/techniques/T1574/006"
+    "url": "https://attack.mitre.org/techniques/T1574/006",
+    "parentId": "T1574",
+    "parentName": "Hijack Execution Flow"
   },
   {
     "id": "T1574.007",
@@ -4852,7 +5584,9 @@
       "stealth"
     ],
     "isSubtechnique": true,
-    "url": "https://attack.mitre.org/techniques/T1574/007"
+    "url": "https://attack.mitre.org/techniques/T1574/007",
+    "parentId": "T1574",
+    "parentName": "Hijack Execution Flow"
   },
   {
     "id": "T1574.008",
@@ -4862,7 +5596,9 @@
       "stealth"
     ],
     "isSubtechnique": true,
-    "url": "https://attack.mitre.org/techniques/T1574/008"
+    "url": "https://attack.mitre.org/techniques/T1574/008",
+    "parentId": "T1574",
+    "parentName": "Hijack Execution Flow"
   },
   {
     "id": "T1574.009",
@@ -4872,7 +5608,9 @@
       "stealth"
     ],
     "isSubtechnique": true,
-    "url": "https://attack.mitre.org/techniques/T1574/009"
+    "url": "https://attack.mitre.org/techniques/T1574/009",
+    "parentId": "T1574",
+    "parentName": "Hijack Execution Flow"
   },
   {
     "id": "T1574.010",
@@ -4882,7 +5620,9 @@
       "stealth"
     ],
     "isSubtechnique": true,
-    "url": "https://attack.mitre.org/techniques/T1574/010"
+    "url": "https://attack.mitre.org/techniques/T1574/010",
+    "parentId": "T1574",
+    "parentName": "Hijack Execution Flow"
   },
   {
     "id": "T1574.011",
@@ -4892,7 +5632,9 @@
       "stealth"
     ],
     "isSubtechnique": true,
-    "url": "https://attack.mitre.org/techniques/T1574/011"
+    "url": "https://attack.mitre.org/techniques/T1574/011",
+    "parentId": "T1574",
+    "parentName": "Hijack Execution Flow"
   },
   {
     "id": "T1574.012",
@@ -4902,7 +5644,9 @@
       "stealth"
     ],
     "isSubtechnique": true,
-    "url": "https://attack.mitre.org/techniques/T1574/012"
+    "url": "https://attack.mitre.org/techniques/T1574/012",
+    "parentId": "T1574",
+    "parentName": "Hijack Execution Flow"
   },
   {
     "id": "T1574.013",
@@ -4912,7 +5656,9 @@
       "stealth"
     ],
     "isSubtechnique": true,
-    "url": "https://attack.mitre.org/techniques/T1574/013"
+    "url": "https://attack.mitre.org/techniques/T1574/013",
+    "parentId": "T1574",
+    "parentName": "Hijack Execution Flow"
   },
   {
     "id": "T1574.014",
@@ -4922,7 +5668,9 @@
       "stealth"
     ],
     "isSubtechnique": true,
-    "url": "https://attack.mitre.org/techniques/T1574/014"
+    "url": "https://attack.mitre.org/techniques/T1574/014",
+    "parentId": "T1574",
+    "parentName": "Hijack Execution Flow"
   },
   {
     "id": "T1578",
@@ -4940,7 +5688,9 @@
       "defense-impairment"
     ],
     "isSubtechnique": true,
-    "url": "https://attack.mitre.org/techniques/T1578/001"
+    "url": "https://attack.mitre.org/techniques/T1578/001",
+    "parentId": "T1578",
+    "parentName": "Modify Cloud Compute Infrastructure"
   },
   {
     "id": "T1578.002",
@@ -4949,7 +5699,9 @@
       "defense-impairment"
     ],
     "isSubtechnique": true,
-    "url": "https://attack.mitre.org/techniques/T1578/002"
+    "url": "https://attack.mitre.org/techniques/T1578/002",
+    "parentId": "T1578",
+    "parentName": "Modify Cloud Compute Infrastructure"
   },
   {
     "id": "T1578.003",
@@ -4958,7 +5710,9 @@
       "defense-impairment"
     ],
     "isSubtechnique": true,
-    "url": "https://attack.mitre.org/techniques/T1578/003"
+    "url": "https://attack.mitre.org/techniques/T1578/003",
+    "parentId": "T1578",
+    "parentName": "Modify Cloud Compute Infrastructure"
   },
   {
     "id": "T1578.004",
@@ -4967,7 +5721,9 @@
       "defense-impairment"
     ],
     "isSubtechnique": true,
-    "url": "https://attack.mitre.org/techniques/T1578/004"
+    "url": "https://attack.mitre.org/techniques/T1578/004",
+    "parentId": "T1578",
+    "parentName": "Modify Cloud Compute Infrastructure"
   },
   {
     "id": "T1578.005",
@@ -4976,7 +5732,9 @@
       "defense-impairment"
     ],
     "isSubtechnique": true,
-    "url": "https://attack.mitre.org/techniques/T1578/005"
+    "url": "https://attack.mitre.org/techniques/T1578/005",
+    "parentId": "T1578",
+    "parentName": "Modify Cloud Compute Infrastructure"
   },
   {
     "id": "T1580",
@@ -5003,7 +5761,9 @@
       "resource-development"
     ],
     "isSubtechnique": true,
-    "url": "https://attack.mitre.org/techniques/T1583/001"
+    "url": "https://attack.mitre.org/techniques/T1583/001",
+    "parentId": "T1583",
+    "parentName": "Acquire Infrastructure"
   },
   {
     "id": "T1583.002",
@@ -5012,7 +5772,9 @@
       "resource-development"
     ],
     "isSubtechnique": true,
-    "url": "https://attack.mitre.org/techniques/T1583/002"
+    "url": "https://attack.mitre.org/techniques/T1583/002",
+    "parentId": "T1583",
+    "parentName": "Acquire Infrastructure"
   },
   {
     "id": "T1583.003",
@@ -5021,7 +5783,9 @@
       "resource-development"
     ],
     "isSubtechnique": true,
-    "url": "https://attack.mitre.org/techniques/T1583/003"
+    "url": "https://attack.mitre.org/techniques/T1583/003",
+    "parentId": "T1583",
+    "parentName": "Acquire Infrastructure"
   },
   {
     "id": "T1583.004",
@@ -5030,7 +5794,9 @@
       "resource-development"
     ],
     "isSubtechnique": true,
-    "url": "https://attack.mitre.org/techniques/T1583/004"
+    "url": "https://attack.mitre.org/techniques/T1583/004",
+    "parentId": "T1583",
+    "parentName": "Acquire Infrastructure"
   },
   {
     "id": "T1583.005",
@@ -5039,7 +5805,9 @@
       "resource-development"
     ],
     "isSubtechnique": true,
-    "url": "https://attack.mitre.org/techniques/T1583/005"
+    "url": "https://attack.mitre.org/techniques/T1583/005",
+    "parentId": "T1583",
+    "parentName": "Acquire Infrastructure"
   },
   {
     "id": "T1583.006",
@@ -5048,7 +5816,9 @@
       "resource-development"
     ],
     "isSubtechnique": true,
-    "url": "https://attack.mitre.org/techniques/T1583/006"
+    "url": "https://attack.mitre.org/techniques/T1583/006",
+    "parentId": "T1583",
+    "parentName": "Acquire Infrastructure"
   },
   {
     "id": "T1583.007",
@@ -5057,7 +5827,9 @@
       "resource-development"
     ],
     "isSubtechnique": true,
-    "url": "https://attack.mitre.org/techniques/T1583/007"
+    "url": "https://attack.mitre.org/techniques/T1583/007",
+    "parentId": "T1583",
+    "parentName": "Acquire Infrastructure"
   },
   {
     "id": "T1583.008",
@@ -5066,7 +5838,9 @@
       "resource-development"
     ],
     "isSubtechnique": true,
-    "url": "https://attack.mitre.org/techniques/T1583/008"
+    "url": "https://attack.mitre.org/techniques/T1583/008",
+    "parentId": "T1583",
+    "parentName": "Acquire Infrastructure"
   },
   {
     "id": "T1584",
@@ -5084,7 +5858,9 @@
       "resource-development"
     ],
     "isSubtechnique": true,
-    "url": "https://attack.mitre.org/techniques/T1584/001"
+    "url": "https://attack.mitre.org/techniques/T1584/001",
+    "parentId": "T1584",
+    "parentName": "Compromise Infrastructure"
   },
   {
     "id": "T1584.002",
@@ -5093,7 +5869,9 @@
       "resource-development"
     ],
     "isSubtechnique": true,
-    "url": "https://attack.mitre.org/techniques/T1584/002"
+    "url": "https://attack.mitre.org/techniques/T1584/002",
+    "parentId": "T1584",
+    "parentName": "Compromise Infrastructure"
   },
   {
     "id": "T1584.003",
@@ -5102,7 +5880,9 @@
       "resource-development"
     ],
     "isSubtechnique": true,
-    "url": "https://attack.mitre.org/techniques/T1584/003"
+    "url": "https://attack.mitre.org/techniques/T1584/003",
+    "parentId": "T1584",
+    "parentName": "Compromise Infrastructure"
   },
   {
     "id": "T1584.004",
@@ -5111,7 +5891,9 @@
       "resource-development"
     ],
     "isSubtechnique": true,
-    "url": "https://attack.mitre.org/techniques/T1584/004"
+    "url": "https://attack.mitre.org/techniques/T1584/004",
+    "parentId": "T1584",
+    "parentName": "Compromise Infrastructure"
   },
   {
     "id": "T1584.005",
@@ -5120,7 +5902,9 @@
       "resource-development"
     ],
     "isSubtechnique": true,
-    "url": "https://attack.mitre.org/techniques/T1584/005"
+    "url": "https://attack.mitre.org/techniques/T1584/005",
+    "parentId": "T1584",
+    "parentName": "Compromise Infrastructure"
   },
   {
     "id": "T1584.006",
@@ -5129,7 +5913,9 @@
       "resource-development"
     ],
     "isSubtechnique": true,
-    "url": "https://attack.mitre.org/techniques/T1584/006"
+    "url": "https://attack.mitre.org/techniques/T1584/006",
+    "parentId": "T1584",
+    "parentName": "Compromise Infrastructure"
   },
   {
     "id": "T1584.007",
@@ -5138,7 +5924,9 @@
       "resource-development"
     ],
     "isSubtechnique": true,
-    "url": "https://attack.mitre.org/techniques/T1584/007"
+    "url": "https://attack.mitre.org/techniques/T1584/007",
+    "parentId": "T1584",
+    "parentName": "Compromise Infrastructure"
   },
   {
     "id": "T1584.008",
@@ -5147,7 +5935,9 @@
       "resource-development"
     ],
     "isSubtechnique": true,
-    "url": "https://attack.mitre.org/techniques/T1584/008"
+    "url": "https://attack.mitre.org/techniques/T1584/008",
+    "parentId": "T1584",
+    "parentName": "Compromise Infrastructure"
   },
   {
     "id": "T1585",
@@ -5165,7 +5955,9 @@
       "resource-development"
     ],
     "isSubtechnique": true,
-    "url": "https://attack.mitre.org/techniques/T1585/001"
+    "url": "https://attack.mitre.org/techniques/T1585/001",
+    "parentId": "T1585",
+    "parentName": "Establish Accounts"
   },
   {
     "id": "T1585.002",
@@ -5174,7 +5966,9 @@
       "resource-development"
     ],
     "isSubtechnique": true,
-    "url": "https://attack.mitre.org/techniques/T1585/002"
+    "url": "https://attack.mitre.org/techniques/T1585/002",
+    "parentId": "T1585",
+    "parentName": "Establish Accounts"
   },
   {
     "id": "T1585.003",
@@ -5183,7 +5977,9 @@
       "resource-development"
     ],
     "isSubtechnique": true,
-    "url": "https://attack.mitre.org/techniques/T1585/003"
+    "url": "https://attack.mitre.org/techniques/T1585/003",
+    "parentId": "T1585",
+    "parentName": "Establish Accounts"
   },
   {
     "id": "T1586",
@@ -5201,7 +5997,9 @@
       "resource-development"
     ],
     "isSubtechnique": true,
-    "url": "https://attack.mitre.org/techniques/T1586/001"
+    "url": "https://attack.mitre.org/techniques/T1586/001",
+    "parentId": "T1586",
+    "parentName": "Compromise Accounts"
   },
   {
     "id": "T1586.002",
@@ -5210,7 +6008,9 @@
       "resource-development"
     ],
     "isSubtechnique": true,
-    "url": "https://attack.mitre.org/techniques/T1586/002"
+    "url": "https://attack.mitre.org/techniques/T1586/002",
+    "parentId": "T1586",
+    "parentName": "Compromise Accounts"
   },
   {
     "id": "T1586.003",
@@ -5219,7 +6019,9 @@
       "resource-development"
     ],
     "isSubtechnique": true,
-    "url": "https://attack.mitre.org/techniques/T1586/003"
+    "url": "https://attack.mitre.org/techniques/T1586/003",
+    "parentId": "T1586",
+    "parentName": "Compromise Accounts"
   },
   {
     "id": "T1587",
@@ -5237,7 +6039,9 @@
       "resource-development"
     ],
     "isSubtechnique": true,
-    "url": "https://attack.mitre.org/techniques/T1587/001"
+    "url": "https://attack.mitre.org/techniques/T1587/001",
+    "parentId": "T1587",
+    "parentName": "Develop Capabilities"
   },
   {
     "id": "T1587.002",
@@ -5246,7 +6050,9 @@
       "resource-development"
     ],
     "isSubtechnique": true,
-    "url": "https://attack.mitre.org/techniques/T1587/002"
+    "url": "https://attack.mitre.org/techniques/T1587/002",
+    "parentId": "T1587",
+    "parentName": "Develop Capabilities"
   },
   {
     "id": "T1587.003",
@@ -5255,7 +6061,9 @@
       "resource-development"
     ],
     "isSubtechnique": true,
-    "url": "https://attack.mitre.org/techniques/T1587/003"
+    "url": "https://attack.mitre.org/techniques/T1587/003",
+    "parentId": "T1587",
+    "parentName": "Develop Capabilities"
   },
   {
     "id": "T1587.004",
@@ -5264,7 +6072,9 @@
       "resource-development"
     ],
     "isSubtechnique": true,
-    "url": "https://attack.mitre.org/techniques/T1587/004"
+    "url": "https://attack.mitre.org/techniques/T1587/004",
+    "parentId": "T1587",
+    "parentName": "Develop Capabilities"
   },
   {
     "id": "T1588",
@@ -5282,7 +6092,9 @@
       "resource-development"
     ],
     "isSubtechnique": true,
-    "url": "https://attack.mitre.org/techniques/T1588/001"
+    "url": "https://attack.mitre.org/techniques/T1588/001",
+    "parentId": "T1588",
+    "parentName": "Obtain Capabilities"
   },
   {
     "id": "T1588.002",
@@ -5291,7 +6103,9 @@
       "resource-development"
     ],
     "isSubtechnique": true,
-    "url": "https://attack.mitre.org/techniques/T1588/002"
+    "url": "https://attack.mitre.org/techniques/T1588/002",
+    "parentId": "T1588",
+    "parentName": "Obtain Capabilities"
   },
   {
     "id": "T1588.003",
@@ -5300,7 +6114,9 @@
       "resource-development"
     ],
     "isSubtechnique": true,
-    "url": "https://attack.mitre.org/techniques/T1588/003"
+    "url": "https://attack.mitre.org/techniques/T1588/003",
+    "parentId": "T1588",
+    "parentName": "Obtain Capabilities"
   },
   {
     "id": "T1588.004",
@@ -5309,7 +6125,9 @@
       "resource-development"
     ],
     "isSubtechnique": true,
-    "url": "https://attack.mitre.org/techniques/T1588/004"
+    "url": "https://attack.mitre.org/techniques/T1588/004",
+    "parentId": "T1588",
+    "parentName": "Obtain Capabilities"
   },
   {
     "id": "T1588.005",
@@ -5318,7 +6136,9 @@
       "resource-development"
     ],
     "isSubtechnique": true,
-    "url": "https://attack.mitre.org/techniques/T1588/005"
+    "url": "https://attack.mitre.org/techniques/T1588/005",
+    "parentId": "T1588",
+    "parentName": "Obtain Capabilities"
   },
   {
     "id": "T1588.006",
@@ -5327,7 +6147,9 @@
       "resource-development"
     ],
     "isSubtechnique": true,
-    "url": "https://attack.mitre.org/techniques/T1588/006"
+    "url": "https://attack.mitre.org/techniques/T1588/006",
+    "parentId": "T1588",
+    "parentName": "Obtain Capabilities"
   },
   {
     "id": "T1588.007",
@@ -5336,7 +6158,9 @@
       "resource-development"
     ],
     "isSubtechnique": true,
-    "url": "https://attack.mitre.org/techniques/T1588/007"
+    "url": "https://attack.mitre.org/techniques/T1588/007",
+    "parentId": "T1588",
+    "parentName": "Obtain Capabilities"
   },
   {
     "id": "T1589",
@@ -5354,7 +6178,9 @@
       "reconnaissance"
     ],
     "isSubtechnique": true,
-    "url": "https://attack.mitre.org/techniques/T1589/001"
+    "url": "https://attack.mitre.org/techniques/T1589/001",
+    "parentId": "T1589",
+    "parentName": "Gather Victim Identity Information"
   },
   {
     "id": "T1589.002",
@@ -5363,7 +6189,9 @@
       "reconnaissance"
     ],
     "isSubtechnique": true,
-    "url": "https://attack.mitre.org/techniques/T1589/002"
+    "url": "https://attack.mitre.org/techniques/T1589/002",
+    "parentId": "T1589",
+    "parentName": "Gather Victim Identity Information"
   },
   {
     "id": "T1589.003",
@@ -5372,7 +6200,9 @@
       "reconnaissance"
     ],
     "isSubtechnique": true,
-    "url": "https://attack.mitre.org/techniques/T1589/003"
+    "url": "https://attack.mitre.org/techniques/T1589/003",
+    "parentId": "T1589",
+    "parentName": "Gather Victim Identity Information"
   },
   {
     "id": "T1590",
@@ -5390,7 +6220,9 @@
       "reconnaissance"
     ],
     "isSubtechnique": true,
-    "url": "https://attack.mitre.org/techniques/T1590/001"
+    "url": "https://attack.mitre.org/techniques/T1590/001",
+    "parentId": "T1590",
+    "parentName": "Gather Victim Network Information"
   },
   {
     "id": "T1590.002",
@@ -5399,7 +6231,9 @@
       "reconnaissance"
     ],
     "isSubtechnique": true,
-    "url": "https://attack.mitre.org/techniques/T1590/002"
+    "url": "https://attack.mitre.org/techniques/T1590/002",
+    "parentId": "T1590",
+    "parentName": "Gather Victim Network Information"
   },
   {
     "id": "T1590.003",
@@ -5408,7 +6242,9 @@
       "reconnaissance"
     ],
     "isSubtechnique": true,
-    "url": "https://attack.mitre.org/techniques/T1590/003"
+    "url": "https://attack.mitre.org/techniques/T1590/003",
+    "parentId": "T1590",
+    "parentName": "Gather Victim Network Information"
   },
   {
     "id": "T1590.004",
@@ -5417,7 +6253,9 @@
       "reconnaissance"
     ],
     "isSubtechnique": true,
-    "url": "https://attack.mitre.org/techniques/T1590/004"
+    "url": "https://attack.mitre.org/techniques/T1590/004",
+    "parentId": "T1590",
+    "parentName": "Gather Victim Network Information"
   },
   {
     "id": "T1590.005",
@@ -5426,7 +6264,9 @@
       "reconnaissance"
     ],
     "isSubtechnique": true,
-    "url": "https://attack.mitre.org/techniques/T1590/005"
+    "url": "https://attack.mitre.org/techniques/T1590/005",
+    "parentId": "T1590",
+    "parentName": "Gather Victim Network Information"
   },
   {
     "id": "T1590.006",
@@ -5435,7 +6275,9 @@
       "reconnaissance"
     ],
     "isSubtechnique": true,
-    "url": "https://attack.mitre.org/techniques/T1590/006"
+    "url": "https://attack.mitre.org/techniques/T1590/006",
+    "parentId": "T1590",
+    "parentName": "Gather Victim Network Information"
   },
   {
     "id": "T1591",
@@ -5453,7 +6295,9 @@
       "reconnaissance"
     ],
     "isSubtechnique": true,
-    "url": "https://attack.mitre.org/techniques/T1591/001"
+    "url": "https://attack.mitre.org/techniques/T1591/001",
+    "parentId": "T1591",
+    "parentName": "Gather Victim Org Information"
   },
   {
     "id": "T1591.002",
@@ -5462,7 +6306,9 @@
       "reconnaissance"
     ],
     "isSubtechnique": true,
-    "url": "https://attack.mitre.org/techniques/T1591/002"
+    "url": "https://attack.mitre.org/techniques/T1591/002",
+    "parentId": "T1591",
+    "parentName": "Gather Victim Org Information"
   },
   {
     "id": "T1591.003",
@@ -5471,7 +6317,9 @@
       "reconnaissance"
     ],
     "isSubtechnique": true,
-    "url": "https://attack.mitre.org/techniques/T1591/003"
+    "url": "https://attack.mitre.org/techniques/T1591/003",
+    "parentId": "T1591",
+    "parentName": "Gather Victim Org Information"
   },
   {
     "id": "T1591.004",
@@ -5480,7 +6328,9 @@
       "reconnaissance"
     ],
     "isSubtechnique": true,
-    "url": "https://attack.mitre.org/techniques/T1591/004"
+    "url": "https://attack.mitre.org/techniques/T1591/004",
+    "parentId": "T1591",
+    "parentName": "Gather Victim Org Information"
   },
   {
     "id": "T1592",
@@ -5498,7 +6348,9 @@
       "reconnaissance"
     ],
     "isSubtechnique": true,
-    "url": "https://attack.mitre.org/techniques/T1592/001"
+    "url": "https://attack.mitre.org/techniques/T1592/001",
+    "parentId": "T1592",
+    "parentName": "Gather Victim Host Information"
   },
   {
     "id": "T1592.002",
@@ -5507,7 +6359,9 @@
       "reconnaissance"
     ],
     "isSubtechnique": true,
-    "url": "https://attack.mitre.org/techniques/T1592/002"
+    "url": "https://attack.mitre.org/techniques/T1592/002",
+    "parentId": "T1592",
+    "parentName": "Gather Victim Host Information"
   },
   {
     "id": "T1592.003",
@@ -5516,7 +6370,9 @@
       "reconnaissance"
     ],
     "isSubtechnique": true,
-    "url": "https://attack.mitre.org/techniques/T1592/003"
+    "url": "https://attack.mitre.org/techniques/T1592/003",
+    "parentId": "T1592",
+    "parentName": "Gather Victim Host Information"
   },
   {
     "id": "T1592.004",
@@ -5525,7 +6381,9 @@
       "reconnaissance"
     ],
     "isSubtechnique": true,
-    "url": "https://attack.mitre.org/techniques/T1592/004"
+    "url": "https://attack.mitre.org/techniques/T1592/004",
+    "parentId": "T1592",
+    "parentName": "Gather Victim Host Information"
   },
   {
     "id": "T1593",
@@ -5543,7 +6401,9 @@
       "reconnaissance"
     ],
     "isSubtechnique": true,
-    "url": "https://attack.mitre.org/techniques/T1593/001"
+    "url": "https://attack.mitre.org/techniques/T1593/001",
+    "parentId": "T1593",
+    "parentName": "Search Open Websites/Domains"
   },
   {
     "id": "T1593.002",
@@ -5552,7 +6412,9 @@
       "reconnaissance"
     ],
     "isSubtechnique": true,
-    "url": "https://attack.mitre.org/techniques/T1593/002"
+    "url": "https://attack.mitre.org/techniques/T1593/002",
+    "parentId": "T1593",
+    "parentName": "Search Open Websites/Domains"
   },
   {
     "id": "T1593.003",
@@ -5561,7 +6423,9 @@
       "reconnaissance"
     ],
     "isSubtechnique": true,
-    "url": "https://attack.mitre.org/techniques/T1593/003"
+    "url": "https://attack.mitre.org/techniques/T1593/003",
+    "parentId": "T1593",
+    "parentName": "Search Open Websites/Domains"
   },
   {
     "id": "T1594",
@@ -5588,7 +6452,9 @@
       "reconnaissance"
     ],
     "isSubtechnique": true,
-    "url": "https://attack.mitre.org/techniques/T1595/001"
+    "url": "https://attack.mitre.org/techniques/T1595/001",
+    "parentId": "T1595",
+    "parentName": "Active Scanning"
   },
   {
     "id": "T1595.002",
@@ -5597,7 +6463,9 @@
       "reconnaissance"
     ],
     "isSubtechnique": true,
-    "url": "https://attack.mitre.org/techniques/T1595/002"
+    "url": "https://attack.mitre.org/techniques/T1595/002",
+    "parentId": "T1595",
+    "parentName": "Active Scanning"
   },
   {
     "id": "T1595.003",
@@ -5606,7 +6474,9 @@
       "reconnaissance"
     ],
     "isSubtechnique": true,
-    "url": "https://attack.mitre.org/techniques/T1595/003"
+    "url": "https://attack.mitre.org/techniques/T1595/003",
+    "parentId": "T1595",
+    "parentName": "Active Scanning"
   },
   {
     "id": "T1596",
@@ -5624,7 +6494,9 @@
       "reconnaissance"
     ],
     "isSubtechnique": true,
-    "url": "https://attack.mitre.org/techniques/T1596/001"
+    "url": "https://attack.mitre.org/techniques/T1596/001",
+    "parentId": "T1596",
+    "parentName": "Search Open Technical Databases"
   },
   {
     "id": "T1596.002",
@@ -5633,7 +6505,9 @@
       "reconnaissance"
     ],
     "isSubtechnique": true,
-    "url": "https://attack.mitre.org/techniques/T1596/002"
+    "url": "https://attack.mitre.org/techniques/T1596/002",
+    "parentId": "T1596",
+    "parentName": "Search Open Technical Databases"
   },
   {
     "id": "T1596.003",
@@ -5642,7 +6516,9 @@
       "reconnaissance"
     ],
     "isSubtechnique": true,
-    "url": "https://attack.mitre.org/techniques/T1596/003"
+    "url": "https://attack.mitre.org/techniques/T1596/003",
+    "parentId": "T1596",
+    "parentName": "Search Open Technical Databases"
   },
   {
     "id": "T1596.004",
@@ -5651,7 +6527,9 @@
       "reconnaissance"
     ],
     "isSubtechnique": true,
-    "url": "https://attack.mitre.org/techniques/T1596/004"
+    "url": "https://attack.mitre.org/techniques/T1596/004",
+    "parentId": "T1596",
+    "parentName": "Search Open Technical Databases"
   },
   {
     "id": "T1596.005",
@@ -5660,7 +6538,9 @@
       "reconnaissance"
     ],
     "isSubtechnique": true,
-    "url": "https://attack.mitre.org/techniques/T1596/005"
+    "url": "https://attack.mitre.org/techniques/T1596/005",
+    "parentId": "T1596",
+    "parentName": "Search Open Technical Databases"
   },
   {
     "id": "T1597",
@@ -5678,7 +6558,9 @@
       "reconnaissance"
     ],
     "isSubtechnique": true,
-    "url": "https://attack.mitre.org/techniques/T1597/001"
+    "url": "https://attack.mitre.org/techniques/T1597/001",
+    "parentId": "T1597",
+    "parentName": "Search Closed Sources"
   },
   {
     "id": "T1597.002",
@@ -5687,7 +6569,9 @@
       "reconnaissance"
     ],
     "isSubtechnique": true,
-    "url": "https://attack.mitre.org/techniques/T1597/002"
+    "url": "https://attack.mitre.org/techniques/T1597/002",
+    "parentId": "T1597",
+    "parentName": "Search Closed Sources"
   },
   {
     "id": "T1598",
@@ -5705,7 +6589,9 @@
       "reconnaissance"
     ],
     "isSubtechnique": true,
-    "url": "https://attack.mitre.org/techniques/T1598/001"
+    "url": "https://attack.mitre.org/techniques/T1598/001",
+    "parentId": "T1598",
+    "parentName": "Phishing for Information"
   },
   {
     "id": "T1598.002",
@@ -5714,7 +6600,9 @@
       "reconnaissance"
     ],
     "isSubtechnique": true,
-    "url": "https://attack.mitre.org/techniques/T1598/002"
+    "url": "https://attack.mitre.org/techniques/T1598/002",
+    "parentId": "T1598",
+    "parentName": "Phishing for Information"
   },
   {
     "id": "T1598.003",
@@ -5723,7 +6611,9 @@
       "reconnaissance"
     ],
     "isSubtechnique": true,
-    "url": "https://attack.mitre.org/techniques/T1598/003"
+    "url": "https://attack.mitre.org/techniques/T1598/003",
+    "parentId": "T1598",
+    "parentName": "Phishing for Information"
   },
   {
     "id": "T1598.004",
@@ -5732,7 +6622,9 @@
       "reconnaissance"
     ],
     "isSubtechnique": true,
-    "url": "https://attack.mitre.org/techniques/T1598/004"
+    "url": "https://attack.mitre.org/techniques/T1598/004",
+    "parentId": "T1598",
+    "parentName": "Phishing for Information"
   },
   {
     "id": "T1599",
@@ -5750,7 +6642,9 @@
       "defense-impairment"
     ],
     "isSubtechnique": true,
-    "url": "https://attack.mitre.org/techniques/T1599/001"
+    "url": "https://attack.mitre.org/techniques/T1599/001",
+    "parentId": "T1599",
+    "parentName": "Network Boundary Bridging"
   },
   {
     "id": "T1600",
@@ -5768,7 +6662,9 @@
       "defense-impairment"
     ],
     "isSubtechnique": true,
-    "url": "https://attack.mitre.org/techniques/T1600/001"
+    "url": "https://attack.mitre.org/techniques/T1600/001",
+    "parentId": "T1600",
+    "parentName": "Weaken Encryption"
   },
   {
     "id": "T1600.002",
@@ -5777,7 +6673,9 @@
       "defense-impairment"
     ],
     "isSubtechnique": true,
-    "url": "https://attack.mitre.org/techniques/T1600/002"
+    "url": "https://attack.mitre.org/techniques/T1600/002",
+    "parentId": "T1600",
+    "parentName": "Weaken Encryption"
   },
   {
     "id": "T1601",
@@ -5795,7 +6693,9 @@
       "defense-impairment"
     ],
     "isSubtechnique": true,
-    "url": "https://attack.mitre.org/techniques/T1601/001"
+    "url": "https://attack.mitre.org/techniques/T1601/001",
+    "parentId": "T1601",
+    "parentName": "Modify System Image"
   },
   {
     "id": "T1601.002",
@@ -5804,7 +6704,9 @@
       "defense-impairment"
     ],
     "isSubtechnique": true,
-    "url": "https://attack.mitre.org/techniques/T1601/002"
+    "url": "https://attack.mitre.org/techniques/T1601/002",
+    "parentId": "T1601",
+    "parentName": "Modify System Image"
   },
   {
     "id": "T1602",
@@ -5822,7 +6724,9 @@
       "collection"
     ],
     "isSubtechnique": true,
-    "url": "https://attack.mitre.org/techniques/T1602/001"
+    "url": "https://attack.mitre.org/techniques/T1602/001",
+    "parentId": "T1602",
+    "parentName": "Data from Configuration Repository"
   },
   {
     "id": "T1602.002",
@@ -5831,7 +6735,9 @@
       "collection"
     ],
     "isSubtechnique": true,
-    "url": "https://attack.mitre.org/techniques/T1602/002"
+    "url": "https://attack.mitre.org/techniques/T1602/002",
+    "parentId": "T1602",
+    "parentName": "Data from Configuration Repository"
   },
   {
     "id": "T1606",
@@ -5849,7 +6755,9 @@
       "credential-access"
     ],
     "isSubtechnique": true,
-    "url": "https://attack.mitre.org/techniques/T1606/001"
+    "url": "https://attack.mitre.org/techniques/T1606/001",
+    "parentId": "T1606",
+    "parentName": "Forge Web Credentials"
   },
   {
     "id": "T1606.002",
@@ -5858,7 +6766,9 @@
       "credential-access"
     ],
     "isSubtechnique": true,
-    "url": "https://attack.mitre.org/techniques/T1606/002"
+    "url": "https://attack.mitre.org/techniques/T1606/002",
+    "parentId": "T1606",
+    "parentName": "Forge Web Credentials"
   },
   {
     "id": "T1608",
@@ -5876,7 +6786,9 @@
       "resource-development"
     ],
     "isSubtechnique": true,
-    "url": "https://attack.mitre.org/techniques/T1608/001"
+    "url": "https://attack.mitre.org/techniques/T1608/001",
+    "parentId": "T1608",
+    "parentName": "Stage Capabilities"
   },
   {
     "id": "T1608.002",
@@ -5885,7 +6797,9 @@
       "resource-development"
     ],
     "isSubtechnique": true,
-    "url": "https://attack.mitre.org/techniques/T1608/002"
+    "url": "https://attack.mitre.org/techniques/T1608/002",
+    "parentId": "T1608",
+    "parentName": "Stage Capabilities"
   },
   {
     "id": "T1608.003",
@@ -5894,7 +6808,9 @@
       "resource-development"
     ],
     "isSubtechnique": true,
-    "url": "https://attack.mitre.org/techniques/T1608/003"
+    "url": "https://attack.mitre.org/techniques/T1608/003",
+    "parentId": "T1608",
+    "parentName": "Stage Capabilities"
   },
   {
     "id": "T1608.004",
@@ -5903,7 +6819,9 @@
       "resource-development"
     ],
     "isSubtechnique": true,
-    "url": "https://attack.mitre.org/techniques/T1608/004"
+    "url": "https://attack.mitre.org/techniques/T1608/004",
+    "parentId": "T1608",
+    "parentName": "Stage Capabilities"
   },
   {
     "id": "T1608.005",
@@ -5912,7 +6830,9 @@
       "resource-development"
     ],
     "isSubtechnique": true,
-    "url": "https://attack.mitre.org/techniques/T1608/005"
+    "url": "https://attack.mitre.org/techniques/T1608/005",
+    "parentId": "T1608",
+    "parentName": "Stage Capabilities"
   },
   {
     "id": "T1608.006",
@@ -5921,7 +6841,9 @@
       "resource-development"
     ],
     "isSubtechnique": true,
-    "url": "https://attack.mitre.org/techniques/T1608/006"
+    "url": "https://attack.mitre.org/techniques/T1608/006",
+    "parentId": "T1608",
+    "parentName": "Stage Capabilities"
   },
   {
     "id": "T1609",
@@ -5984,7 +6906,9 @@
       "discovery"
     ],
     "isSubtechnique": true,
-    "url": "https://attack.mitre.org/techniques/T1614/001"
+    "url": "https://attack.mitre.org/techniques/T1614/001",
+    "parentId": "T1614",
+    "parentName": "System Location Discovery"
   },
   {
     "id": "T1615",
@@ -6274,7 +7198,9 @@
       "resource-development"
     ],
     "isSubtechnique": true,
-    "url": "https://attack.mitre.org/techniques/T1683/001"
+    "url": "https://attack.mitre.org/techniques/T1683/001",
+    "parentId": "T1683",
+    "parentName": "Generate Content"
   },
   {
     "id": "T1683.002",
@@ -6283,7 +7209,9 @@
       "resource-development"
     ],
     "isSubtechnique": true,
-    "url": "https://attack.mitre.org/techniques/T1683/002"
+    "url": "https://attack.mitre.org/techniques/T1683/002",
+    "parentId": "T1683",
+    "parentName": "Generate Content"
   },
   {
     "id": "T1684",
@@ -6301,7 +7229,9 @@
       "stealth"
     ],
     "isSubtechnique": true,
-    "url": "https://attack.mitre.org/techniques/T1684/001"
+    "url": "https://attack.mitre.org/techniques/T1684/001",
+    "parentId": "T1684",
+    "parentName": "Social Engineering"
   },
   {
     "id": "T1684.002",
@@ -6310,7 +7240,9 @@
       "stealth"
     ],
     "isSubtechnique": true,
-    "url": "https://attack.mitre.org/techniques/T1684/002"
+    "url": "https://attack.mitre.org/techniques/T1684/002",
+    "parentId": "T1684",
+    "parentName": "Social Engineering"
   },
   {
     "id": "T1685",
@@ -6328,7 +7260,9 @@
       "defense-impairment"
     ],
     "isSubtechnique": true,
-    "url": "https://attack.mitre.org/techniques/T1685/001"
+    "url": "https://attack.mitre.org/techniques/T1685/001",
+    "parentId": "T1685",
+    "parentName": "Disable or Modify Tools"
   },
   {
     "id": "T1685.002",
@@ -6337,7 +7271,9 @@
       "defense-impairment"
     ],
     "isSubtechnique": true,
-    "url": "https://attack.mitre.org/techniques/T1685/002"
+    "url": "https://attack.mitre.org/techniques/T1685/002",
+    "parentId": "T1685",
+    "parentName": "Disable or Modify Tools"
   },
   {
     "id": "T1685.003",
@@ -6346,7 +7282,9 @@
       "defense-impairment"
     ],
     "isSubtechnique": true,
-    "url": "https://attack.mitre.org/techniques/T1685/003"
+    "url": "https://attack.mitre.org/techniques/T1685/003",
+    "parentId": "T1685",
+    "parentName": "Disable or Modify Tools"
   },
   {
     "id": "T1685.004",
@@ -6355,7 +7293,9 @@
       "defense-impairment"
     ],
     "isSubtechnique": true,
-    "url": "https://attack.mitre.org/techniques/T1685/004"
+    "url": "https://attack.mitre.org/techniques/T1685/004",
+    "parentId": "T1685",
+    "parentName": "Disable or Modify Tools"
   },
   {
     "id": "T1685.005",
@@ -6364,7 +7304,9 @@
       "defense-impairment"
     ],
     "isSubtechnique": true,
-    "url": "https://attack.mitre.org/techniques/T1685/005"
+    "url": "https://attack.mitre.org/techniques/T1685/005",
+    "parentId": "T1685",
+    "parentName": "Disable or Modify Tools"
   },
   {
     "id": "T1685.006",
@@ -6373,7 +7315,9 @@
       "defense-impairment"
     ],
     "isSubtechnique": true,
-    "url": "https://attack.mitre.org/techniques/T1685/006"
+    "url": "https://attack.mitre.org/techniques/T1685/006",
+    "parentId": "T1685",
+    "parentName": "Disable or Modify Tools"
   },
   {
     "id": "T1686",
@@ -6391,7 +7335,9 @@
       "defense-impairment"
     ],
     "isSubtechnique": true,
-    "url": "https://attack.mitre.org/techniques/T1686/001"
+    "url": "https://attack.mitre.org/techniques/T1686/001",
+    "parentId": "T1686",
+    "parentName": "Disable or Modify System Firewall"
   },
   {
     "id": "T1686.002",
@@ -6400,7 +7346,9 @@
       "defense-impairment"
     ],
     "isSubtechnique": true,
-    "url": "https://attack.mitre.org/techniques/T1686/002"
+    "url": "https://attack.mitre.org/techniques/T1686/002",
+    "parentId": "T1686",
+    "parentName": "Disable or Modify System Firewall"
   },
   {
     "id": "T1686.003",
@@ -6409,7 +7357,9 @@
       "defense-impairment"
     ],
     "isSubtechnique": true,
-    "url": "https://attack.mitre.org/techniques/T1686/003"
+    "url": "https://attack.mitre.org/techniques/T1686/003",
+    "parentId": "T1686",
+    "parentName": "Disable or Modify System Firewall"
   },
   {
     "id": "T1687",
