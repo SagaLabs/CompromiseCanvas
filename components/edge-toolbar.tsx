@@ -1,6 +1,6 @@
 "use client"
 
-import { Trash2, Tag, Check } from "lucide-react"
+import { Trash2, Tag, Check, Lock, LockOpen } from "lucide-react"
 import { EdgeToolbar as XYEdgeToolbar } from "@xyflow/react"
 import { Button } from "@/components/ui/button"
 import {
@@ -20,7 +20,9 @@ interface EdgeToolbarProps {
   labelY: number
   isVisible: boolean
   currentActionType?: string
+  unlocked?: boolean
   onSetActionType: (actionType: EdgeActionType) => void
+  onToggleUnlocked: () => void
   onDelete: () => void
   onMouseEnter?: () => void
   onMouseLeave?: () => void
@@ -38,7 +40,9 @@ export default function EdgeToolbar({
   labelY,
   isVisible,
   currentActionType,
+  unlocked,
   onSetActionType,
+  onToggleUnlocked,
   onDelete,
   onMouseEnter,
   onMouseLeave,
@@ -58,6 +62,21 @@ export default function EdgeToolbar({
       onMouseEnter={onMouseEnter}
       onMouseLeave={onMouseLeave}
     >
+      <Button
+        type="button"
+        size="icon"
+        variant="ghost"
+        className={cn(
+          "h-7 w-7 hover:bg-gray-700",
+          unlocked ? "text-amber-400 hover:text-amber-300" : "text-gray-300 hover:text-white",
+        )}
+        title={unlocked ? "Lock edge (stop moving)" : "Unlock edge to move it"}
+        aria-label={unlocked ? "Lock edge" : "Unlock edge to move it"}
+        aria-pressed={unlocked}
+        onClick={() => onToggleUnlocked()}
+      >
+        {unlocked ? <LockOpen className="h-4 w-4" /> : <Lock className="h-4 w-4" />}
+      </Button>
       <DropdownMenu modal={false} onOpenChange={onMenuOpenChange}>
         <DropdownMenuTrigger asChild>
           <Button

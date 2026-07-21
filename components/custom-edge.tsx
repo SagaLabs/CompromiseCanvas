@@ -38,6 +38,7 @@ interface CustomEdgeProps extends EdgeProps<Edge<EdgeData>> {
   onDeleteEdge?: (id: string) => void
   onSetEdgeActionType?: (id: string, actionType: EdgeActionType) => void
   onSetEdgeLabelOffset?: (id: string, x: number, y: number) => void
+  onToggleEdgeUnlocked?: (id: string) => void
 }
 
 const CustomEdge = memo(function CustomEdge({
@@ -56,7 +57,9 @@ const CustomEdge = memo(function CustomEdge({
   onDeleteEdge,
   onSetEdgeActionType,
   onSetEdgeLabelOffset,
+  onToggleEdgeUnlocked,
 }: CustomEdgeProps) {
+  const unlocked = !!data?.unlocked
   // Track hover so the quick-action toolbar can appear without selecting the edge.
   const [hovered, setHovered] = useState(false)
   // Keep the toolbar mounted while the action-type menu is open (pointer leaves the edge).
@@ -98,8 +101,9 @@ const CustomEdge = memo(function CustomEdge({
   // Current viewport zoom, so a screen-space drag maps to the right flow-space delta.
   const zoom = useStore((s) => s.transform[2])
 
-  // Draggable label card. `drag` holds the live offset while dragging; once
-  // released the committed offset lives on the edge data (undo-safe).
+  // Manual routing drag (only when the edge is unlocked). `drag` holds the live
+  // control-point offset; once released the committed offset lives on the edge
+  // data (undo-safe). Dragging either the line or the label moves the same point.
   const [drag, setDrag] = useState<{ x: number; y: number } | null>(null)
   const dragStart = useRef<{ px: number; py: number; ox: number; oy: number } | null>(null)
   const offsetX = drag ? drag.x : data?.labelOffsetX ?? 0
@@ -107,6 +111,7 @@ const CustomEdge = memo(function CustomEdge({
 
   const onLabelPointerDown = useCallback(
     (e: React.PointerEvent) => {
+      if (!unlocked) return
       e.stopPropagation()
       const ox = data?.labelOffsetX ?? 0
       const oy = data?.labelOffsetY ?? 0
@@ -114,7 +119,7 @@ const CustomEdge = memo(function CustomEdge({
       setDrag({ x: ox, y: oy })
       e.currentTarget.setPointerCapture(e.pointerId)
     },
-    [data?.labelOffsetX, data?.labelOffsetY],
+    [unlocked, data?.labelOffsetX, data?.labelOffsetY],
   )
   const onLabelPointerMove = useCallback(
     (e: React.PointerEvent) => {
@@ -140,8 +145,8 @@ const CustomEdge = memo(function CustomEdge({
     [zoom, id, onSetEdgeLabelOffset],
   )
 
-  // Use React Flow's built-in smooth step path for better edge routing
-  const [edgePath, labelX, labelY] = getSmoothStepPath({
+  // Use React Flow's built-in smooth step path for the default (locked) routing.
+  const [smoothPath, smoothLabelX, smoothLabelY] = getSmoothStepPath({
     sourceX,
     sourceY,
     sourcePosition,
@@ -150,6 +155,18 @@ const CustomEdge = memo(function CustomEdge({
     targetPosition,
     borderRadius: 50, // Larger border radius to avoid obstacles
   })
+
+  // When unlocked, bend the edge through a draggable control point offset from the
+  // geometric midpoint. A quadratic curve whose control is midpoint + 2*offset
+  // passes exactly through midpoint + offset at its center, so the label rides
+  // the visible bend. Locked edges fall back to the auto-routed smoothstep path.
+  const midX = (sourceX + targetX) / 2
+  const midY = (sourceY + targetY) / 2
+  const edgePath = unlocked
+    ? `M ${sourceX},${sourceY} Q ${midX + 2 * offsetX},${midY + 2 * offsetY} ${targetX},${targetY}`
+    : smoothPath
+  const labelX = unlocked ? midX + offsetX : smoothLabelX
+  const labelY = unlocked ? midY + offsetY : smoothLabelY
 
   // Determine edge styling based on action type
   const getEdgeStyle = (actionType?: string) => {
@@ -399,31 +416,21 @@ const CustomEdge = memo(function CustomEdge({
         style={{ ...style, ...edgeStyle }}
       />
 
-      {/* Invisible wide interaction path so hovering near the edge is detected */}
+      {/* Invisible wide interaction path so hovering near the edge is detected.
+          When unlocked, this path is also the drag handle for rerouting. */}
       <path
+        className={unlocked ? "nopan" : undefined}
         d={edgePath}
         fill="none"
         stroke="transparent"
         strokeWidth={30}
-        style={{ cursor: "pointer" }}
+        style={{ cursor: drag ? "grabbing" : unlocked ? "grab" : "pointer" }}
         onMouseEnter={showToolbar}
         onMouseLeave={hideToolbar}
+        onPointerDown={onLabelPointerDown}
+        onPointerMove={onLabelPointerMove}
+        onPointerUp={onLabelPointerUp}
       />
-
-      {/* Leader line tying a moved label card back to the edge midpoint */}
-      {(offsetX !== 0 || offsetY !== 0) && (
-        <line
-          x1={labelX}
-          y1={labelY}
-          x2={labelX + offsetX}
-          y2={labelY + offsetY}
-          stroke={edgeStyle.stroke}
-          strokeWidth={1}
-          strokeDasharray="2 3"
-          opacity={0.5}
-          pointerEvents="none"
-        />
-      )}
 
       {/* Quick-action toolbar shown at the edge midpoint on hover or when selected */}
       <EdgeToolbar
@@ -432,7 +439,9 @@ const CustomEdge = memo(function CustomEdge({
         labelY={labelY}
         isVisible={hovered || selected || menuOpen || pinned}
         currentActionType={data?.actionType}
+        unlocked={unlocked}
         onSetActionType={(actionType) => onSetEdgeActionType?.(id, actionType)}
+        onToggleUnlocked={() => onToggleEdgeUnlocked?.(id)}
         onDelete={() => onDeleteEdge?.(id)}
         onMouseEnter={showToolbar}
         onMouseLeave={hideToolbar}
@@ -478,7 +487,7 @@ const CustomEdge = memo(function CustomEdge({
             className={cn(
               "nodrag nopan absolute pointer-events-auto rounded-lg border border-gray-700 bg-gray-800 p-3 shadow-lg",
               "min-w-[220px] max-w-[300px] text-xs text-white", // Increased min-width for better readability
-              drag ? "cursor-grabbing select-none" : "cursor-grab",
+              unlocked && (drag ? "cursor-grabbing select-none" : "cursor-grab"),
             )}
           >
             {/* Main Label / Action Type */}

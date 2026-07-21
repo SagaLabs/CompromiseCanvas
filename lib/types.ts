@@ -318,8 +318,10 @@ export interface EdgeData extends Record<string, unknown> {
   // C2-specific fields
   c2Channel?: string // For C2 edges: HTTP/HTTPS, DNS, ICMP, etc.
   c2Framework?: string // For C2 edges: Cobalt Strike, Empire, Metasploit, etc.
-  // Manual label placement: offset (in flow units) of the info card from the
-  // edge midpoint. Undefined/0 keeps it centered on the line.
+  // Manual routing: when `unlocked`, the edge bends through a control point
+  // offset (in flow units) from its midpoint, and the label rides that point.
+  // Locked (default) keeps the auto-routed smoothstep path.
+  unlocked?: boolean
   labelOffsetX?: number
   labelOffsetY?: number
   // Display settings
