@@ -249,11 +249,6 @@ export default function HeaderControls({
           className="flex items-center gap-2 px-2 py-1"
           title={autosaveTitle}
         >
-          <Switch
-            checked={autosaveEnabled}
-            onCheckedChange={onToggleAutosave}
-            aria-label="Toggle autosave"
-          />
           <span
             className={`whitespace-nowrap text-xs ${
               autosaveStatus === "error" ? "text-red-400" : autosaveEnabled ? "text-green-400" : "text-gray-500"
@@ -262,6 +257,11 @@ export default function HeaderControls({
           >
             {autosaveLabel}
           </span>
+          <Switch
+            checked={autosaveEnabled}
+            onCheckedChange={onToggleAutosave}
+            aria-label="Toggle autosave"
+          />
         </div>
         <Button
           variant="ghost"
