@@ -6,6 +6,7 @@ import autoTable from 'jspdf-autotable';
 import { FileText } from 'lucide-react';
 import { Button } from "@/components/ui/button";
 import type { NodeData, EdgeData, IncidentLogEntry } from "@/lib/types";
+import { getMitreTechniqueLabel, normalizeMitreTechniqueReferences } from "@/lib/mitre-attack";
 
 interface ExportReportButtonProps {
   label?: string
@@ -124,6 +125,11 @@ export default function ExportReportButton({
           source: sourceNode?.data.label || e.source,
           target: targetNode?.data.label || e.target,
           action: d.actionType,
+          mitre: normalizeMitreTechniqueReferences(
+            d.mitreAttackTechniques,
+            d.mitreAttackId,
+            d.mitreAttackName,
+          ).map(technique => getMitreTechniqueLabel(technique.id, technique.name)).join("\n"),
           description: d.description || ""
         };
       })
@@ -142,17 +148,18 @@ export default function ExportReportButton({
         item.source,
         item.target,
         item.action,
+        item.mitre,
         item.description
       ]);
 
       autoTable(doc, {
         startY: currentY,
-        head: [['Timestamp (ISO)', 'Source', 'Target', 'Action', 'Description']],
+        head: [['Timestamp (ISO)', 'Source', 'Target', 'Action', 'MITRE ATT&CK', 'Description']],
         body: timelineRows,
         theme: 'striped',
         headStyles: { fillColor: [75, 85, 99] },
         columnStyles: {
-          4: { cellWidth: 70 }
+          5: { cellWidth: 55 }
         }
       });
       currentY = (doc as any).lastAutoTable.finalY + 15;
@@ -205,11 +212,17 @@ export default function ExportReportButton({
       const sourceNode = nodes.find(n => n.id === e.source);
       const targetNode = nodes.find(n => n.id === e.target);
       const d = e.data as EdgeData;
+      const mitreTechniques = normalizeMitreTechniqueReferences(
+        d.mitreAttackTechniques,
+        d.mitreAttackId,
+        d.mitreAttackName,
+      );
 
       return [
         sourceNode?.data.label || e.source,
         targetNode?.data.label || e.target,
         d.actionType,
+        mitreTechniques.map(technique => getMitreTechniqueLabel(technique.id, technique.name)).join("\n") || '-',
         d.toolUsed || '-',
         d.description || ''
       ];
@@ -217,7 +230,7 @@ export default function ExportReportButton({
 
     autoTable(doc, {
       startY: currentY,
-      head: [['Source', 'Target', 'Action', 'Tool', 'Description']],
+      head: [['Source', 'Target', 'Action', 'MITRE ATT&CK', 'Tool', 'Description']],
       body: edgeData,
       theme: 'striped',
       headStyles: { fillColor: [75, 85, 99] }

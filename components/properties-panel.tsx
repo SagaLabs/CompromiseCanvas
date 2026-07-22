@@ -6,6 +6,7 @@ import { Label } from "@/components/ui/label"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Textarea } from "@/components/ui/textarea"
 import { Button } from "@/components/ui/button"
+import { MitreTechniquePicker } from "@/components/mitre-technique-picker"
 import { Switch } from "@/components/ui/switch"
 import { Slider } from "@/components/ui/slider"
 import {
@@ -43,6 +44,7 @@ import {
   type InvestigationStatus,
 } from "@/lib/types"
 import type { CustomNode, CustomEdge } from "@/lib/types"
+import { normalizeMitreTechniqueReferences } from "@/lib/mitre-attack"
 
 // Define action icons mapping directly in this component
 const actionIcons = {
@@ -183,6 +185,20 @@ export default function PropertiesPanel({ selectedElement, updateNode, updateEdg
       const newData = { ...edgeData, [field]: value }
       setEdgeData(newData)
       updateEdge(selectedElement!.id, newData)
+    }
+  }
+
+  const handleMitreTechniqueChange = (techniques: Array<{ id: string; name: string }>) => {
+    if (edgeData && selectedElement) {
+      const primaryTechnique = techniques[0]
+      const newData = {
+        ...edgeData,
+        mitreAttackId: primaryTechnique?.id || "",
+        mitreAttackName: primaryTechnique?.name || "",
+        mitreAttackTechniques: techniques,
+      }
+      setEdgeData(newData)
+      updateEdge(selectedElement.id, newData)
     }
   }
 
@@ -2476,11 +2492,13 @@ export default function PropertiesPanel({ selectedElement, updateNode, updateEdg
             <Label htmlFor="mitre-attack-id" className="text-sm">
               MITRE ATT&CK ID
             </Label>
-            <Input
-              id="mitre-attack-id"
-              value={edgeData.mitreAttackId || ""}
-              onChange={(e) => handleEdgeChange("mitreAttackId", e.target.value)}
-              className="mt-1 bg-gray-800 text-white border-gray-700"
+            <MitreTechniquePicker
+              techniques={normalizeMitreTechniqueReferences(
+                edgeData.mitreAttackTechniques,
+                edgeData.mitreAttackId,
+                edgeData.mitreAttackName,
+              )}
+              onChange={handleMitreTechniqueChange}
             />
           </div>
           <div>

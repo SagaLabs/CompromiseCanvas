@@ -10,7 +10,6 @@ import {
   User,
   Clock,
   Terminal,
-  Hash,
   FileText,
   Wifi,
   Code,
@@ -27,10 +26,16 @@ import {
   Users,
   Building,
   Package,
-  Activity
+  Activity,
+  ExternalLink,
 } from "lucide-react" // Import necessary icons
 import { cn } from "@/lib/utils" // Assuming cn utility is available
 import EdgeToolbar from "./edge-toolbar"
+import {
+  getMitreTechniqueLabel,
+  getMitreTechniqueUrl,
+  normalizeMitreTechniqueReferences,
+} from "@/lib/mitre-attack"
 
 interface CustomEdgeProps extends EdgeProps<Edge<EdgeData>> {
   animationsEnabled?: boolean
@@ -155,6 +160,11 @@ const CustomEdge = memo(function CustomEdge({
     targetPosition,
     borderRadius: 50, // Larger border radius to avoid obstacles
   })
+  const mitreTechniques = normalizeMitreTechniqueReferences(
+    data?.mitreAttackTechniques,
+    data?.mitreAttackId,
+    data?.mitreAttackName,
+  )
 
   // When unlocked, bend the edge through a draggable control point offset from the
   // geometric midpoint. A quadratic curve whose control is midpoint + 2*offset
@@ -532,10 +542,32 @@ const CustomEdge = memo(function CustomEdge({
               )}
 
               {/* MITRE ATT&CK ID */}
-              {data?.mitreAttackId && data?.displaySettings?.showMitreId && (
-                <div className="flex items-center gap-1">
-                  <Hash className="h-3 w-3" />
-                  <span>MITRE: {data.mitreAttackId}</span>
+              {mitreTechniques.length > 0 && data?.displaySettings?.showMitreId && (
+                <div className="min-w-0 space-y-0.5">
+                  {mitreTechniques.map((technique) => {
+                    const url = getMitreTechniqueUrl(technique.id)
+                    const label = getMitreTechniqueLabel(technique.id, technique.name)
+
+                    return (
+                      <div key={technique.id} className="flex items-start gap-1.5">
+                        <span className="min-w-0 break-words">{label}</span>
+                        {url && (
+                          <a
+                            href={url}
+                            target="_blank"
+                            rel="noreferrer"
+                            aria-label={`Open ${label} on MITRE ATT&CK`}
+                            title="Open on MITRE ATT&CK"
+                            className="mt-0.5 shrink-0 text-blue-400 hover:text-blue-300"
+                            onClick={(event) => event.stopPropagation()}
+                            onMouseDown={(event) => event.stopPropagation()}
+                          >
+                            <ExternalLink className="h-3 w-3" />
+                          </a>
+                        )}
+                      </div>
+                    )
+                  })}
                 </div>
               )}
 

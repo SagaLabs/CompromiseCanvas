@@ -307,6 +307,11 @@ export interface AnimationSettings {
   enableAnimations: boolean
 }
 
+export interface MitreTechniqueReference {
+  id: string
+  name: string
+}
+
 export interface EdgeData extends Record<string, unknown> {
   label?: string
   actionType: EdgeActionType
@@ -314,6 +319,8 @@ export interface EdgeData extends Record<string, unknown> {
   userUsed: string // For non-C2 edges, this is "User Used"
   timestamp: string // ISO8601 format (e.g., 'YYYY-MM-DDTHH:MM:SSZ')
   mitreAttackId?: string
+  mitreAttackName?: string
+  mitreAttackTechniques?: MitreTechniqueReference[]
   description: string // New field for detailed description
   // C2-specific fields
   c2Channel?: string // For C2 edges: HTTP/HTTPS, DNS, ICMP, etc.

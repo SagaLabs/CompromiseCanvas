@@ -125,7 +125,7 @@ export default function HeaderControls({
         <div className="flex items-center gap-2">
           <Button
             variant="ghost"
-            size="icon"
+            size="sm"
             onClick={onStartFromScratch}
             className="text-gray-300 hover:bg-gray-700"
             title="Start from scratch"
@@ -134,24 +134,6 @@ export default function HeaderControls({
             <FilePlus className="h-5 w-5" aria-hidden="true" />
             <span className="sr-only">Start from scratch</span>
           </Button>
-          <div
-            className="flex items-center gap-2 rounded-md border border-gray-700 px-2 py-1"
-            title={autosaveTitle}
-          >
-            <Switch
-              checked={autosaveEnabled}
-              onCheckedChange={onToggleAutosave}
-              aria-label="Toggle autosave"
-            />
-            <span
-              className={`whitespace-nowrap text-xs ${
-                autosaveStatus === "error" ? "text-red-400" : autosaveEnabled ? "text-green-400" : "text-gray-500"
-              }`}
-              aria-live="polite"
-            >
-              {autosaveLabel}
-            </span>
-          </div>
           <Button
             variant="ghost"
             size="icon"
@@ -263,6 +245,24 @@ export default function HeaderControls({
       </div>
 
       <div className="flex items-center gap-2">
+        <div
+          className="flex items-center gap-2 px-2 py-1"
+          title={autosaveTitle}
+        >
+          <span
+            className={`whitespace-nowrap text-xs ${
+              autosaveStatus === "error" ? "text-red-400" : autosaveEnabled ? "text-green-400" : "text-gray-500"
+            }`}
+            aria-live="polite"
+          >
+            {autosaveLabel}
+          </span>
+          <Switch
+            checked={autosaveEnabled}
+            onCheckedChange={onToggleAutosave}
+            aria-label="Toggle autosave"
+          />
+        </div>
         <Button
           variant="ghost"
           size="sm"
