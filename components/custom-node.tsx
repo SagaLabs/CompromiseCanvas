@@ -1,6 +1,7 @@
 import { memo, useMemo, useState, useCallback, useRef, useEffect } from "react"
 import { Handle, Position, NodeResizer, type Node, type NodeProps, useReactFlow } from "@xyflow/react"
 import NodeToolbar from "./node-toolbar"
+import { useCanvasActions } from "./canvas-actions-context"
 import {
   Server,
   Database,
@@ -95,6 +96,7 @@ const actionIcons = {
 
 const CustomNode = memo(function CustomNode({ data, isConnectable, selected, id }: NodeProps<Node<NodeData>>) {
   const { setNodes } = useReactFlow()
+  const { updateNode } = useCanvasActions()
   const Icon = assetIcons[data.type] || ServerCog // Default icon
   const CriticalityColorClass = criticalityColors[data.criticality] || "bg-gray-500"
 
@@ -379,24 +381,14 @@ const CustomNode = memo(function CustomNode({ data, isConnectable, selected, id 
   }, [])
 
   const toggleCompromised = useCallback(() => {
-    setNodes((nodes) =>
-      nodes.map((node) =>
-        node.id === id
-          ? { ...node, data: { ...node.data, isCompromised: !node.data.isCompromised } }
-          : node,
-      ),
-    )
-  }, [id, setNodes])
+    updateNode(id, { isCompromised: !data.isCompromised })
+  }, [data.isCompromised, id, updateNode])
 
   const setInvestigationStatus = useCallback(
     (investigationStatus: InvestigationStatus) => {
-      setNodes((nodes) =>
-        nodes.map((node) =>
-          node.id === id ? { ...node, data: { ...node.data, investigationStatus } } : node,
-        ),
-      )
+      updateNode(id, { investigationStatus })
     },
-    [id, setNodes],
+    [id, updateNode],
   )
 
   return (

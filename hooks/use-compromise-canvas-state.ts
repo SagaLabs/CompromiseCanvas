@@ -32,6 +32,11 @@ interface AutosaveSnapshot {
   incidentLog: IncidentLogEntry[]
 }
 
+interface SelectionReference {
+  id: string
+  kind: "node" | "edge"
+}
+
 const createAutosaveContent = ({ nodes, edges, viewport, canvasTitle, incidentLog }: AutosaveContent): AutosaveContent => ({
   // Selection and drag flags are transient UI state and create noisy writes while moving around the canvas.
   nodes: nodes.map(({ selected: _selected, dragging: _dragging, ...node }) => node),
@@ -56,7 +61,7 @@ export const useCompromiseCanvasState = () => {
   const [nodes, setNodes, onNodesChange] = useNodesState(initialNodes)
   const [edges, setEdges, setEdgesChange] = useEdgesState(initialEdges)
   const [reactFlowInstance, setReactFlowInstance] = useState<any>(null)
-  const [selectedElement, setSelectedElement] = useState<CustomNode | CustomEdge | null>(null)
+  const [selectionReference, setSelectionReference] = useState<SelectionReference | null>(null)
   const [snapToGrid, setSnapToGrid] = useState(true)
   const [showTemplatePanel, setShowTemplatePanel] = useState(false)
   const [showTimelinePanel, setShowTimelinePanel] = useState(false)
@@ -88,6 +93,32 @@ export const useCompromiseCanvasState = () => {
     return storedLog ? JSON.parse(storedLog) : []
   })
   const [showIncidentLogPanel, setShowIncidentLogPanel] = useState(false)
+
+  const selectedElement = useMemo<CustomNode | CustomEdge | null>(() => {
+    if (!selectionReference) return null
+
+    return selectionReference.kind === "node"
+      ? nodes.find((node) => node.id === selectionReference.id) ?? null
+      : edges.find((edge) => edge.id === selectionReference.id) ?? null
+  }, [selectionReference, nodes, edges])
+
+  const setSelectedElement = useCallback((element: CustomNode | CustomEdge | null) => {
+    setSelectionReference(
+      element
+        ? {
+            id: element.id,
+            kind: element.type === "customEdge" ? "edge" : "node",
+          }
+        : null,
+    )
+  }, [])
+
+  useEffect(() => {
+    if (selectionReference && !selectedElement) {
+      setSelectionReference(null)
+    }
+  }, [selectionReference, selectedElement])
+
   useEffect(() => {
     if (typeof window === "undefined") return
     localStorage.setItem("compromise-canvas-incident-log", JSON.stringify(incidentLog))

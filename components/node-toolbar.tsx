@@ -36,7 +36,7 @@ const STATUS_ICONS: Record<InvestigationStatus, typeof Circle> = {
 /**
  * Quick-action toolbar for a node, built on React Flow v12's official
  * `NodeToolbar`. Toggles compromised state and sets investigation status,
- * writing through handlers supplied by the node (which persist via setNodes).
+ * writing through the canvas's undo-aware node update command.
  */
 export default function NodeToolbar({
   nodeId,

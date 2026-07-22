@@ -36,7 +36,7 @@ const seed = {
         actionType: "Lateral Movement",
         toolUsed: "",
         userUsed: "",
-        timestamp: "",
+        timestamp: "2025-01-01T12:00:00.000Z",
         description: "",
         displaySettings: {},
       },
@@ -130,4 +130,36 @@ test("unlock toggle enables rerouting; drag bends the edge and moves its label",
   // Undo restores the pre-drag (unlocked, straight) geometry.
   await page.keyboard.press("Control+z")
   await expect(path).toHaveAttribute("d", pathUnlocked ?? "")
+})
+
+test("toolbar edge changes remain intact after a properties edit", async ({ page }) => {
+  await seedDiagram(page)
+  const label = page
+    .locator(".react-flow__edgelabel-renderer > div")
+    .filter({ hasText: "Lateral Movement" })
+
+  await page.getByRole("button", { name: "Open Timeline" }).click()
+  await page.getByRole("button").filter({ hasText: "Alpha" }).filter({ hasText: "Beta" }).click()
+  await page.keyboard.press("Escape")
+  const edgeLabelInput = page.getByRole("textbox").first()
+  await expect(edgeLabelInput).toBeVisible()
+
+  await page.getByRole("button", { name: "Unlock edge to move it" }).click()
+  await page.getByRole("button", { name: "Change action type" }).click()
+  await page.getByRole("menuitem", { name: "Impact" }).click()
+  await edgeLabelInput.fill("Preserved change")
+
+  await expect(page.getByRole("button", { name: "Lock edge" })).toBeVisible()
+  await expect(page.locator(".react-flow__edgelabel-renderer").getByText("Impact", { exact: true })).toBeVisible()
+
+  await page.getByRole("button", { name: "Save to browser storage" }).click()
+  const savedEdgeData = await page.evaluate(() => {
+    const saved = JSON.parse(localStorage.getItem("compromise-canvas-flow") || "{}")
+    return saved.edges[0].data
+  })
+  expect(savedEdgeData).toMatchObject({
+    unlocked: true,
+    actionType: "Impact",
+    label: "Preserved change",
+  })
 })

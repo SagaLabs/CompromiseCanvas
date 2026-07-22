@@ -32,6 +32,7 @@ import { useCompromiseCanvasHandlers } from "@/hooks/use-compromise-canvas-handl
 import { useReactFlowCallbacks } from "@/hooks/use-reactflow-callbacks"
 import { useState } from "react"
 import { Button } from "@/components/ui/button"
+import { CanvasActionsProvider } from "./canvas-actions-context"
 
 const nodeTypes = {
   customNode: CustomNode,
@@ -262,67 +263,69 @@ export default function CompromiseCanvas() {
           <AssetLibrary />
         )}
         <div className="flex-1 relative" ref={reactFlowWrapper}>
-          <ReactFlow
-            nodes={nodes}
-            edges={edges}
-            onNodesChange={onNodesChange}
-            onEdgesChange={setEdgesChange}
-            onConnect={onConnect}
-            onInit={setReactFlowInstance}
-            onDrop={onDrop}
-            onDragOver={onDragOver}
-            nodeTypes={nodeTypes}
-            edgeTypes={edgeTypes}
-            defaultEdgeOptions={{
-              type: "smoothstep",
-              style: { strokeWidth: 2, stroke: "#8B5CF6", strokeDasharray: "5 5" },
-              animated: false,
-            }}
-            fitView
-            fitViewOptions={FIT_VIEW_OPTIONS}
-            colorMode="dark"
-            connectionDragThreshold={8}
-            snapToGrid={snapToGrid}
-            snapGrid={[15, 15]}
-            onNodeClick={onNodeClick}
-            onEdgeClick={onEdgeClick}
-            onPaneClick={onPaneClick}
-            onPaneContextMenu={onPaneContextMenu}
-            className="ip-canvas"
-            // Performance optimizations for smooth dragging
-            nodesDraggable={true}
-            nodesConnectable={true}
-            elementsSelectable={true}
-            selectNodesOnDrag={false}
-            // Enable multi-selection
-            multiSelectionKeyCode="Shift"
-            panOnDrag={true}
-            zoomOnScroll={true}
-            zoomOnPinch={true}
-            zoomOnDoubleClick={false}
-            elevateNodesOnSelect={false}
-            preventScrolling={true}
-            nodeOrigin={[0.5, 0.5]}
-            // Disable expensive features during interaction
-            connectionLineType={"smoothstep" as any}
-            connectionLineStyle={{ strokeWidth: 2, stroke: "#8B5CF6" }}
-          >
-            <Controls />
-            <Background variant={"dots" as any} gap={12} size={1} color="#4B5563" />
-            <Panel position="top-left" className="p-2 text-sm text-gray-400">
-              <CanvasTitle title={canvasTitle} onTitleChange={setCanvasTitle} />
-              <div className="mt-2">
-                {nodes.length === 0 && edges.length === 0
-                  ? "Start by dragging assets from the left panel or open a template."
-                  : "Drag assets from the left panel to add nodes."}
-              </div>
-            </Panel>
-            <Panel position="bottom-right" className="p-2 text-xs text-gray-500">
-              Created by SagaLabs - Train as you fight
-              <br />
-              <span className="text-xs opacity-70">Developed with AI assistance</span>
-            </Panel>
-          </ReactFlow>
+          <CanvasActionsProvider updateNode={updateNode}>
+            <ReactFlow
+              nodes={nodes}
+              edges={edges}
+              onNodesChange={onNodesChange}
+              onEdgesChange={setEdgesChange}
+              onConnect={onConnect}
+              onInit={setReactFlowInstance}
+              onDrop={onDrop}
+              onDragOver={onDragOver}
+              nodeTypes={nodeTypes}
+              edgeTypes={edgeTypes}
+              defaultEdgeOptions={{
+                type: "smoothstep",
+                style: { strokeWidth: 2, stroke: "#8B5CF6", strokeDasharray: "5 5" },
+                animated: false,
+              }}
+              fitView
+              fitViewOptions={FIT_VIEW_OPTIONS}
+              colorMode="dark"
+              connectionDragThreshold={8}
+              snapToGrid={snapToGrid}
+              snapGrid={[15, 15]}
+              onNodeClick={onNodeClick}
+              onEdgeClick={onEdgeClick}
+              onPaneClick={onPaneClick}
+              onPaneContextMenu={onPaneContextMenu}
+              className="ip-canvas"
+              // Performance optimizations for smooth dragging
+              nodesDraggable={true}
+              nodesConnectable={true}
+              elementsSelectable={true}
+              selectNodesOnDrag={false}
+              // Enable multi-selection
+              multiSelectionKeyCode="Shift"
+              panOnDrag={true}
+              zoomOnScroll={true}
+              zoomOnPinch={true}
+              zoomOnDoubleClick={false}
+              elevateNodesOnSelect={false}
+              preventScrolling={true}
+              nodeOrigin={[0.5, 0.5]}
+              // Disable expensive features during interaction
+              connectionLineType={"smoothstep" as any}
+              connectionLineStyle={{ strokeWidth: 2, stroke: "#8B5CF6" }}
+            >
+              <Controls />
+              <Background variant={"dots" as any} gap={12} size={1} color="#4B5563" />
+              <Panel position="top-left" className="p-2 text-sm text-gray-400">
+                <CanvasTitle title={canvasTitle} onTitleChange={setCanvasTitle} />
+                <div className="mt-2">
+                  {nodes.length === 0 && edges.length === 0
+                    ? "Start by dragging assets from the left panel or open a template."
+                    : "Drag assets from the left panel to add nodes."}
+                </div>
+              </Panel>
+              <Panel position="bottom-right" className="p-2 text-xs text-gray-500">
+                Created by SagaLabs - Train as you fight
+                <br />
+                <span className="text-xs opacity-70">Developed with AI assistance</span>
+              </Panel>
+            </ReactFlow>
+          </CanvasActionsProvider>
         </div>
         <div className="pointer-events-none absolute bottom-4 left-1/2 z-20 -translate-x-1/2">
           <Button
