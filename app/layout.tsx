@@ -10,10 +10,10 @@ export const metadata: Metadata = {
   icons: {
     icon: [
       { url: '/favicons/favicon.ico', sizes: 'any' },
-      { url: '/favicons/favicon.svg', type: 'image/svg+xml' },
+      { url: '/favicons/favicon-16x16.png', type: 'image/png', sizes: '16x16' },
+      { url: '/favicons/favicon-32x32.png', type: 'image/png', sizes: '32x32' },
     ],
     shortcut: '/favicons/favicon.ico',
-    apple: '/favicons/apple-touch-icon.png',
   },
   manifest: '/favicons/site.webmanifest',
 }
@@ -36,9 +36,8 @@ html {
         `}</style>
         {/* Extra meta tags for favicons */}
         <link rel="icon" href="/favicons/favicon.ico" sizes="any" />
-        <link rel="icon" type="image/svg+xml" href="/favicons/favicon.svg" />
-        <link rel="apple-touch-icon" href="/favicons/apple-touch-icon.png" />
-        <link rel="icon" type="image/png" sizes="96x96" href="/favicons/favicon-96x96.png" />
+        <link rel="icon" type="image/png" sizes="16x16" href="/favicons/favicon-16x16.png" />
+        <link rel="icon" type="image/png" sizes="32x32" href="/favicons/favicon-32x32.png" />
       </head>
       <body suppressHydrationWarning={true}>
         <ThemeProvider attribute="data-theme" defaultTheme="dark" enableSystem={false}>
