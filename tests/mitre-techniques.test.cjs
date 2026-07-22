@@ -13,18 +13,10 @@ test("bundles a unique, active Enterprise ATT&CK catalog", () => {
   }
 })
 
-test("contains Unsecured Credentials and supports partial name and ID matching", () => {
-  const search = (query) => {
-    const normalizedQuery = query.toLowerCase()
-    return techniques.filter((technique) =>
-      `${technique.id} ${technique.name}`.toLowerCase().includes(normalizedQuery),
-    )
-  }
-
+test("contains expected Enterprise ATT&CK techniques", () => {
   const unsecured = techniques.find((technique) => technique.id === "T1552")
   assert.equal(unsecured?.name, "Unsecured Credentials")
-  assert.ok(search("unsec").some((technique) => technique.id === "T1552"))
-  assert.ok(search("t1552").some((technique) => technique.id === "T1552"))
+  assert.ok(unsecured?.tactics.includes("credential-access"))
 })
 
 test("records parent context for sub-techniques", () => {

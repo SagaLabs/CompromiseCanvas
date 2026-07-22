@@ -475,19 +475,25 @@ export default function TimelineModal({
                               {event.userUsed && <div>User: {event.userUsed}</div>}
                               {event.mitreAttackTechniques && event.mitreAttackTechniques.length > 0 && (
                                 <div className="flex flex-wrap gap-x-2 gap-y-1">
-                                  {event.mitreAttackTechniques.map((technique, index) => (
-                                    <a
-                                      key={technique.id}
-                                      href={getMitreTechniqueUrl(technique.id)}
-                                      target="_blank"
-                                      rel="noreferrer"
-                                      className="text-blue-400 hover:text-blue-300 hover:underline"
-                                      onClick={(clickEvent) => clickEvent.stopPropagation()}
-                                    >
-                                      {index === 0 ? "MITRE: " : ""}
-                                      {getMitreTechniqueLabel(technique.id, technique.name)}
-                                    </a>
-                                  ))}
+                                  {event.mitreAttackTechniques.map((technique) => {
+                                    const url = getMitreTechniqueUrl(technique.id)
+                                    const label = getMitreTechniqueLabel(technique.id, technique.name)
+
+                                    return url ? (
+                                      <a
+                                        key={technique.id}
+                                        href={url}
+                                        target="_blank"
+                                        rel="noreferrer"
+                                        className="text-blue-400 hover:text-blue-300 hover:underline"
+                                        onClick={(clickEvent) => clickEvent.stopPropagation()}
+                                      >
+                                        {label}
+                                      </a>
+                                    ) : (
+                                      <span key={technique.id}>{label}</span>
+                                    )
+                                  })}
                                 </div>
                               )}
                               {event.description && <div className="ip-text">{event.description}</div>}

@@ -10,7 +10,6 @@ import {
   User,
   Clock,
   Terminal,
-  Hash,
   FileText,
   Wifi,
   Code,
@@ -544,30 +543,31 @@ const CustomEdge = memo(function CustomEdge({
 
               {/* MITRE ATT&CK ID */}
               {mitreTechniques.length > 0 && data?.displaySettings?.showMitreId && (
-                <div className="flex items-start gap-1">
-                  <Hash className="mt-0.5 h-3 w-3 shrink-0" />
-                  <div className="min-w-0 space-y-0.5">
-                    {mitreTechniques.map((technique, index) => (
+                <div className="min-w-0 space-y-0.5">
+                  {mitreTechniques.map((technique) => {
+                    const url = getMitreTechniqueUrl(technique.id)
+                    const label = getMitreTechniqueLabel(technique.id, technique.name)
+
+                    return (
                       <div key={technique.id} className="flex items-start gap-1.5">
-                        <span className="min-w-0 break-words">
-                          {index === 0 ? "MITRE: " : ""}
-                          {getMitreTechniqueLabel(technique.id, technique.name)}
-                        </span>
-                        <a
-                          href={getMitreTechniqueUrl(technique.id)}
-                          target="_blank"
-                          rel="noreferrer"
-                          aria-label={`Open ${getMitreTechniqueLabel(technique.id, technique.name)} on MITRE ATT&CK`}
-                          title="Open on MITRE ATT&CK"
-                          className="mt-0.5 shrink-0 text-blue-400 hover:text-blue-300"
-                          onClick={(event) => event.stopPropagation()}
-                          onMouseDown={(event) => event.stopPropagation()}
-                        >
-                          <ExternalLink className="h-3 w-3" />
-                        </a>
+                        <span className="min-w-0 break-words">{label}</span>
+                        {url && (
+                          <a
+                            href={url}
+                            target="_blank"
+                            rel="noreferrer"
+                            aria-label={`Open ${label} on MITRE ATT&CK`}
+                            title="Open on MITRE ATT&CK"
+                            className="mt-0.5 shrink-0 text-blue-400 hover:text-blue-300"
+                            onClick={(event) => event.stopPropagation()}
+                            onMouseDown={(event) => event.stopPropagation()}
+                          >
+                            <ExternalLink className="h-3 w-3" />
+                          </a>
+                        )}
                       </div>
-                    ))}
-                  </div>
+                    )
+                  })}
                 </div>
               )}
 

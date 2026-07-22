@@ -1,8 +1,11 @@
 import { defineConfig, devices } from "@playwright/test"
 
+const port = Number(process.env.PLAYWRIGHT_PORT || 3000)
+const baseURL = `http://localhost:${port}`
+
 /**
  * Playwright config for Compromise Canvas e2e tests.
- * Boots (or reuses) the Next.js dev server on :3000.
+ * Boots (or reuses) the Next.js dev server on :3000 by default.
  */
 export default defineConfig({
   testDir: "./e2e",
@@ -11,13 +14,13 @@ export default defineConfig({
   retries: process.env.CI ? 2 : 0,
   reporter: "list",
   use: {
-    baseURL: "http://localhost:3000",
+    baseURL,
     trace: "on-first-retry",
   },
   projects: [{ name: "chromium", use: { ...devices["Desktop Chrome"] } }],
   webServer: {
-    command: "npm run dev",
-    url: "http://localhost:3000",
+    command: `npm run dev -- --port ${port}`,
+    url: baseURL,
     reuseExistingServer: true,
     timeout: 120_000,
   },
