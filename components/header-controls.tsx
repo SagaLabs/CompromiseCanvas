@@ -9,7 +9,6 @@ import {
 } from "@/components/ui/dropdown-menu"
 import {
   Save,
-  SaveAll,
   Upload,
   ClipboardList,
   FileDown,
@@ -31,6 +30,7 @@ import {
 import ThemePicker from "./theme-picker"
 import { DownloadImageMenuItems } from "./download-button"
 import ExportReportButton from "./export-report-button"
+import { Switch } from "@/components/ui/switch"
 import type { AutosaveStatus } from "@/hooks/use-compromise-canvas-state"
 
 interface HeaderControlsProps {
@@ -229,37 +229,6 @@ export default function HeaderControls({
             <Upload className="h-5 w-5" aria-hidden="true" />
             <span className="sr-only">Load from browser storage</span>
           </Button>
-          <Button
-            variant="ghost"
-            size="icon"
-            role="switch"
-            aria-checked={autosaveEnabled}
-            aria-label="Toggle autosave"
-            onClick={() => onToggleAutosave(!autosaveEnabled)}
-            title={autosaveTitle}
-            className={`relative h-9 gap-1.5 border px-2.5 ${
-              autosaveStatus === "error"
-                ? "border-red-500/40 bg-red-500/10 text-red-300 hover:bg-red-500/15 hover:text-red-200"
-                : autosaveEnabled
-                  ? "border-green-500/40 bg-green-500/10 text-green-300 hover:bg-green-500/15 hover:text-green-200"
-                  : "border-gray-700 text-gray-400 hover:bg-gray-700 hover:text-gray-200"
-            }`}
-          >
-            <SaveAll
-              className={`h-4 w-4 ${autosaveStatus === "saving" ? "animate-pulse" : ""}`}
-              aria-hidden="true"
-            />
-            <span className="text-xs font-medium">Autosave</span>
-            <span
-              className="sr-only"
-              aria-live="polite"
-            >
-              {autosaveLabel}
-            </span>
-            {autosaveStatus === "pending" && autosaveEnabled && (
-              <span className="absolute right-1 top-1 h-1.5 w-1.5 rounded-full bg-amber-400" aria-hidden="true" />
-            )}
-          </Button>
           <div className="ip-divider h-6 w-px"></div>
           <Button
             variant="ghost"
@@ -276,6 +245,24 @@ export default function HeaderControls({
       </div>
 
       <div className="flex items-center gap-2">
+        <div
+          className="flex items-center gap-2 rounded-md border border-gray-700 px-2 py-1"
+          title={autosaveTitle}
+        >
+          <Switch
+            checked={autosaveEnabled}
+            onCheckedChange={onToggleAutosave}
+            aria-label="Toggle autosave"
+          />
+          <span
+            className={`whitespace-nowrap text-xs ${
+              autosaveStatus === "error" ? "text-red-400" : autosaveEnabled ? "text-green-400" : "text-gray-500"
+            }`}
+            aria-live="polite"
+          >
+            {autosaveLabel}
+          </span>
+        </div>
         <Button
           variant="ghost"
           size="sm"
