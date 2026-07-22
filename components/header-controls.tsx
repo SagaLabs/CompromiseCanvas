@@ -246,7 +246,7 @@ export default function HeaderControls({
 
       <div className="flex items-center gap-2">
         <div
-          className="flex items-center gap-2 rounded-md border border-gray-700 px-2 py-1"
+          className="flex items-center gap-2 px-2 py-1"
           title={autosaveTitle}
         >
           <Switch
