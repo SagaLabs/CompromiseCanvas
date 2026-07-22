@@ -479,11 +479,13 @@ const CustomEdge = memo(function CustomEdge({
         <EdgeLabelRenderer>
           <div
             style={{
-              transform: `translate(-50%, -50%) translate(${labelX + offsetX}px,${labelY + offsetY}px)`,
+              transform: `translate(-50%, -50%) translate(${labelX}px,${labelY}px)`,
             }}
             onPointerDown={onLabelPointerDown}
             onPointerMove={onLabelPointerMove}
             onPointerUp={onLabelPointerUp}
+            onMouseEnter={showToolbar}
+            onMouseLeave={hideToolbar}
             className={cn(
               "nodrag nopan absolute pointer-events-auto rounded-lg border border-gray-700 bg-gray-800 p-3 shadow-lg",
               "min-w-[220px] max-w-[300px] text-xs text-white", // Increased min-width for better readability
