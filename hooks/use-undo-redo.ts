@@ -1,9 +1,9 @@
 import { useCallback, useRef, useState } from 'react'
-import type { Node, Edge } from 'reactflow'
+import type { CustomNode, CustomEdge } from '@/lib/types'
 
 export interface FlowState {
-  nodes: Node[]
-  edges: Edge[]
+  nodes: CustomNode[]
+  edges: CustomEdge[]
 }
 
 export interface UndoRedoState {

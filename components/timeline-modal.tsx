@@ -15,7 +15,7 @@ import {
   StickyNote,
   X,
 } from "lucide-react"
-import type { CustomEdge, EdgeActionType, IncidentLogEntry } from "@/lib/types"
+import type { CustomEdge, EdgeData, EdgeActionType, IncidentLogEntry } from "@/lib/types"
 
 interface TimelineEvent {
   id: string
@@ -42,7 +42,7 @@ interface TimelineModalProps {
   incidentLog?: IncidentLogEntry[]
   onHighlightEdge?: (edgeId: string) => void
   onSelectEdge?: (edgeId: string) => void
-  onUpdateEdge?: (edgeId: string, data: Partial<CustomEdge["data"]>) => void
+  onUpdateEdge?: (edgeId: string, data: Partial<EdgeData>) => void
 }
 
 const actionTypeTone: Record<EdgeActionType, string> = {

@@ -1,5 +1,4 @@
-import type { Node, Edge } from "reactflow"
-import type { DisplaySettings, EdgeDisplaySettings } from "@/lib/types"
+import type { DisplaySettings, EdgeDisplaySettings, CustomNode, CustomEdge } from "@/lib/types"
 
 export const defaultDisplaySettings: DisplaySettings = {
   showHostname: true,
@@ -71,8 +70,8 @@ export const defaultEdgeDisplaySettings: EdgeDisplaySettings = {
 }
 
 // Start with empty canvas - no initial nodes or edges
-export const initialNodes: Node[] = []
-export const initialEdges: Edge[] = []
+export const initialNodes: CustomNode[] = []
+export const initialEdges: CustomEdge[] = []
 
 
 export const LAYER_Z_INDEX = {
@@ -81,6 +80,15 @@ export const LAYER_Z_INDEX = {
   NODE: 10,
   SELECTED: 20
 }
+
+/**
+ * Per-side fitView padding so nodes are never tucked behind the fixed side panels.
+ * Left asset library panel is `w-64` (256px); right properties panel is `w-80` (320px).
+ * Values add a small margin on top of each panel width.
+ */
+export const FIT_VIEW_OPTIONS = {
+  padding: { top: "10%", right: "340px", bottom: "10%", left: "280px" },
+} as const
 
 let id = 0
 export const getId = () => `dndnode_${id++}`

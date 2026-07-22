@@ -1,4 +1,3 @@
-import type { Node, Edge } from "reactflow"
 import type { Template } from "@/components/template-panel"
 
 const defaultDisplaySettings = {

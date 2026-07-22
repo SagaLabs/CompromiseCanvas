@@ -1,4 +1,4 @@
-import type { Node, Edge } from "reactflow"
+import type { Node, Edge } from "@xyflow/react"
 
 export type AssetType =
   | "web-server"
@@ -31,6 +31,12 @@ export type AssetType =
 
 export type Criticality = "Low" | "Medium" | "High" | "Critical"
 export type InvestigationStatus = "No Status" | "Not Investigated" | "Investigating" | "Done"
+export const INVESTIGATION_STATUSES: InvestigationStatus[] = [
+  "No Status",
+  "Not Investigated",
+  "Investigating",
+  "Done",
+]
 export type ActionType =
   | "Initial Access"
   | "Lateral Movement"
@@ -252,7 +258,7 @@ export interface AttackerData {
   infrastructureType: "VPS" | "Dedicated Server" | "Cloud Instance" | "Botnet" | "Compromised Host" | "Other"
 }
 
-export interface NodeData {
+export interface NodeData extends Record<string, unknown> {
   label: string
   type: AssetType
   hostname?: string
@@ -301,7 +307,7 @@ export interface AnimationSettings {
   enableAnimations: boolean
 }
 
-export interface EdgeData {
+export interface EdgeData extends Record<string, unknown> {
   label?: string
   actionType: EdgeActionType
   toolUsed: string // For non-C2 edges, this is "Tool Used"
@@ -312,6 +318,12 @@ export interface EdgeData {
   // C2-specific fields
   c2Channel?: string // For C2 edges: HTTP/HTTPS, DNS, ICMP, etc.
   c2Framework?: string // For C2 edges: Cobalt Strike, Empire, Metasploit, etc.
+  // Manual routing: when `unlocked`, the edge bends through a control point
+  // offset (in flow units) from its midpoint, and the label rides that point.
+  // Locked (default) keeps the auto-routed smoothstep path.
+  unlocked?: boolean
+  labelOffsetX?: number
+  labelOffsetY?: number
   // Display settings
   displaySettings: EdgeDisplaySettings
 }

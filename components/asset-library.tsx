@@ -201,6 +201,18 @@ export default function AssetLibrary() {
     event.dataTransfer.effectAllowed = "move"
   }
 
+  // Keyboard-accessible drag: Enter/Space on a focused asset synthesizes a
+  // dragstart so it can be dropped onto the canvas without a pointer.
+  const handleKeyboardDrag = (event: React.KeyboardEvent, nodeType: AssetType) => {
+    if (event.key !== "Enter" && event.key !== " ") return
+    event.preventDefault()
+    const dataTransfer = new DataTransfer()
+    dataTransfer.setData("application/reactflow", nodeType)
+    dataTransfer.effectAllowed = "move"
+    const dragEvent = new DragEvent("dragstart", { dataTransfer, bubbles: true, cancelable: true })
+    event.currentTarget.dispatchEvent(dragEvent)
+  }
+
   return (
     <aside className="ip-panel w-64 flex-shrink-0 border-r p-4 flex flex-col">
       <h2 className="mb-4 text-lg font-semibold">Asset Library</h2>

@@ -1,21 +1,21 @@
 import { useCallback } from "react"
-import { addEdge, type Connection, type Node, type Edge } from "reactflow"
-import type { NodeData, EdgeData, AssetType } from "@/lib/types"
+import { addEdge, type Connection } from "@xyflow/react"
+import type { NodeData, EdgeData, AssetType, CustomNode, CustomEdge } from "@/lib/types"
 import { defaultDisplaySettings, defaultEdgeDisplaySettings, getId, LAYER_Z_INDEX } from "@/lib/utils/compromise-canvas-constants"
 import { toast } from "@/components/ui/use-toast"
 
 interface UseReactFlowCallbacksProps {
   reactFlowInstance: any
   reactFlowWrapper: React.RefObject<HTMLDivElement | null>
-  nodes: Node[]
-  edges: Edge[]
-  selectedElement: Node | Edge | null
-  updateNodes: (nodesOrUpdater: Node[] | ((nodes: Node[]) => Node[])) => void
-  updateEdges: (edgesOrUpdater: Edge[] | ((edges: Edge[]) => Edge[])) => void
-  setSelectedElement: (element: Node | Edge | null) => void
-  setNodes: (nodes: Node[]) => void
-  setEdges: (edges: Edge[]) => void
-  takeSnapshot: (state: { nodes: Node[]; edges: Edge[] }) => void
+  nodes: CustomNode[]
+  edges: CustomEdge[]
+  selectedElement: CustomNode | CustomEdge | null
+  updateNodes: (nodesOrUpdater: CustomNode[] | ((nodes: CustomNode[]) => CustomNode[])) => void
+  updateEdges: (edgesOrUpdater: CustomEdge[] | ((edges: CustomEdge[]) => CustomEdge[])) => void
+  setSelectedElement: (element: CustomNode | CustomEdge | null) => void
+  setNodes: (nodes: CustomNode[]) => void
+  setEdges: (edges: CustomEdge[]) => void
+  takeSnapshot: (state: { nodes: CustomNode[]; edges: CustomEdge[] }) => void
   hasClipboardData: () => boolean
   handlePaste: (pastePosition?: { x: number; y: number }) => void
 }
@@ -69,7 +69,6 @@ export const useReactFlowCallbacks = ({
       event.preventDefault()
 
       if (reactFlowWrapper.current) {
-        const reactFlowBounds = reactFlowWrapper.current.getBoundingClientRect()
         const type = event.dataTransfer.getData("application/reactflow") as AssetType
 
         // check if the dropped element is valid
@@ -77,14 +76,14 @@ export const useReactFlowCallbacks = ({
           return
         }
 
-        const position = reactFlowInstance.project({
-          x: event.clientX - reactFlowBounds.left,
-          y: event.clientY - reactFlowBounds.top,
+        const position = reactFlowInstance.screenToFlowPosition({
+          x: event.clientX,
+          y: event.clientY,
         })
 
         // Handle group nodes differently
         if (type === "group") {
-          const newNode: Node = {
+          const newNode: CustomNode = {
             id: getId(),
             type: "labeledGroupNode",
             position,
@@ -100,6 +99,7 @@ export const useReactFlowCallbacks = ({
               description: "",
               displaySettings: { ...defaultDisplaySettings },
               isCompromised: false,
+              investigationStatus: "No Status",
               color: "blue",
               transparency: 0.2,
             },
@@ -111,7 +111,7 @@ export const useReactFlowCallbacks = ({
           return
         }
 
-        const newNode: Node = {
+        const newNode: CustomNode = {
           id: getId(),
           type: "customNode",
           position,
@@ -130,6 +130,7 @@ export const useReactFlowCallbacks = ({
             description: "",
             displaySettings: { ...defaultDisplaySettings },
             isCompromised: false,
+            investigationStatus: "No Status",
           },
           zIndex: LAYER_Z_INDEX.NODE,
         }
@@ -140,11 +141,11 @@ export const useReactFlowCallbacks = ({
     [reactFlowInstance, updateNodes],
   )
 
-  const onNodeClick = useCallback((event: React.MouseEvent, node: Node) => {
+  const onNodeClick = useCallback((event: React.MouseEvent, node: CustomNode) => {
     setSelectedElement(node)
   }, [setSelectedElement])
 
-  const onEdgeClick = useCallback((event: React.MouseEvent, edge: Edge) => {
+  const onEdgeClick = useCallback((event: React.MouseEvent, edge: CustomEdge) => {
     setSelectedElement(edge)
   }, [setSelectedElement])
 
@@ -153,15 +154,14 @@ export const useReactFlowCallbacks = ({
   }, [setSelectedElement])
 
   const onPaneContextMenu = useCallback(
-    (event: React.MouseEvent) => {
+    (event: MouseEvent | React.MouseEvent) => {
       event.preventDefault()
 
       if (hasClipboardData()) {
-        const reactFlowBounds = reactFlowWrapper.current?.getBoundingClientRect()
-        if (reactFlowBounds && reactFlowInstance) {
-          const position = reactFlowInstance.project({
-            x: event.clientX - reactFlowBounds.left,
-            y: event.clientY - reactFlowBounds.top,
+        if (reactFlowInstance) {
+          const position = reactFlowInstance.screenToFlowPosition({
+            x: event.clientX,
+            y: event.clientY,
           })
           handlePaste(position)
         }
@@ -189,11 +189,11 @@ export const useReactFlowCallbacks = ({
   const updateEdge = useCallback(
     (id: string, data: Partial<EdgeData>) => {
       updateEdges((eds) =>
-        eds.map((edge) =>
+        eds.map((edge): CustomEdge =>
           edge.id === id
             ? {
               ...edge,
-              data: { ...edge.data, ...data },
+              data: { ...edge.data, ...data } as EdgeData,
             }
             : edge,
         ),
@@ -227,6 +227,23 @@ export const useReactFlowCallbacks = ({
     }
   }, [selectedElement, nodes, edges, updateEdges, takeSnapshot, setNodes, setEdges, setSelectedElement])
 
+  const deleteEdgeById = useCallback(
+    (edgeId: string) => {
+      updateEdges((eds) => eds.filter((e) => e.id !== edgeId))
+
+      toast({
+        title: "Element Deleted",
+        description: "Removed selected edge. You can undo with Ctrl+Z.",
+        variant: "default",
+      })
+
+      if (selectedElement?.id === edgeId) {
+        setSelectedElement(null)
+      }
+    },
+    [updateEdges, selectedElement, setSelectedElement],
+  )
+
   return {
     onConnect,
     onDragOver,
@@ -238,5 +255,6 @@ export const useReactFlowCallbacks = ({
     updateNode,
     updateEdge,
     handleDeleteSelected,
+    deleteEdgeById,
   }
 }

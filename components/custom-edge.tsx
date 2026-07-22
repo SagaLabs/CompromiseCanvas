@@ -1,6 +1,7 @@
-import { memo } from "react"
-import { type EdgeProps, getSmoothStepPath, EdgeLabelRenderer, BaseEdge } from "reactflow"
-import type { EdgeData } from "@/lib/types"
+import type React from "react"
+import { memo, useState, useRef, useCallback, useEffect } from "react"
+import { type Edge, type EdgeProps, getSmoothStepPath, EdgeLabelRenderer, BaseEdge, useStore } from "@xyflow/react"
+import type { EdgeData, EdgeActionType } from "@/lib/types"
 import {
   MoveRight,
   Upload,
@@ -29,10 +30,15 @@ import {
   Activity
 } from "lucide-react" // Import necessary icons
 import { cn } from "@/lib/utils" // Assuming cn utility is available
+import EdgeToolbar from "./edge-toolbar"
 
-interface CustomEdgeProps extends EdgeProps<EdgeData> {
+interface CustomEdgeProps extends EdgeProps<Edge<EdgeData>> {
   animationsEnabled?: boolean
   selected?: boolean
+  onDeleteEdge?: (id: string) => void
+  onSetEdgeActionType?: (id: string, actionType: EdgeActionType) => void
+  onSetEdgeLabelOffset?: (id: string, x: number, y: number) => void
+  onToggleEdgeUnlocked?: (id: string) => void
 }
 
 const CustomEdge = memo(function CustomEdge({
@@ -48,9 +54,99 @@ const CustomEdge = memo(function CustomEdge({
   markerEnd,
   animationsEnabled = true,
   selected = false,
+  onDeleteEdge,
+  onSetEdgeActionType,
+  onSetEdgeLabelOffset,
+  onToggleEdgeUnlocked,
 }: CustomEdgeProps) {
-  // Use React Flow's built-in smooth step path for better edge routing
-  const [edgePath, labelX, labelY] = getSmoothStepPath({
+  const unlocked = !!data?.unlocked
+  // Track hover so the quick-action toolbar can appear without selecting the edge.
+  const [hovered, setHovered] = useState(false)
+  // Keep the toolbar mounted while the action-type menu is open (pointer leaves the edge).
+  const [menuOpen, setMenuOpen] = useState(false)
+  // Pin the toolbar once its menu has been engaged so it doesn't vanish when the
+  // mouse is released after picking. Unlike a node (which stays selected on click),
+  // an edge is never selected on hover, so we mimic that stickiness here.
+  const [pinned, setPinned] = useState(false)
+
+  // Hover-intent: delay hiding so the pointer can travel from the edge to the
+  // toolbar (which floats above the label with a gap) without it vanishing.
+  const hideTimer = useRef<ReturnType<typeof setTimeout> | null>(null)
+  const showToolbar = useCallback(() => {
+    if (hideTimer.current) clearTimeout(hideTimer.current)
+    setHovered(true)
+  }, [])
+  const hideToolbar = useCallback(() => {
+    if (hideTimer.current) clearTimeout(hideTimer.current)
+    hideTimer.current = setTimeout(() => setHovered(false), 300)
+  }, [])
+  const handleMenuOpenChange = useCallback((open: boolean) => {
+    setMenuOpen(open)
+    if (open) {
+      // Opening: pin the toolbar so it survives the pointer leaving the edge and
+      // the mouse-release, matching the stickiness a selected node's toolbar has.
+      if (hideTimer.current) clearTimeout(hideTimer.current)
+      setHovered(true)
+      setPinned(true)
+    } else {
+      // Dismissed (picked an item or clicked outside): unpin and let hover-intent
+      // fade it out.
+      setPinned(false)
+    }
+  }, [])
+  useEffect(() => () => {
+    if (hideTimer.current) clearTimeout(hideTimer.current)
+  }, [])
+
+  // Current viewport zoom, so a screen-space drag maps to the right flow-space delta.
+  const zoom = useStore((s) => s.transform[2])
+
+  // Manual routing drag (only when the edge is unlocked). `drag` holds the live
+  // control-point offset; once released the committed offset lives on the edge
+  // data (undo-safe). Dragging either the line or the label moves the same point.
+  const [drag, setDrag] = useState<{ x: number; y: number } | null>(null)
+  const dragStart = useRef<{ px: number; py: number; ox: number; oy: number } | null>(null)
+  const offsetX = drag ? drag.x : data?.labelOffsetX ?? 0
+  const offsetY = drag ? drag.y : data?.labelOffsetY ?? 0
+
+  const onLabelPointerDown = useCallback(
+    (e: React.PointerEvent) => {
+      if (!unlocked) return
+      e.stopPropagation()
+      const ox = data?.labelOffsetX ?? 0
+      const oy = data?.labelOffsetY ?? 0
+      dragStart.current = { px: e.clientX, py: e.clientY, ox, oy }
+      setDrag({ x: ox, y: oy })
+      e.currentTarget.setPointerCapture(e.pointerId)
+    },
+    [unlocked, data?.labelOffsetX, data?.labelOffsetY],
+  )
+  const onLabelPointerMove = useCallback(
+    (e: React.PointerEvent) => {
+      if (!dragStart.current) return
+      const dx = (e.clientX - dragStart.current.px) / zoom
+      const dy = (e.clientY - dragStart.current.py) / zoom
+      setDrag({ x: dragStart.current.ox + dx, y: dragStart.current.oy + dy })
+    },
+    [zoom],
+  )
+  const onLabelPointerUp = useCallback(
+    (e: React.PointerEvent) => {
+      if (!dragStart.current) return
+      const dx = (e.clientX - dragStart.current.px) / zoom
+      const dy = (e.clientY - dragStart.current.py) / zoom
+      const nx = dragStart.current.ox + dx
+      const ny = dragStart.current.oy + dy
+      dragStart.current = null
+      setDrag(null)
+      e.currentTarget.releasePointerCapture(e.pointerId)
+      onSetEdgeLabelOffset?.(id, nx, ny)
+    },
+    [zoom, id, onSetEdgeLabelOffset],
+  )
+
+  // Use React Flow's built-in smooth step path for the default (locked) routing.
+  const [smoothPath, smoothLabelX, smoothLabelY] = getSmoothStepPath({
     sourceX,
     sourceY,
     sourcePosition,
@@ -59,6 +155,18 @@ const CustomEdge = memo(function CustomEdge({
     targetPosition,
     borderRadius: 50, // Larger border radius to avoid obstacles
   })
+
+  // When unlocked, bend the edge through a draggable control point offset from the
+  // geometric midpoint. A quadratic curve whose control is midpoint + 2*offset
+  // passes exactly through midpoint + offset at its center, so the label rides
+  // the visible bend. Locked edges fall back to the auto-routed smoothstep path.
+  const midX = (sourceX + targetX) / 2
+  const midY = (sourceY + targetY) / 2
+  const edgePath = unlocked
+    ? `M ${sourceX},${sourceY} Q ${midX + 2 * offsetX},${midY + 2 * offsetY} ${targetX},${targetY}`
+    : smoothPath
+  const labelX = unlocked ? midX + offsetX : smoothLabelX
+  const labelY = unlocked ? midY + offsetY : smoothLabelY
 
   // Determine edge styling based on action type
   const getEdgeStyle = (actionType?: string) => {
@@ -308,6 +416,38 @@ const CustomEdge = memo(function CustomEdge({
         style={{ ...style, ...edgeStyle }}
       />
 
+      {/* Invisible wide interaction path so hovering near the edge is detected.
+          When unlocked, this path is also the drag handle for rerouting. */}
+      <path
+        className={unlocked ? "nopan" : undefined}
+        d={edgePath}
+        fill="none"
+        stroke="transparent"
+        strokeWidth={30}
+        style={{ cursor: drag ? "grabbing" : unlocked ? "grab" : "pointer" }}
+        onMouseEnter={showToolbar}
+        onMouseLeave={hideToolbar}
+        onPointerDown={onLabelPointerDown}
+        onPointerMove={onLabelPointerMove}
+        onPointerUp={onLabelPointerUp}
+      />
+
+      {/* Quick-action toolbar shown at the edge midpoint on hover or when selected */}
+      <EdgeToolbar
+        id={id}
+        labelX={labelX}
+        labelY={labelY}
+        isVisible={hovered || selected || menuOpen || pinned}
+        currentActionType={data?.actionType}
+        unlocked={unlocked}
+        onSetActionType={(actionType) => onSetEdgeActionType?.(id, actionType)}
+        onToggleUnlocked={() => onToggleEdgeUnlocked?.(id)}
+        onDelete={() => onDeleteEdge?.(id)}
+        onMouseEnter={showToolbar}
+        onMouseLeave={hideToolbar}
+        onMenuOpenChange={handleMenuOpenChange}
+      />
+
       {/* Animated circles only for specific action types and when animations are enabled */}
       {shouldAnimate && (
         <>
@@ -341,9 +481,15 @@ const CustomEdge = memo(function CustomEdge({
             style={{
               transform: `translate(-50%, -50%) translate(${labelX}px,${labelY}px)`,
             }}
+            onPointerDown={onLabelPointerDown}
+            onPointerMove={onLabelPointerMove}
+            onPointerUp={onLabelPointerUp}
+            onMouseEnter={showToolbar}
+            onMouseLeave={hideToolbar}
             className={cn(
-              "absolute pointer-events-auto rounded-lg border border-gray-700 bg-gray-800 p-3 shadow-lg",
+              "nodrag nopan absolute pointer-events-auto rounded-lg border border-gray-700 bg-gray-800 p-3 shadow-lg",
               "min-w-[220px] max-w-[300px] text-xs text-white", // Increased min-width for better readability
+              unlocked && (drag ? "cursor-grabbing select-none" : "cursor-grab"),
             )}
           >
             {/* Main Label / Action Type */}

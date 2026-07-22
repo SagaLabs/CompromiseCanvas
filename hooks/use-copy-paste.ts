@@ -1,9 +1,9 @@
 import { useCallback, useRef } from 'react'
-import type { Node, Edge } from 'reactflow'
+import type { CustomNode, CustomEdge } from '@/lib/types'
 
 export interface CopyPasteData {
-  nodes: Node[]
-  edges: Edge[]
+  nodes: CustomNode[]
+  edges: CustomEdge[]
   copiedAt: number
 }
 
@@ -13,7 +13,7 @@ const generateId = () => `copied_node_${nodeIdCounter++}_${Date.now()}`
 export function useCopyPaste() {
   const clipboardRef = useRef<CopyPasteData | null>(null)
 
-  const copyElements = useCallback((nodes: Node[], edges: Edge[]) => {
+  const copyElements = useCallback((nodes: CustomNode[], edges: CustomEdge[]) => {
     if (nodes.length === 0 && edges.length === 0) {
       return false
     }
@@ -44,9 +44,9 @@ export function useCopyPaste() {
 
   const pasteElements = useCallback((
     pastePosition?: { x: number; y: number },
-    existingNodes: Node[] = [],
-    existingEdges: Edge[] = []
-  ): { nodes: Node[], edges: Edge[] } | null => {
+    existingNodes: CustomNode[] = [],
+    existingEdges: CustomEdge[] = []
+  ): { nodes: CustomNode[], edges: CustomEdge[] } | null => {
     if (!clipboardRef.current) {
       return null
     }
@@ -86,7 +86,7 @@ export function useCopyPaste() {
     // Create ID mapping for nodes
     const nodeIdMap = new Map<string, string>()
     
-    const newNodes: Node[] = copiedNodes.map(node => {
+    const newNodes: CustomNode[] = copiedNodes.map(node => {
       const newId = generateId()
       nodeIdMap.set(node.id, newId)
       
@@ -109,7 +109,7 @@ export function useCopyPaste() {
     })
 
     // Create new edges with updated node references
-    const newEdges: Edge[] = copiedEdges.map(edge => {
+    const newEdges: CustomEdge[] = copiedEdges.map((edge): CustomEdge | null => {
       const newSourceId = nodeIdMap.get(edge.source)
       const newTargetId = nodeIdMap.get(edge.target)
       
@@ -124,7 +124,7 @@ export function useCopyPaste() {
         target: newTargetId,
         selected: true // Select newly pasted edges
       }
-    }).filter((edge): edge is Edge => edge !== null)
+    }).filter((edge): edge is CustomEdge => edge !== null)
 
     return {
       nodes: newNodes,
