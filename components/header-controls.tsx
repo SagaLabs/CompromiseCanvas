@@ -125,7 +125,7 @@ export default function HeaderControls({
         <div className="flex items-center gap-2">
           <Button
             variant="ghost"
-            size="icon"
+            size="sm"
             onClick={onStartFromScratch}
             className="text-gray-300 hover:bg-gray-700"
             title="Start from scratch"
@@ -237,18 +237,19 @@ export default function HeaderControls({
             aria-label="Toggle autosave"
             onClick={() => onToggleAutosave(!autosaveEnabled)}
             title={autosaveTitle}
-            className={`relative hover:bg-gray-700 ${
+            className={`relative h-9 gap-1.5 border px-2.5 ${
               autosaveStatus === "error"
-                ? "text-red-400"
+                ? "border-red-500/40 bg-red-500/10 text-red-300 hover:bg-red-500/15 hover:text-red-200"
                 : autosaveEnabled
-                  ? "text-green-400"
-                  : "text-gray-500"
+                  ? "border-green-500/40 bg-green-500/10 text-green-300 hover:bg-green-500/15 hover:text-green-200"
+                  : "border-gray-700 text-gray-400 hover:bg-gray-700 hover:text-gray-200"
             }`}
           >
             <SaveAll
-              className={`h-5 w-5 ${autosaveStatus === "saving" ? "animate-pulse" : ""}`}
+              className={`h-4 w-4 ${autosaveStatus === "saving" ? "animate-pulse" : ""}`}
               aria-hidden="true"
             />
+            <span className="text-xs font-medium">Autosave</span>
             <span
               className="sr-only"
               aria-live="polite"
