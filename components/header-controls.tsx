@@ -9,6 +9,7 @@ import {
 } from "@/components/ui/dropdown-menu"
 import {
   Save,
+  SaveAll,
   Upload,
   ClipboardList,
   FileDown,
@@ -30,7 +31,6 @@ import {
 import ThemePicker from "./theme-picker"
 import { DownloadImageMenuItems } from "./download-button"
 import ExportReportButton from "./export-report-button"
-import { Switch } from "@/components/ui/switch"
 import type { AutosaveStatus } from "@/hooks/use-compromise-canvas-state"
 
 interface HeaderControlsProps {
@@ -229,24 +229,36 @@ export default function HeaderControls({
             <Upload className="h-5 w-5" aria-hidden="true" />
             <span className="sr-only">Load from browser storage</span>
           </Button>
-          <div
-            className="flex items-center gap-2 rounded-md border border-gray-700 px-2 py-1"
+          <Button
+            variant="ghost"
+            size="icon"
+            role="switch"
+            aria-checked={autosaveEnabled}
+            aria-label="Toggle autosave"
+            onClick={() => onToggleAutosave(!autosaveEnabled)}
             title={autosaveTitle}
+            className={`relative hover:bg-gray-700 ${
+              autosaveStatus === "error"
+                ? "text-red-400"
+                : autosaveEnabled
+                  ? "text-green-400"
+                  : "text-gray-500"
+            }`}
           >
-            <Switch
-              checked={autosaveEnabled}
-              onCheckedChange={onToggleAutosave}
-              aria-label="Toggle autosave"
+            <SaveAll
+              className={`h-5 w-5 ${autosaveStatus === "saving" ? "animate-pulse" : ""}`}
+              aria-hidden="true"
             />
             <span
-              className={`whitespace-nowrap text-xs ${
-                autosaveStatus === "error" ? "text-red-400" : autosaveEnabled ? "text-green-400" : "text-gray-500"
-              }`}
+              className="sr-only"
               aria-live="polite"
             >
               {autosaveLabel}
             </span>
-          </div>
+            {autosaveStatus === "pending" && autosaveEnabled && (
+              <span className="absolute right-1 top-1 h-1.5 w-1.5 rounded-full bg-amber-400" aria-hidden="true" />
+            )}
+          </Button>
           <div className="ip-divider h-6 w-px"></div>
           <Button
             variant="ghost"
