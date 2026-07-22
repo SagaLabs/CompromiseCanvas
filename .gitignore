@@ -33,3 +33,6 @@ next-env.d.ts
 # Playwright
 /test-results/
 /playwright-report/
+
+# Local planning docs
+/plans/
