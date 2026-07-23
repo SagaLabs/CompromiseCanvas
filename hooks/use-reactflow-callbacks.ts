@@ -1,5 +1,5 @@
 import { useCallback } from "react"
-import { addEdge, type Connection, type IsValidConnection } from "@xyflow/react"
+import { addEdge, type Connection } from "@xyflow/react"
 import type { NodeData, EdgeData, AssetType, CustomNode, CustomEdge } from "@/lib/types"
 import { defaultDisplaySettings, defaultEdgeDisplaySettings, getId, LAYER_Z_INDEX } from "@/lib/utils/compromise-canvas-constants"
 import { toast } from "@/components/ui/use-toast"
@@ -20,9 +20,6 @@ interface UseReactFlowCallbacksProps {
   handlePaste: (pastePosition?: { x: number; y: number }) => void
 }
 
-export const isConnectionAllowed: IsValidConnection<CustomEdge> = (connection) =>
-  Boolean(connection.source && connection.target && connection.source !== connection.target)
-
 export const useReactFlowCallbacks = ({
   reactFlowInstance,
   reactFlowWrapper,
@@ -39,9 +36,7 @@ export const useReactFlowCallbacks = ({
   handlePaste,
 }: UseReactFlowCallbacksProps) => {
   const onConnect = useCallback(
-    (params: Connection) => {
-      if (!isConnectionAllowed(params)) return
-
+    (params: Connection) =>
       updateEdges((eds) =>
         addEdge(
           {
@@ -60,8 +55,7 @@ export const useReactFlowCallbacks = ({
           },
           eds,
         ),
-      )
-    },
+      ),
     [updateEdges],
   )
 

@@ -29,7 +29,7 @@ import type { EdgeActionType } from "@/lib/types"
 import { FIT_VIEW_OPTIONS } from "@/lib/utils/compromise-canvas-constants"
 import { useCompromiseCanvasState } from "@/hooks/use-compromise-canvas-state"
 import { useCompromiseCanvasHandlers } from "@/hooks/use-compromise-canvas-handlers"
-import { isConnectionAllowed, useReactFlowCallbacks } from "@/hooks/use-reactflow-callbacks"
+import { useReactFlowCallbacks } from "@/hooks/use-reactflow-callbacks"
 import { useState } from "react"
 import { Button } from "@/components/ui/button"
 import { CanvasActionsProvider } from "./canvas-actions-context"
@@ -270,7 +270,6 @@ export default function CompromiseCanvas() {
               onNodesChange={onNodesChange}
               onEdgesChange={setEdgesChange}
               onConnect={onConnect}
-              isValidConnection={isConnectionAllowed}
               onInit={setReactFlowInstance}
               onDrop={onDrop}
               onDragOver={onDragOver}
