@@ -480,7 +480,7 @@ const CustomEdge = memo(function CustomEdge({
               path={edgePath}
               calcMode="spline"
               keySplines="0.4 0 0.6 1"
-              begin="1s"
+              begin="-1s"
             />
           </circle>
         </>
