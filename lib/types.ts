@@ -6,6 +6,7 @@ export type AssetType =
   | "workstation"
   | "domain-controller"
   | "firewall"
+  | "vpn-gateway"
   | "router"
   | "email-server"
   | "file-server"

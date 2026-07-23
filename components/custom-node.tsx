@@ -21,6 +21,7 @@ import {
   Zap,
   Info,
   UserCheck,
+  Lock,
   Radio,
   Skull,
   HelpCircle,
@@ -48,6 +49,7 @@ const assetIcons = {
   workstation: Laptop,
   "domain-controller": Shield,
   firewall: Router, // Using Router for Firewall as it's network-related
+  "vpn-gateway": Lock,
   router: Router,
   "email-server": Mail,
   "file-server": Folder,

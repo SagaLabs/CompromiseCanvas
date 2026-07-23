@@ -20,6 +20,17 @@ interface UseReactFlowCallbacksProps {
   handlePaste: (pastePosition?: { x: number; y: number }) => void
 }
 
+const assetLabelOverrides: Partial<Record<AssetType, string>> = {
+  "vpn-gateway": "VPN Gateway",
+}
+
+const getDefaultAssetLabel = (type: AssetType) =>
+  assetLabelOverrides[type] ??
+  type
+    .split("-")
+    .map((segment) => segment.charAt(0).toUpperCase() + segment.slice(1))
+    .join(" ")
+
 export const useReactFlowCallbacks = ({
   reactFlowInstance,
   reactFlowWrapper,
@@ -116,10 +127,7 @@ export const useReactFlowCallbacks = ({
           type: "customNode",
           position,
           data: {
-            label: type
-              .split("-")
-              .map((s) => s.charAt(0).toUpperCase() + s.slice(1))
-              .join(" "),
+            label: getDefaultAssetLabel(type),
             type,
             hostname: "",
             ipAddress: "",

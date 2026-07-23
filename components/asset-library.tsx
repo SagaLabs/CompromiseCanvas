@@ -60,6 +60,12 @@ const assetCategories: AssetCategory[] = [
       { type: "workstation", label: "Workstation", description: "Employee workstation", icon: Laptop },
       { type: "domain-controller", label: "Domain Controller", description: "Active Directory DC", icon: Shield },
       { type: "firewall", label: "Firewall", description: "Network firewall", icon: Router },
+      {
+        type: "vpn-gateway",
+        label: "VPN Gateway",
+        description: "Remote access gateway",
+        icon: Lock,
+      },
       { type: "router", label: "Router", description: "Network router", icon: Router },
       { type: "email-server", label: "Email Server", description: "Mail server", icon: Mail },
       { type: "file-server", label: "File Server", description: "File share server", icon: Folder },
