@@ -1,29 +1,31 @@
 {
   "name": "compromise-canvas",
   "version": "0.1.0",
-  "description": "Interactive visual editor for building cyber attack paths and incident response timelines",
-  "author": "Christian Henriksen <contact@sagalabs.dk> (https://github.com/Guzzy711)",
-  "license": "GPL-3.0",
   "private": true,
-  "type": "module",
-  "repository": {
-    "type": "git",
-    "url": "https://github.com/SagaLabs/CompromiseCanvas.git"
-  },
-  "packageManager": "pnpm@11.17.0",
-  "homepage": "https://github.com/SagaLabs/CompromiseCanvas",
+  "description": "Interactive visual editor for building cyber attack paths and incident response timelines",
   "keywords": [
+    "attack-path",
     "cybersecurity",
     "incident-response",
-    "attack-path",
     "mitre-attack",
     "security",
     "visualization"
   ],
+  "homepage": "https://github.com/SagaLabs/CompromiseCanvas",
+  "license": "GPL-3.0",
+  "author": "Christian Henriksen <contact@sagalabs.dk> (https://github.com/Guzzy711)",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/SagaLabs/CompromiseCanvas.git"
+  },
+  "type": "module",
   "scripts": {
     "build": "next build",
     "dev": "next dev",
-    "lint": "next lint",
+    "lint": "oxlint",
+    "lint:fix": "oxlint --fix",
+    "fmt": "oxfmt",
+    "fmt:check": "oxfmt --check",
     "test:mitre": "node --test tests/mitre-techniques.test.cjs",
     "update:mitre": "node scripts/update-mitre-techniques.mjs",
     "start": "next start"
@@ -86,8 +88,11 @@
     "@types/node": "^26.1.1",
     "@types/react": "^19.2.8",
     "@types/react-dom": "^19.2.3",
+    "oxfmt": "^0.60.0",
+    "oxlint": "^1.75.0",
     "postcss": "^8.5.22",
     "tailwindcss": "^3.4.17",
     "typescript": "^5.9.2"
-  }
+  },
+  "packageManager": "pnpm@11.17.0"
 }
