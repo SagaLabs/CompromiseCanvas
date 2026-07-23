@@ -18,19 +18,24 @@ jobs:
         with:
           fetch-depth: 0
 
+      - name: Set up pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 11.17.0
+
       - name: Set up Node.js
         uses: actions/setup-node@v4
         with:
           node-version: 22
-          cache: npm
+          cache: pnpm
 
       - name: Install dependencies
-        run: npm ci
+        run: pnpm install --frozen-lockfile
 
       - name: Refresh Enterprise ATT&CK catalog
         id: refresh
         run: |
-          npm run update:mitre
+          pnpm run update:mitre
           if git diff --quiet -- lib/data/mitre-enterprise-techniques.json; then
             echo "changed=false" >> "$GITHUB_OUTPUT"
           else
@@ -39,11 +44,11 @@ jobs:
 
       - name: Test catalog
         if: steps.refresh.outputs.changed == 'true'
-        run: npm run test:mitre
+        run: pnpm run test:mitre
 
       - name: Build application
         if: steps.refresh.outputs.changed == 'true'
-        run: npm run build
+        run: pnpm run build
 
       - name: Push update branch
         if: steps.refresh.outputs.changed == 'true'
