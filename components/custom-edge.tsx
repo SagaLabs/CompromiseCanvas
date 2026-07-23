@@ -42,9 +42,12 @@ interface CustomEdgeProps extends EdgeProps<Edge<EdgeData>> {
   selected?: boolean
   onDeleteEdge?: (id: string) => void
   onSetEdgeActionType?: (id: string, actionType: EdgeActionType) => void
+  onSelectEdge?: (id: string) => void
   onSetEdgeLabelOffset?: (id: string, x: number, y: number) => void
   onToggleEdgeUnlocked?: (id: string) => void
 }
+
+const EDGE_ROUTE_DRAG_THRESHOLD_PX = 4
 
 const CustomEdge = memo(function CustomEdge({
   id,
@@ -61,6 +64,7 @@ const CustomEdge = memo(function CustomEdge({
   selected = false,
   onDeleteEdge,
   onSetEdgeActionType,
+  onSelectEdge,
   onSetEdgeLabelOffset,
   onToggleEdgeUnlocked,
 }: CustomEdgeProps) {
@@ -110,7 +114,13 @@ const CustomEdge = memo(function CustomEdge({
   // control-point offset; once released the committed offset lives on the edge
   // data (undo-safe). Dragging either the line or the label moves the same point.
   const [drag, setDrag] = useState<{ x: number; y: number } | null>(null)
-  const dragStart = useRef<{ px: number; py: number; ox: number; oy: number } | null>(null)
+  const dragStart = useRef<{
+    px: number
+    py: number
+    ox: number
+    oy: number
+    dragging: boolean
+  } | null>(null)
   const offsetX = drag ? drag.x : data?.labelOffsetX ?? 0
   const offsetY = drag ? drag.y : data?.labelOffsetY ?? 0
 
@@ -120,34 +130,47 @@ const CustomEdge = memo(function CustomEdge({
       e.stopPropagation()
       const ox = data?.labelOffsetX ?? 0
       const oy = data?.labelOffsetY ?? 0
-      dragStart.current = { px: e.clientX, py: e.clientY, ox, oy }
-      setDrag({ x: ox, y: oy })
+      dragStart.current = { px: e.clientX, py: e.clientY, ox, oy, dragging: false }
       e.currentTarget.setPointerCapture(e.pointerId)
     },
     [unlocked, data?.labelOffsetX, data?.labelOffsetY],
   )
   const onLabelPointerMove = useCallback(
     (e: React.PointerEvent) => {
-      if (!dragStart.current) return
-      const dx = (e.clientX - dragStart.current.px) / zoom
-      const dy = (e.clientY - dragStart.current.py) / zoom
-      setDrag({ x: dragStart.current.ox + dx, y: dragStart.current.oy + dy })
+      const start = dragStart.current
+      if (!start) return
+      const screenDx = e.clientX - start.px
+      const screenDy = e.clientY - start.py
+      if (!start.dragging && Math.hypot(screenDx, screenDy) < EDGE_ROUTE_DRAG_THRESHOLD_PX) return
+
+      start.dragging = true
+      const dx = screenDx / zoom
+      const dy = screenDy / zoom
+      setDrag({ x: start.ox + dx, y: start.oy + dy })
     },
     [zoom],
   )
   const onLabelPointerUp = useCallback(
     (e: React.PointerEvent) => {
-      if (!dragStart.current) return
-      const dx = (e.clientX - dragStart.current.px) / zoom
-      const dy = (e.clientY - dragStart.current.py) / zoom
-      const nx = dragStart.current.ox + dx
-      const ny = dragStart.current.oy + dy
+      const start = dragStart.current
+      if (!start) return
+      const didDrag = start.dragging
+      const dx = (e.clientX - start.px) / zoom
+      const dy = (e.clientY - start.py) / zoom
+      const nx = start.ox + dx
+      const ny = start.oy + dy
       dragStart.current = null
       setDrag(null)
       e.currentTarget.releasePointerCapture(e.pointerId)
+
+      if (!didDrag) {
+        onSelectEdge?.(id)
+        return
+      }
+
       onSetEdgeLabelOffset?.(id, nx, ny)
     },
-    [zoom, id, onSetEdgeLabelOffset],
+    [zoom, id, onSelectEdge, onSetEdgeLabelOffset],
   )
 
   // Use React Flow's built-in smooth step path for the default (locked) routing.
@@ -440,6 +463,7 @@ const CustomEdge = memo(function CustomEdge({
         onPointerDown={onLabelPointerDown}
         onPointerMove={onLabelPointerMove}
         onPointerUp={onLabelPointerUp}
+        onClick={unlocked ? (event) => event.stopPropagation() : undefined}
       />
 
       {/* Quick-action toolbar shown at the edge midpoint on hover or when selected */}

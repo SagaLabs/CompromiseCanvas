@@ -48,12 +48,12 @@ const seed = {
   timestamp: new Date().toISOString(),
 }
 
-async function seedDiagram(page: Page) {
+async function seedDiagram(page: Page, snapshot = seed) {
   await page.addInitScript((snapshot) => {
     localStorage.setItem("compromise-canvas-autosave-enabled", "true")
     localStorage.setItem("compromise-canvas-autosave-flow", JSON.stringify(snapshot))
     localStorage.setItem("compromise-canvas-autosave-timestamp", snapshot.timestamp)
-  }, seed)
+  }, snapshot)
   await page.goto("/")
   // Wait for the seeded edge to render.
   await page.locator(".react-flow__edge").first().waitFor()
@@ -130,6 +130,58 @@ test("unlock toggle enables rerouting; drag bends the edge and moves its label",
   // Undo restores the pre-drag (unlocked, straight) geometry.
   await page.keyboard.press("Control+z")
   await expect(path).toHaveAttribute("d", pathUnlocked ?? "")
+})
+
+test("an unlocked edge can be selected without accidentally rerouting it", async ({ page }) => {
+  await seedDiagram(page, {
+    ...seed,
+    edges: seed.edges.map((edge) => ({
+      ...edge,
+      data: { ...edge.data, unlocked: true },
+    })),
+  })
+
+  const path = edgePath(page)
+  const routeHandle = page.locator(".react-flow__edge path.nopan").first()
+  const label = page
+    .locator(".react-flow__edgelabel-renderer > div")
+    .filter({ hasText: "Lateral Movement" })
+  const before = await path.getAttribute("d")
+  const labelBox = await label.boundingBox()
+  expect(labelBox).not.toBeNull()
+
+  const labelX = labelBox!.x + labelBox!.width / 2
+  const labelY = labelBox!.y + labelBox!.height / 2
+  await page.mouse.move(labelX, labelY)
+  await page.mouse.down()
+  await page.mouse.move(labelX + 2, labelY + 1)
+  await page.mouse.up()
+
+  await expect(page.locator(".react-flow__edge").first()).toHaveClass(/selected/)
+  await expect(page.getByRole("button", { name: "Delete selected edge" })).toBeVisible()
+  await expect(path).toHaveAttribute("d", before ?? "")
+
+  await page.reload()
+  await page.locator(".react-flow__edge").first().waitFor()
+  await expect(page.locator(".react-flow__edge").first()).not.toHaveClass(/selected/)
+
+  const reloadedRouteHandle = page.locator(".react-flow__edge path.nopan").first()
+  const reloadedPath = edgePath(page)
+  const reloadedBefore = await reloadedPath.getAttribute("d")
+  const point = await reloadedRouteHandle.evaluate((element: SVGPathElement) => {
+    const position = element.getPointAtLength(element.getTotalLength() * 0.2)
+    const matrix = element.getScreenCTM()
+    if (!matrix) throw new Error("Could not read the edge screen transform")
+    return {
+      x: matrix.a * position.x + matrix.c * position.y + matrix.e,
+      y: matrix.b * position.x + matrix.d * position.y + matrix.f,
+    }
+  })
+  await page.mouse.click(point.x, point.y)
+
+  await expect(page.locator(".react-flow__edge").first()).toHaveClass(/selected/)
+  await expect(page.getByRole("button", { name: "Delete selected edge" })).toBeVisible()
+  await expect(reloadedPath).toHaveAttribute("d", reloadedBefore ?? "")
 })
 
 test("toolbar edge changes remain intact after a properties edit", async ({ page }) => {

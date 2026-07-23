@@ -11,6 +11,7 @@ export const createEdgeTypes = (
   selectedElement: Node | Edge | null,
   onDeleteEdge: (id: string) => void,
   onSetEdgeActionType: (id: string, actionType: EdgeActionType) => void,
+  onSelectEdge: (id: string) => void,
   onSetEdgeLabelOffset: (id: string, x: number, y: number) => void,
   onToggleEdgeUnlocked: (id: string) => void,
 ) => ({
@@ -21,6 +22,7 @@ export const createEdgeTypes = (
       selected={selectedElement?.id === props.id && selectedElement?.type === "customEdge"}
       onDeleteEdge={onDeleteEdge}
       onSetEdgeActionType={onSetEdgeActionType}
+      onSelectEdge={onSelectEdge}
       onSetEdgeLabelOffset={onSetEdgeLabelOffset}
       onToggleEdgeUnlocked={onToggleEdgeUnlocked}
     />
