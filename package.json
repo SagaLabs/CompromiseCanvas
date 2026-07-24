@@ -29,7 +29,8 @@
     "test:mitre": "node --test tests/mitre-techniques.test.cjs",
     "test:selection": "node --test tests/selection-layout.test.cjs",
     "update:mitre": "node scripts/update-mitre-techniques.mjs",
-    "start": "next start"
+    "start": "next start",
+    "prepare": "husky"
   },
   "dependencies": {
     "@hookform/resolvers": "^3.9.1",
@@ -92,8 +93,9 @@
     "@types/node": "^22",
     "@types/react": "^19",
     "@types/react-dom": "^19",
-    "eslint": "^9.39.2",
-    "eslint-config-next": "^16.1.2",
+    "husky": "^9.1.7",
+    "oxfmt": "^0.60.0",
+    "oxlint": "^1.75.0",
     "postcss": "^8.5.22",
     "tailwindcss": "^3.4.17",
     "typescript": "^5"
