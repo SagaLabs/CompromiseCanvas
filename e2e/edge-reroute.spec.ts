@@ -62,6 +62,36 @@ async function seedDiagram(page: Page, snapshot = seed) {
 // The visible edge path element (React Flow renders one per edge).
 const edgePath = (page: Page) => page.locator(".react-flow__edge-path").first()
 
+test("staggered route markers start on the edge", async ({ page }) => {
+  await seedDiagram(page)
+  const edge = page.locator(".react-flow__edge").first()
+  await expect(edge.locator("circle")).toHaveCount(2)
+
+  const secondMarkerStartsOnEdge = await edge.evaluate((element) => {
+    const svg = (element as SVGElement).ownerSVGElement
+    const path = element.querySelector<SVGPathElement>(".react-flow__edge-path")
+    const marker = element.querySelectorAll<SVGCircleElement>("circle")[1]
+    if (!svg || !path || !marker) return false
+
+    svg.pauseAnimations()
+    svg.setCurrentTime(0)
+
+    const pathBounds = path.getBoundingClientRect()
+    const markerBounds = marker.getBoundingClientRect()
+    const markerX = markerBounds.left + markerBounds.width / 2
+    const markerY = markerBounds.top + markerBounds.height / 2
+
+    return (
+      markerX >= pathBounds.left - markerBounds.width &&
+      markerX <= pathBounds.right + markerBounds.width &&
+      markerY >= pathBounds.top - markerBounds.height &&
+      markerY <= pathBounds.bottom + markerBounds.height
+    )
+  })
+
+  expect(secondMarkerStartsOnEdge).toBe(true)
+})
+
 test("edge is locked by default and cannot be rerouted by dragging", async ({ page }) => {
   await seedDiagram(page)
   const path = edgePath(page)
