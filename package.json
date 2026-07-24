@@ -23,6 +23,7 @@
     "dev": "next dev",
     "lint": "next lint",
     "test:mitre": "node --test tests/mitre-techniques.test.cjs",
+    "test:selection": "node --test tests/selection-layout.test.cjs",
     "update:mitre": "node scripts/update-mitre-techniques.mjs",
     "start": "next start"
   },

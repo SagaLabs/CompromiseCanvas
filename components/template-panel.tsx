@@ -153,8 +153,8 @@ export default function TemplatePanel({
       description: newTemplateDescription,
       category: newTemplateCategory || "Custom",
       tags,
-      nodes: currentNodes,
-      edges: currentEdges,
+      nodes: currentNodes.map(({ selected: _selected, dragging: _dragging, ...node }) => node as Node),
+      edges: currentEdges.map(({ selected: _selected, ...edge }) => edge as Edge),
       createdAt: new Date().toISOString(),
       isBuiltIn: false,
     }

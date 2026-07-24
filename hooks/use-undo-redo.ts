@@ -1,4 +1,4 @@
-import { useCallback, useRef, useState } from 'react'
+import { useCallback, useState } from 'react'
 import type { CustomNode, CustomEdge } from '@/lib/types'
 
 export interface FlowState {
@@ -19,19 +19,10 @@ export function useUndoRedo(initialState: FlowState) {
     future: []
   })
 
-  // Track if we should skip the next state save (used for undo/redo operations)
-  const skipSave = useRef(false)
-
   const canUndo = state.past.length > 0
   const canRedo = state.future.length > 0
 
   const takeSnapshot = useCallback((newState: FlowState) => {
-    // Don't save state if we're in the middle of an undo/redo operation
-    if (skipSave.current) {
-      skipSave.current = false
-      return
-    }
-
     setState((currentState) => {
       // Don't save if the state hasn't actually changed
       if (
@@ -52,8 +43,6 @@ export function useUndoRedo(initialState: FlowState) {
   const undo = useCallback(() => {
     if (!canUndo) return { nodes: state.present.nodes, edges: state.present.edges }
 
-    skipSave.current = true
-    
     setState((currentState) => {
       const previous = currentState.past[currentState.past.length - 1]
       const newPast = currentState.past.slice(0, currentState.past.length - 1)
@@ -72,8 +61,6 @@ export function useUndoRedo(initialState: FlowState) {
 
   const redo = useCallback(() => {
     if (!canRedo) return { nodes: state.present.nodes, edges: state.present.edges }
-
-    skipSave.current = true
 
     setState((currentState) => {
       const next = currentState.future[0]

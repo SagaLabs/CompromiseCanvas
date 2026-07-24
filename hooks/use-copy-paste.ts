@@ -8,7 +8,9 @@ export interface CopyPasteData {
 }
 
 let nodeIdCounter = 0
+let edgeIdCounter = 0
 const generateId = () => `copied_node_${nodeIdCounter++}_${Date.now()}`
+const generateEdgeId = () => `copied_edge_${edgeIdCounter++}_${Date.now()}`
 
 export function useCopyPaste() {
   const clipboardRef = useRef<CopyPasteData | null>(null)
@@ -99,11 +101,10 @@ export function useCopyPaste() {
           x: originalPos.x + offsetX,
           y: originalPos.y + offsetY
         },
-        data: {
-          ...node.data,
-          // Remove the temporary _originalPosition
-          _originalPosition: undefined
-        },
+        data: (() => {
+          const { _originalPosition: _discardedPosition, ...data } = node.data
+          return data
+        })(),
         selected: true // Select newly pasted nodes
       }
     })
@@ -119,10 +120,10 @@ export function useCopyPaste() {
 
       return {
         ...edge,
-        id: `${newSourceId}-${newTargetId}-${Date.now()}`,
+        id: generateEdgeId(),
         source: newSourceId,
         target: newTargetId,
-        selected: true // Select newly pasted edges
+        selected: false
       }
     }).filter((edge): edge is CustomEdge => edge !== null)
 

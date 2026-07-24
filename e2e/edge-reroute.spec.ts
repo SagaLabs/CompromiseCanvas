@@ -243,6 +243,9 @@ test("Ctrl-click adds an unlocked edge to the current selection", async ({ page 
 
   await expect(page.locator(".react-flow__node.selected")).toHaveCount(1)
   await expect(page.locator(".react-flow__edge.selected")).toHaveCount(1)
+  await expect(
+    page.locator(".react-flow__edgelabel-renderer > div").filter({ hasText: "Lateral Movement" }),
+  ).toHaveClass(/ip-selection-highlight/)
 })
 
 test("Ctrl-click adds a locked edge to the current selection", async ({ page }) => {
@@ -268,6 +271,39 @@ test("Ctrl-click adds a locked edge to the current selection", async ({ page }) 
 
   await expect(page.locator(".react-flow__node.selected")).toHaveCount(1)
   await expect(page.locator(".react-flow__edge.selected")).toHaveCount(1)
+})
+
+test("Shift-clicking a locked edge label keeps the route selected and highlighted", async ({ page }) => {
+  await seedDiagram(page)
+
+  await page.locator(".react-flow__node").filter({ hasText: "Alpha" }).click()
+  await expect(page.locator(".react-flow__node.selected")).toHaveCount(1)
+
+  const label = page
+    .locator(".react-flow__edgelabel-renderer > div")
+    .filter({ hasText: "Lateral Movement" })
+
+  await page.keyboard.down("Shift")
+  await label.click()
+  await page.keyboard.up("Shift")
+
+  await expect(page.locator(".react-flow__node.selected")).toHaveCount(1)
+  await expect(page.locator(".react-flow__edge.selected")).toHaveCount(1)
+  await expect(label).toHaveClass(/ip-selection-highlight/)
+})
+
+test("clicking a locked edge label selects and highlights the route", async ({ page }) => {
+  await seedDiagram(page)
+
+  const label = page
+    .locator(".react-flow__edgelabel-renderer > div")
+    .filter({ hasText: "Lateral Movement" })
+
+  await label.click()
+
+  await expect(page.locator(".react-flow__node.selected")).toHaveCount(0)
+  await expect(page.locator(".react-flow__edge.selected")).toHaveCount(1)
+  await expect(label).toHaveClass(/ip-selection-highlight/)
 })
 
 test("toolbar edge changes remain intact after a properties edit", async ({ page }) => {

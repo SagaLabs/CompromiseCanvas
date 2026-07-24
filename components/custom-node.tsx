@@ -98,7 +98,7 @@ const actionIcons = {
 
 const CustomNode = memo(function CustomNode({ data, isConnectable, selected, id }: NodeProps<Node<NodeData>>) {
   const { setNodes } = useReactFlow()
-  const { updateNode } = useCanvasActions()
+  const { updateNode, multiSelectionActive } = useCanvasActions()
   const Icon = assetIcons[data.type] || ServerCog // Default icon
   const CriticalityColorClass = criticalityColors[data.criticality] || "bg-gray-500"
 
@@ -399,13 +399,15 @@ const CustomNode = memo(function CustomNode({ data, isConnectable, selected, id 
         "relative flex flex-col items-center justify-center rounded-lg border px-4 py-3 shadow-md",
         nodeClassName,
         "text-white",
-        selected && "animate-border-pulse border-4 border-blue-400"
+        selected && (multiSelectionActive
+          ? "ip-multi-selected border-2 border-blue-400"
+          : "animate-border-pulse border-4 border-blue-400")
       )}
       style={nodeStyle}
       onMouseEnter={showToolbar}
       onMouseLeave={hideToolbar}
     >
-      {data.type !== "attacker" && (
+      {data.type !== "attacker" && !multiSelectionActive && (
         <NodeToolbar
           nodeId={id}
           isVisible={isHovered || selected || menuOpen}
@@ -419,7 +421,7 @@ const CustomNode = memo(function CustomNode({ data, isConnectable, selected, id 
         />
       )}
       <NodeResizer
-        isVisible={selected || isHovered}
+        isVisible={!multiSelectionActive && (selected || isHovered)}
         minWidth={200}
         minHeight={120}
         lineClassName="border-blue-400 border-2"
