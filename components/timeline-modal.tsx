@@ -196,7 +196,7 @@ export default function TimelineModal({
       });
     }
 
-    return [...events].sort((a, b) => a.parsedDate.getTime() - b.parsedDate.getTime());
+    return [...events].toSorted((a, b) => a.parsedDate.getTime() - b.parsedDate.getTime());
   }, [edges, incidentLog, includeIncidentLog, isOpen]);
 
   const availableActionTypes = useMemo(() => {
@@ -206,7 +206,7 @@ export default function TimelineModal({
         types.add(event.actionType);
       }
     });
-    return Array.from(types).sort();
+    return Array.from(types).toSorted();
   }, [timelineEvents]);
 
   const filteredEvents = useMemo(() => {

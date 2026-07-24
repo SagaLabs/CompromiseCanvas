@@ -41,14 +41,14 @@ const techniques = bundle.objects
       name: object.name,
       tactics: [
         ...new Set((object.kill_chain_phases || []).map((phase) => phase.phase_name)),
-      ].sort(),
+      ].toSorted(),
       isSubtechnique: Boolean(object.x_mitre_is_subtechnique),
       url:
         reference.url ||
         `https://attack.mitre.org/techniques/${reference.external_id.replace('.', '/')}/`,
     };
   })
-  .sort((left, right) => left.id.localeCompare(right.id, undefined, { numeric: true }));
+  .toSorted((left, right) => left.id.localeCompare(right.id, undefined, { numeric: true }));
 
 const techniquesById = new Map(techniques.map((technique) => [technique.id, technique]));
 const techniquesWithParents = techniques.map((technique) => {

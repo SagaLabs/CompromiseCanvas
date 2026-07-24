@@ -134,7 +134,7 @@ export default function ExportReportButton({
         };
       })
       .filter((item) => !isNaN(item.parsedDate.getTime()))
-      .sort((a, b) => a.parsedDate.getTime() - b.parsedDate.getTime());
+      .toSorted((a, b) => a.parsedDate.getTime() - b.parsedDate.getTime());
 
     const formatIsoSeconds = (value: Date) => value.toISOString().replace(/\.\d{3}Z$/, 'Z');
 
@@ -255,7 +255,7 @@ export default function ExportReportButton({
       currentY += 5;
 
       // Sort logs by timestamp
-      const sortedLogs = [...incidentLog].sort(
+      const sortedLogs = [...incidentLog].toSorted(
         (a, b) => new Date(a.timestamp).getTime() - new Date(b.timestamp).getTime(),
       );
 

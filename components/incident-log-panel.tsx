@@ -72,7 +72,7 @@ export default function IncidentLogPanel({
 
   // Sort logs by timestamp descending (newest first)
   const sortedLogs = useMemo(() => {
-    return [...(resolvedIncidentLog || [])].sort(
+    return [...(resolvedIncidentLog || [])].toSorted(
       (a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime(),
     );
   }, [resolvedIncidentLog]);

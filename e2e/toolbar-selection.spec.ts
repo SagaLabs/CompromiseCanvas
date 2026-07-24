@@ -62,7 +62,7 @@ test('copy after a toolbar edit uses the live node data', async ({ page }) => {
       Boolean(node.data.isCompromised),
     );
   });
-  expect(compromisedStates.sort()).toEqual([false, true]);
+  expect(compromisedStates.toSorted()).toEqual([false, true]);
 });
 
 test('web manifest is linked and its icon URLs resolve', async ({ page, request }) => {

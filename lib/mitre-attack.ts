@@ -72,7 +72,7 @@ export function searchMitreTechniques(query: string, limit = 50) {
 
   return mitreTechniques
     .filter((technique) => resultIds.has(technique.id))
-    .sort((left, right) => {
+    .toSorted((left, right) => {
       const leftFamily = left.parentId || left.id;
       const rightFamily = right.parentId || right.id;
       return (
