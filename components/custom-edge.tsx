@@ -48,9 +48,58 @@ interface CustomEdgeProps extends EdgeProps<Edge<EdgeData>> {
 }
 
 const EDGE_ROUTE_DRAG_THRESHOLD_PX = 4
+const SELF_LOOP_LABEL_CLEARANCE_PX = 80
+
+interface SelfLoopGeometry {
+  path: string
+  labelX: number
+  labelY: number
+}
+
+function getSelfLoopGeometry({
+  sourceX,
+  sourceY,
+  targetX,
+  targetY,
+  nodeHeight = 0,
+  offsetX = 0,
+  offsetY = 0,
+}: {
+  sourceX: number
+  sourceY: number
+  targetX: number
+  targetY: number
+  nodeHeight?: number
+  offsetX?: number
+  offsetY?: number
+}): SelfLoopGeometry {
+  const nodeWidth = Math.abs(sourceX - targetX)
+  const sideOffset = Math.max(90, nodeWidth * 0.35)
+  const nodeClearanceHeight =
+    ((nodeHeight / 2 + SELF_LOOP_LABEL_CLEARANCE_PX) * 4) / 3
+  const controlHeight = Math.max(220, nodeWidth, nodeClearanceHeight)
+
+  // At the midpoint of a cubic curve, the two control points contribute 3/4
+  // of its position. Scaling the drag offset by 4/3 keeps the label on the line.
+  const controlShiftX = (offsetX * 4) / 3
+  const controlShiftY = (offsetY * 4) / 3
+
+  return {
+    path: [
+      `M ${sourceX},${sourceY}`,
+      `C ${sourceX + sideOffset + controlShiftX},${sourceY - controlHeight + controlShiftY}`,
+      `${targetX - sideOffset + controlShiftX},${targetY - controlHeight + controlShiftY}`,
+      `${targetX},${targetY}`,
+    ].join(" "),
+    labelX: (sourceX + targetX) / 2 + offsetX,
+    labelY: (sourceY + targetY) / 2 - controlHeight * 0.75 + offsetY,
+  }
+}
 
 const CustomEdge = memo(function CustomEdge({
   id,
+  source,
+  target,
   sourceX,
   sourceY,
   targetX,
@@ -109,6 +158,9 @@ const CustomEdge = memo(function CustomEdge({
 
   // Current viewport zoom, so a screen-space drag maps to the right flow-space delta.
   const zoom = useStore((s) => s.transform[2])
+  const sourceNodeHeight = useStore(
+    (state) => state.nodeLookup.get(source)?.measured.height ?? 0,
+  )
 
   // Manual routing drag (only when the edge is unlocked). `drag` holds the live
   // control-point offset; once released the committed offset lives on the edge
@@ -195,11 +247,25 @@ const CustomEdge = memo(function CustomEdge({
   // the visible bend. Locked edges fall back to the auto-routed smoothstep path.
   const midX = (sourceX + targetX) / 2
   const midY = (sourceY + targetY) / 2
-  const edgePath = unlocked
-    ? `M ${sourceX},${sourceY} Q ${midX + 2 * offsetX},${midY + 2 * offsetY} ${targetX},${targetY}`
-    : smoothPath
-  const labelX = unlocked ? midX + offsetX : smoothLabelX
-  const labelY = unlocked ? midY + offsetY : smoothLabelY
+  const isSelfConnection = source === target
+
+  const selfLoop = getSelfLoopGeometry({
+    sourceX,
+    sourceY,
+    targetX,
+    targetY,
+    nodeHeight: sourceNodeHeight,
+    offsetX: unlocked ? offsetX : 0,
+    offsetY: unlocked ? offsetY : 0,
+  })
+
+  const edgePath = isSelfConnection
+    ? selfLoop.path
+    : unlocked
+      ? `M ${sourceX},${sourceY} Q ${midX + 2 * offsetX},${midY + 2 * offsetY} ${targetX},${targetY}`
+      : smoothPath
+  const labelX = isSelfConnection ? selfLoop.labelX : unlocked ? midX + offsetX : smoothLabelX
+  const labelY = isSelfConnection ? selfLoop.labelY : unlocked ? midY + offsetY : smoothLabelY
 
   // Determine edge styling based on action type
   const getEdgeStyle = (actionType?: string) => {
