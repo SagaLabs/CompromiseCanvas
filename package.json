@@ -96,8 +96,8 @@
     "tailwindcss": "^3.4.17",
     "typescript": "^5.9.2"
   },
-  "packageManager": "pnpm@11.17.0",
   "lint-staged": {
     "*": "oxfmt --no-error-on-unmatched-pattern"
-  }
+  },
+  "packageManager": "pnpm@11.17.0"
 }

@@ -1,6 +1,5 @@
-"use client"
+'use client';
 
-import type React from "react"
 import {
   Server,
   Database,
@@ -13,7 +12,6 @@ import {
   Upload,
   Radio,
   HelpCircle,
-
   UserX,
   Cloud,
   HardDrive,
@@ -31,132 +29,229 @@ import {
   Building,
   Lock,
   MessageCircle,
-} from "lucide-react"
-import type { AssetType } from "@/lib/types"
-import { useState } from "react"
+} from 'lucide-react';
+import type React from 'react';
+import { useState } from 'react';
+
+import type { AssetType } from '@/lib/types';
 
 interface AssetItemProps {
-  type: AssetType
-  label: string
-  description: string
-  icon: React.ElementType
+  type: AssetType;
+  label: string;
+  description: string;
+  icon: React.ElementType;
 }
 
 interface AssetCategory {
-  id: string
-  name: string
-  icon: React.ElementType
-  assets: AssetItemProps[]
+  id: string;
+  name: string;
+  icon: React.ElementType;
+  assets: AssetItemProps[];
 }
 
 const assetCategories: AssetCategory[] = [
   {
-    id: "on-premises",
-    name: "On-Premises Infrastructure",
+    id: 'on-premises',
+    name: 'On-Premises Infrastructure',
     icon: Building,
     assets: [
-      { type: "web-server", label: "Web Server", description: "HTTP/HTTPS web server", icon: Server },
-      { type: "database", label: "Database", description: "Database server", icon: Database },
-      { type: "workstation", label: "Workstation", description: "Employee workstation", icon: Laptop },
-      { type: "domain-controller", label: "Domain Controller", description: "Active Directory DC", icon: Shield },
-      { type: "firewall", label: "Firewall", description: "Network firewall", icon: Router },
-      { type: "router", label: "Router", description: "Network router", icon: Router },
-      { type: "email-server", label: "Email Server", description: "Mail server", icon: Mail },
-      { type: "file-server", label: "File Server", description: "File share server", icon: Folder },
-    ]
+      {
+        type: 'web-server',
+        label: 'Web Server',
+        description: 'HTTP/HTTPS web server',
+        icon: Server,
+      },
+      { type: 'database', label: 'Database', description: 'Database server', icon: Database },
+      {
+        type: 'workstation',
+        label: 'Workstation',
+        description: 'Employee workstation',
+        icon: Laptop,
+      },
+      {
+        type: 'domain-controller',
+        label: 'Domain Controller',
+        description: 'Active Directory DC',
+        icon: Shield,
+      },
+      { type: 'firewall', label: 'Firewall', description: 'Network firewall', icon: Router },
+      { type: 'router', label: 'Router', description: 'Network router', icon: Router },
+      { type: 'email-server', label: 'Email Server', description: 'Mail server', icon: Mail },
+      { type: 'file-server', label: 'File Server', description: 'File share server', icon: Folder },
+    ],
   },
   {
-    id: "cloud-infrastructure",
-    name: "Cloud Infrastructure",
+    id: 'cloud-infrastructure',
+    name: 'Cloud Infrastructure',
     icon: Cloud,
     assets: [
-      { type: "cloud-instance", label: "Cloud Instance", description: "Virtual machine in cloud", icon: Server },
-      { type: "cloud-database", label: "Cloud Database", description: "Managed database service", icon: Database },
-      { type: "cloud-load-balancer", label: "Load Balancer", description: "Cloud load balancer", icon: Loader },
-      { type: "cloud-container", label: "Container", description: "Containerized application", icon: Box },
-      { type: "cloud-function", label: "Serverless Function", description: "FaaS (Lambda, Functions)", icon: Zap },
-      { type: "cloud-kubernetes", label: "Kubernetes Cluster", description: "K8s cluster or namespace", icon: Layers },
-      { type: "cloud-tenant", label: "Cloud Tenant", description: "Cloud tenant", icon: Building2 },
-    ]
+      {
+        type: 'cloud-instance',
+        label: 'Cloud Instance',
+        description: 'Virtual machine in cloud',
+        icon: Server,
+      },
+      {
+        type: 'cloud-database',
+        label: 'Cloud Database',
+        description: 'Managed database service',
+        icon: Database,
+      },
+      {
+        type: 'cloud-load-balancer',
+        label: 'Load Balancer',
+        description: 'Cloud load balancer',
+        icon: Loader,
+      },
+      {
+        type: 'cloud-container',
+        label: 'Container',
+        description: 'Containerized application',
+        icon: Box,
+      },
+      {
+        type: 'cloud-function',
+        label: 'Serverless Function',
+        description: 'FaaS (Lambda, Functions)',
+        icon: Zap,
+      },
+      {
+        type: 'cloud-kubernetes',
+        label: 'Kubernetes Cluster',
+        description: 'K8s cluster or namespace',
+        icon: Layers,
+      },
+      { type: 'cloud-tenant', label: 'Cloud Tenant', description: 'Cloud tenant', icon: Building2 },
+    ],
   },
   {
-    id: "security-identity",
-    name: "Security & Identity",
+    id: 'security-identity',
+    name: 'Security & Identity',
     icon: Lock,
     assets: [
-      { type: "identity", label: "Identity", description: "User or service identity", icon: UserCheck },
-    ]
+      {
+        type: 'identity',
+        label: 'Identity',
+        description: 'User or service identity',
+        icon: UserCheck,
+      },
+    ],
   },
   {
-    id: "threat-actor",
-    name: "Threat Actor Assets",
+    id: 'threat-actor',
+    name: 'Threat Actor Assets',
     icon: UserX,
     assets: [
-      { type: "attacker", label: "Attacker", description: "Threat actor or attacker", icon: UserX },
-      { type: "command-control", label: "Command & Control", description: "C2 server or infrastructure", icon: Radio },
-      { type: "exfiltration", label: "Exfiltration", description: "Data exfiltration destination", icon: Upload },
-    ]
+      { type: 'attacker', label: 'Attacker', description: 'Threat actor or attacker', icon: UserX },
+      {
+        type: 'command-control',
+        label: 'Command & Control',
+        description: 'C2 server or infrastructure',
+        icon: Radio,
+      },
+      {
+        type: 'exfiltration',
+        label: 'Exfiltration',
+        description: 'Data exfiltration destination',
+        icon: Upload,
+      },
+    ],
   },
   {
-    id: "data-storage",
-    name: "Data & Storage",
+    id: 'data-storage',
+    name: 'Data & Storage',
     icon: HardDrive,
     assets: [
-      { type: "cloud-storage", label: "Cloud Storage", description: "Object storage (S3, Blob, etc.)", icon: HardDrive },
-      { type: "cloud-productivity-storage", label: "Cloud Productivity Storage", description: "Cloud file storage and sharing", icon: Folder },
-    ]
+      {
+        type: 'cloud-storage',
+        label: 'Cloud Storage',
+        description: 'Object storage (S3, Blob, etc.)',
+        icon: HardDrive,
+      },
+      {
+        type: 'cloud-productivity-storage',
+        label: 'Cloud Productivity Storage',
+        description: 'Cloud file storage and sharing',
+        icon: Folder,
+      },
+    ],
   },
   {
-    id: "communication-collaboration",
-    name: "Communication & Collaboration",
+    id: 'communication-collaboration',
+    name: 'Communication & Collaboration',
     icon: MessageCircle,
     assets: [
-      { type: "cloud-email", label: "Cloud Email", description: "Cloud email and messaging service", icon: Mail },
-      { type: "cloud-collaboration", label: "Cloud Collaboration", description: "Cloud collaboration platform", icon: MessageSquare },
-      { type: "cloud-calendar", label: "Cloud Calendar", description: "Cloud calendar and scheduling", icon: Calendar },
-      { type: "cloud-video", label: "Cloud Video", description: "Cloud video conferencing", icon: Video },
-    ]
+      {
+        type: 'cloud-email',
+        label: 'Cloud Email',
+        description: 'Cloud email and messaging service',
+        icon: Mail,
+      },
+      {
+        type: 'cloud-collaboration',
+        label: 'Cloud Collaboration',
+        description: 'Cloud collaboration platform',
+        icon: MessageSquare,
+      },
+      {
+        type: 'cloud-calendar',
+        label: 'Cloud Calendar',
+        description: 'Cloud calendar and scheduling',
+        icon: Calendar,
+      },
+      {
+        type: 'cloud-video',
+        label: 'Cloud Video',
+        description: 'Cloud video conferencing',
+        icon: Video,
+      },
+    ],
   },
   {
-    id: "other",
-    name: "Other",
+    id: 'other',
+    name: 'Other',
     icon: HelpCircle,
     assets: [
-      { type: "other", label: "Other", description: "Miscellaneous asset or system", icon: HelpCircle },
-    ]
-  }
-]
+      {
+        type: 'other',
+        label: 'Other',
+        description: 'Miscellaneous asset or system',
+        icon: HelpCircle,
+      },
+    ],
+  },
+];
 
 // Group node for organizing assets
 const groupNode: AssetItemProps = {
-  type: "group",
-  label: "Asset Group",
-  description: "Group of related assets on the same endpoint",
+  type: 'group',
+  label: 'Asset Group',
+  description: 'Group of related assets on the same endpoint',
   icon: Folder,
-}
+};
 
 interface CategorySectionProps {
-  category: AssetCategory
-  onDragStart: (event: React.DragEvent, nodeType: AssetType) => void
+  category: AssetCategory;
+  onDragStart: (event: React.DragEvent, nodeType: AssetType) => void;
 }
 
 function CategorySection({ category, onDragStart }: CategorySectionProps) {
-  const [isExpanded, setIsExpanded] = useState(false)
+  const [isExpanded, setIsExpanded] = useState(false);
   const handleKeyboardDrag = (event: React.KeyboardEvent, nodeType: AssetType) => {
-    if (event.key !== "Enter" && event.key !== " ") return
-    event.preventDefault()
-    const dataTransfer = new DataTransfer()
-    dataTransfer.setData("application/reactflow", nodeType)
-    dataTransfer.effectAllowed = "move"
-    const dragEvent = new DragEvent("dragstart", { dataTransfer, bubbles: true, cancelable: true })
-    event.currentTarget.dispatchEvent(dragEvent)
-  }
+    if (event.key !== 'Enter' && event.key !== ' ') return;
+    event.preventDefault();
+    const dataTransfer = new DataTransfer();
+    dataTransfer.setData('application/reactflow', nodeType);
+    dataTransfer.effectAllowed = 'move';
+    const dragEvent = new DragEvent('dragstart', { dataTransfer, bubbles: true, cancelable: true });
+    event.currentTarget.dispatchEvent(dragEvent);
+  };
 
   return (
     <div className="mb-4">
       <button
         onClick={() => setIsExpanded(!isExpanded)}
-        className="flex w-full items-center gap-2 rounded-md bg-gray-800 px-3 py-2 text-left text-sm font-medium text-white hover:bg-gray-700 transition-colors"
+        className="flex w-full items-center gap-2 rounded-md bg-gray-800 px-3 py-2 text-left text-sm font-medium text-white transition-colors hover:bg-gray-700"
         aria-expanded={isExpanded}
       >
         {isExpanded ? (
@@ -184,7 +279,7 @@ function CategorySection({ category, onDragStart }: CategorySectionProps) {
             >
               <asset.icon className="h-5 w-5 text-blue-400" aria-hidden="true" />
               <div>
-                <div className="font-medium text-sm">{asset.label}</div>
+                <div className="text-sm font-medium">{asset.label}</div>
                 <div className="text-xs text-gray-400">{asset.description}</div>
               </div>
             </div>
@@ -192,29 +287,29 @@ function CategorySection({ category, onDragStart }: CategorySectionProps) {
         </div>
       )}
     </div>
-  )
+  );
 }
 
 export default function AssetLibrary() {
   const onDragStart = (event: React.DragEvent, nodeType: AssetType) => {
-    event.dataTransfer.setData("application/reactflow", nodeType)
-    event.dataTransfer.effectAllowed = "move"
-  }
+    event.dataTransfer.setData('application/reactflow', nodeType);
+    event.dataTransfer.effectAllowed = 'move';
+  };
 
   // Keyboard-accessible drag: Enter/Space on a focused asset synthesizes a
   // dragstart so it can be dropped onto the canvas without a pointer.
   const handleKeyboardDrag = (event: React.KeyboardEvent, nodeType: AssetType) => {
-    if (event.key !== "Enter" && event.key !== " ") return
-    event.preventDefault()
-    const dataTransfer = new DataTransfer()
-    dataTransfer.setData("application/reactflow", nodeType)
-    dataTransfer.effectAllowed = "move"
-    const dragEvent = new DragEvent("dragstart", { dataTransfer, bubbles: true, cancelable: true })
-    event.currentTarget.dispatchEvent(dragEvent)
-  }
+    if (event.key !== 'Enter' && event.key !== ' ') return;
+    event.preventDefault();
+    const dataTransfer = new DataTransfer();
+    dataTransfer.setData('application/reactflow', nodeType);
+    dataTransfer.effectAllowed = 'move';
+    const dragEvent = new DragEvent('dragstart', { dataTransfer, bubbles: true, cancelable: true });
+    event.currentTarget.dispatchEvent(dragEvent);
+  };
 
   return (
-    <aside className="ip-panel w-64 flex-shrink-0 border-r p-4 flex flex-col">
+    <aside className="ip-panel flex w-64 flex-shrink-0 flex-col border-r p-4">
       <h2 className="mb-4 text-lg font-semibold">Asset Library</h2>
       <p className="mb-6 text-sm text-gray-400">Drag assets to the canvas</p>
 
@@ -222,11 +317,7 @@ export default function AssetLibrary() {
         {/* Asset Categories */}
         <div className="space-y-2">
           {assetCategories.map((category) => (
-            <CategorySection
-              key={category.id}
-              category={category}
-              onDragStart={onDragStart}
-            />
+            <CategorySection key={category.id} category={category} onDragStart={onDragStart} />
           ))}
         </div>
 
@@ -247,13 +338,13 @@ export default function AssetLibrary() {
           >
             <groupNode.icon className="h-5 w-5 text-blue-400" aria-hidden="true" />
             <div>
-              <div className="font-medium text-sm">{groupNode.label}</div>
+              <div className="text-sm font-medium">{groupNode.label}</div>
               <div className="text-xs text-gray-400">{groupNode.description}</div>
             </div>
           </div>
         </div>
       </div>
-      <div className="pt-4 border-t border-gray-700 flex items-center justify-center">
+      <div className="flex items-center justify-center border-t border-gray-700 pt-4">
         <img
           src="/logo.svg"
           alt="SagaLabs"
@@ -264,5 +355,5 @@ export default function AssetLibrary() {
         />
       </div>
     </aside>
-  )
+  );
 }

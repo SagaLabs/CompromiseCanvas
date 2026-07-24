@@ -1,7 +1,5 @@
-"use client"
+'use client';
 
-import type React from "react"
-import { useRef, useEffect, useMemo, useCallback } from "react"
 import {
   ReactFlow,
   Controls,
@@ -10,43 +8,48 @@ import {
   useReactFlow,
   type Node,
   type Edge,
-} from "@xyflow/react"
-import "@xyflow/react/dist/style.css"
-import CustomNode from "./custom-node"
-import { GroupNode } from "./labeled-group-node"
-import AssetLibrary from "./asset-library"
-import PropertiesPanel from "./properties-panel"
-import HeaderControls from "./header-controls"
-import MobileWarning from "./mobile-warning"
-import CanvasTitle from "./canvas-title"
-import { useMobile } from "@/hooks/use-mobile"
-import TemplatePanel from "./template-panel"
-import TimelineModal from "./timeline-modal"
-import IncidentLogPanel from "./incident-log-panel"
-import DataHandlingModal from "./data-handling-modal"
-import { createEdgeTypes } from "@/lib/utils/compromise-canvas-utils"
-import type { EdgeActionType } from "@/lib/types"
-import { FIT_VIEW_OPTIONS } from "@/lib/utils/compromise-canvas-constants"
-import { useCompromiseCanvasState } from "@/hooks/use-compromise-canvas-state"
-import { useCompromiseCanvasHandlers } from "@/hooks/use-compromise-canvas-handlers"
-import { useReactFlowCallbacks } from "@/hooks/use-reactflow-callbacks"
-import { useState } from "react"
-import { Button } from "@/components/ui/button"
-import { CanvasActionsProvider } from "./canvas-actions-context"
+} from '@xyflow/react';
+import type React from 'react';
+import { useRef, useEffect, useMemo, useCallback } from 'react';
+
+import '@xyflow/react/dist/style.css';
+import { useState } from 'react';
+
+import { Button } from '@/components/ui/button';
+import { useCompromiseCanvasHandlers } from '@/hooks/use-compromise-canvas-handlers';
+import { useCompromiseCanvasState } from '@/hooks/use-compromise-canvas-state';
+import { useMobile } from '@/hooks/use-mobile';
+import { useReactFlowCallbacks } from '@/hooks/use-reactflow-callbacks';
+import type { EdgeActionType } from '@/lib/types';
+import { FIT_VIEW_OPTIONS } from '@/lib/utils/compromise-canvas-constants';
+import { createEdgeTypes } from '@/lib/utils/compromise-canvas-utils';
+
+import AssetLibrary from './asset-library';
+import { CanvasActionsProvider } from './canvas-actions-context';
+import CanvasTitle from './canvas-title';
+import CustomNode from './custom-node';
+import DataHandlingModal from './data-handling-modal';
+import HeaderControls from './header-controls';
+import IncidentLogPanel from './incident-log-panel';
+import { GroupNode } from './labeled-group-node';
+import MobileWarning from './mobile-warning';
+import PropertiesPanel from './properties-panel';
+import TemplatePanel from './template-panel';
+import TimelineModal from './timeline-modal';
 
 const nodeTypes = {
   customNode: CustomNode,
   labeledGroupNode: GroupNode,
-}
+};
 
 export default function CompromiseCanvas() {
-  const reactFlowWrapper = useRef<HTMLDivElement>(null)
-  const { fitView } = useReactFlow()
+  const reactFlowWrapper = useRef<HTMLDivElement>(null);
+  const { fitView } = useReactFlow();
 
   // Mobile detection
-  const isMobile = useMobile()
-  const [showMobileWarning, setShowMobileWarning] = useState(true)
-  const [dismissedMobileWarning, setDismissedMobileWarning] = useState(false)
+  const isMobile = useMobile();
+  const [showMobileWarning, setShowMobileWarning] = useState(true);
+  const [dismissedMobileWarning, setDismissedMobileWarning] = useState(false);
 
   // Use centralized state management hook
   const {
@@ -94,7 +97,7 @@ export default function CompromiseCanvas() {
     toast,
     showIncidentLogPanel,
     setShowIncidentLogPanel,
-  } = useCompromiseCanvasState()
+  } = useCompromiseCanvasState();
 
   // Use ReactFlow callbacks hook
   const {
@@ -123,7 +126,7 @@ export default function CompromiseCanvas() {
     takeSnapshot,
     hasClipboardData,
     handlePaste,
-  })
+  });
 
   // Use handlers hook
   const {
@@ -147,7 +150,6 @@ export default function CompromiseCanvas() {
     handleHighlightEdge,
     handleSelectEdge,
     handleAutoAlign,
-
   } = useCompromiseCanvasHandlers({
     reactFlowInstance,
     nodes,
@@ -168,50 +170,65 @@ export default function CompromiseCanvas() {
     reset,
     fitView,
     toast,
-  })
+  });
 
   // Change an edge's action type (updates its color/icon), undo-safe via updateEdge
   const handleSetEdgeActionType = useCallback(
     (id: string, actionType: EdgeActionType) => updateEdge(id, { actionType }),
     [updateEdge],
-  )
+  );
 
   // Reposition an edge's control point (dropped after a drag), undo-safe via updateEdge
   const handleSetEdgeLabelOffset = useCallback(
     (id: string, x: number, y: number) => updateEdge(id, { labelOffsetX: x, labelOffsetY: y }),
     [updateEdge],
-  )
+  );
 
   // Toggle whether an edge is unlocked for manual routing, undo-safe via updateEdge
   const handleToggleEdgeUnlocked = useCallback(
     (id: string) => {
-      const edge = edges.find((e) => e.id === id)
-      updateEdge(id, { unlocked: !edge?.data?.unlocked })
+      const edge = edges.find((e) => e.id === id);
+      updateEdge(id, { unlocked: !edge?.data?.unlocked });
     },
     [edges, updateEdge],
-  )
+  );
 
   // Memoize edge types to prevent recreation on every render during dragging
   const edgeTypes = useMemo(
-    () => createEdgeTypes(animationsEnabled, selectedElement, deleteEdgeById, handleSetEdgeActionType, handleSetEdgeLabelOffset, handleToggleEdgeUnlocked),
-    [animationsEnabled, selectedElement, deleteEdgeById, handleSetEdgeActionType, handleSetEdgeLabelOffset, handleToggleEdgeUnlocked],
-  )
+    () =>
+      createEdgeTypes(
+        animationsEnabled,
+        selectedElement,
+        deleteEdgeById,
+        handleSetEdgeActionType,
+        handleSetEdgeLabelOffset,
+        handleToggleEdgeUnlocked,
+      ),
+    [
+      animationsEnabled,
+      selectedElement,
+      deleteEdgeById,
+      handleSetEdgeActionType,
+      handleSetEdgeLabelOffset,
+      handleToggleEdgeUnlocked,
+    ],
+  );
 
   // Keyboard event listener for Delete/Backspace and Undo/Redo
   useEffect(() => {
-    return setupKeyboardHandlers(handleDeleteSelected)
-  }, [setupKeyboardHandlers, handleDeleteSelected])
+    return setupKeyboardHandlers(handleDeleteSelected);
+  }, [setupKeyboardHandlers, handleDeleteSelected]);
 
   // Show mobile warning if on mobile and not dismissed
   if (isMobile && showMobileWarning && !dismissedMobileWarning) {
     return (
       <MobileWarning
         onDismiss={() => {
-          setDismissedMobileWarning(true)
-          setShowMobileWarning(false)
+          setDismissedMobileWarning(true);
+          setShowMobileWarning(false);
         }}
       />
-    )
+    );
   }
 
   return (
@@ -243,7 +260,9 @@ export default function CompromiseCanvas() {
         animationsEnabled={animationsEnabled}
         canUndo={canUndo}
         canRedo={canRedo}
-        canCopy={nodes.some((n) => n.selected) || edges.some((e) => e.selected) || selectedElement !== null}
+        canCopy={
+          nodes.some((n) => n.selected) || edges.some((e) => e.selected) || selectedElement !== null
+        }
         canPaste={hasClipboardData()}
         autosaveEnabled={autosaveEnabled}
         autosaveStatus={autosaveStatus}
@@ -262,7 +281,7 @@ export default function CompromiseCanvas() {
         ) : (
           <AssetLibrary />
         )}
-        <div className="flex-1 relative" ref={reactFlowWrapper}>
+        <div className="relative flex-1" ref={reactFlowWrapper}>
           <CanvasActionsProvider updateNode={updateNode}>
             <ReactFlow
               nodes={nodes}
@@ -276,8 +295,8 @@ export default function CompromiseCanvas() {
               nodeTypes={nodeTypes}
               edgeTypes={edgeTypes}
               defaultEdgeOptions={{
-                type: "smoothstep",
-                style: { strokeWidth: 2, stroke: "#8B5CF6", strokeDasharray: "5 5" },
+                type: 'smoothstep',
+                style: { strokeWidth: 2, stroke: '#8B5CF6', strokeDasharray: '5 5' },
                 animated: false,
               }}
               fitView
@@ -306,17 +325,17 @@ export default function CompromiseCanvas() {
               preventScrolling={true}
               nodeOrigin={[0.5, 0.5]}
               // Disable expensive features during interaction
-              connectionLineType={"smoothstep" as any}
-              connectionLineStyle={{ strokeWidth: 2, stroke: "#8B5CF6" }}
+              connectionLineType={'smoothstep' as any}
+              connectionLineStyle={{ strokeWidth: 2, stroke: '#8B5CF6' }}
             >
               <Controls />
-              <Background variant={"dots" as any} gap={12} size={1} color="#4B5563" />
+              <Background variant={'dots' as any} gap={12} size={1} color="#4B5563" />
               <Panel position="top-left" className="p-2 text-sm text-gray-400">
                 <CanvasTitle title={canvasTitle} onTitleChange={setCanvasTitle} />
                 <div className="mt-2">
                   {nodes.length === 0 && edges.length === 0
-                    ? "Start by dragging assets from the left panel or open a template."
-                    : "Drag assets from the left panel to add nodes."}
+                    ? 'Start by dragging assets from the left panel or open a template.'
+                    : 'Drag assets from the left panel to add nodes.'}
                 </div>
               </Panel>
               <Panel position="bottom-right" className="p-2 text-xs text-gray-500">
@@ -337,7 +356,12 @@ export default function CompromiseCanvas() {
             Open Timeline
           </Button>
         </div>
-        <PropertiesPanel selectedElement={selectedElement} updateNode={updateNode} updateEdge={updateEdge} onDelete={handleDeleteSelected} />
+        <PropertiesPanel
+          selectedElement={selectedElement}
+          updateNode={updateNode}
+          updateEdge={updateEdge}
+          onDelete={handleDeleteSelected}
+        />
       </div>
 
       {/* Timeline Modal */}
@@ -362,5 +386,5 @@ export default function CompromiseCanvas() {
       {/* Data Handling Modal */}
       <DataHandlingModal isOpen={showDataHandlingModal} onClose={handleCloseDataHandling} />
     </div>
-  )
+  );
 }

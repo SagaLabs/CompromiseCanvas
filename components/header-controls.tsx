@@ -1,12 +1,5 @@
-"use client"
+'use client';
 
-import { Button } from "@/components/ui/button"
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu"
 import {
   Save,
   Upload,
@@ -26,45 +19,54 @@ import {
   Copy,
   Clipboard,
   Info,
-} from "lucide-react"
-import ThemePicker from "./theme-picker"
-import { DownloadImageMenuItems } from "./download-button"
-import ExportReportButton from "./export-report-button"
-import { Switch } from "@/components/ui/switch"
-import type { AutosaveStatus } from "@/hooks/use-compromise-canvas-state"
+} from 'lucide-react';
+
+import { Button } from '@/components/ui/button';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
+import { Switch } from '@/components/ui/switch';
+import type { AutosaveStatus } from '@/hooks/use-compromise-canvas-state';
+
+import { DownloadImageMenuItems } from './download-button';
+import ExportReportButton from './export-report-button';
+import ThemePicker from './theme-picker';
 
 interface HeaderControlsProps {
-  onSave: () => void
-  onLoad: () => void
-  onSaveAsJSON: () => void
-  onImportJSON: () => void
-  onFitView: () => void
-  onToggleTemplates: () => void
-  onToggleTimeline: () => void
-  onStartFromScratch: () => void
-  onAutoAlign: () => void
-  onClear: () => void
-  onToggleAnimations: () => void
-  onUndo: () => void
-  onRedo: () => void
-  onCopy: () => void
-  onPaste: () => void
-  onShowDataHandling: () => void
-  onToggleIncidentLog: () => void
-  showTemplates: boolean
-  showTimeline: boolean
-  showIncidentLog: boolean
-  hasSelection: boolean
-  isExporting?: boolean
-  animationsEnabled: boolean
-  canUndo: boolean
-  canRedo: boolean
-  canCopy: boolean
-  canPaste: boolean
-  autosaveEnabled: boolean
-  autosaveStatus: AutosaveStatus
-  lastAutosavedAt: string | null
-  onToggleAutosave: (enabled: boolean) => void
+  onSave: () => void;
+  onLoad: () => void;
+  onSaveAsJSON: () => void;
+  onImportJSON: () => void;
+  onFitView: () => void;
+  onToggleTemplates: () => void;
+  onToggleTimeline: () => void;
+  onStartFromScratch: () => void;
+  onAutoAlign: () => void;
+  onClear: () => void;
+  onToggleAnimations: () => void;
+  onUndo: () => void;
+  onRedo: () => void;
+  onCopy: () => void;
+  onPaste: () => void;
+  onShowDataHandling: () => void;
+  onToggleIncidentLog: () => void;
+  showTemplates: boolean;
+  showTimeline: boolean;
+  showIncidentLog: boolean;
+  hasSelection: boolean;
+  isExporting?: boolean;
+  animationsEnabled: boolean;
+  canUndo: boolean;
+  canRedo: boolean;
+  canCopy: boolean;
+  canPaste: boolean;
+  autosaveEnabled: boolean;
+  autosaveStatus: AutosaveStatus;
+  lastAutosavedAt: string | null;
+  onToggleAutosave: (enabled: boolean) => void;
 }
 
 export default function HeaderControls({
@@ -101,18 +103,18 @@ export default function HeaderControls({
   onToggleAutosave,
 }: HeaderControlsProps) {
   const autosaveLabel = !autosaveEnabled
-    ? "Autosave off"
-    : autosaveStatus === "pending"
-      ? "Changes pending"
-      : autosaveStatus === "saving"
-      ? "Saving…"
-      : autosaveStatus === "error"
-        ? "Autosave failed"
-        : "Autosaved"
+    ? 'Autosave off'
+    : autosaveStatus === 'pending'
+      ? 'Changes pending'
+      : autosaveStatus === 'saving'
+        ? 'Saving…'
+        : autosaveStatus === 'error'
+          ? 'Autosave failed'
+          : 'Autosaved';
 
   const autosaveTitle = lastAutosavedAt
     ? `${autosaveLabel} at ${new Date(lastAutosavedAt).toLocaleTimeString()}`
-    : autosaveLabel
+    : autosaveLabel;
 
   return (
     <header className="ip-header flex h-14 items-center justify-between border-b px-4">
@@ -138,7 +140,7 @@ export default function HeaderControls({
             variant="ghost"
             size="icon"
             onClick={onToggleTemplates}
-            className={`${showTemplates ? "bg-gray-700 text-blue-400" : "text-gray-300"} hover:bg-gray-700`}
+            className={`${showTemplates ? 'bg-gray-700 text-blue-400' : 'text-gray-300'} hover:bg-gray-700`}
             title="Open templates"
             aria-label="Open templates"
           >
@@ -149,7 +151,7 @@ export default function HeaderControls({
             variant="ghost"
             size="icon"
             onClick={onToggleTimeline}
-            className={`${showTimeline ? "bg-gray-700 text-blue-400" : "text-gray-300"} hover:bg-gray-700`}
+            className={`${showTimeline ? 'bg-gray-700 text-blue-400' : 'text-gray-300'} hover:bg-gray-700`}
             title="Show attack timeline"
             aria-label="Show attack timeline"
           >
@@ -162,7 +164,7 @@ export default function HeaderControls({
             size="icon"
             onClick={onUndo}
             disabled={!canUndo}
-            className={`${canUndo ? "text-gray-300 hover:bg-gray-700" : "text-gray-500 cursor-not-allowed"}`}
+            className={`${canUndo ? 'text-gray-300 hover:bg-gray-700' : 'cursor-not-allowed text-gray-500'}`}
             title="Undo (Ctrl+Z)"
             aria-label="Undo"
           >
@@ -174,7 +176,7 @@ export default function HeaderControls({
             size="icon"
             onClick={onRedo}
             disabled={!canRedo}
-            className={`${canRedo ? "text-gray-300 hover:bg-gray-700" : "text-gray-500 cursor-not-allowed"}`}
+            className={`${canRedo ? 'text-gray-300 hover:bg-gray-700' : 'cursor-not-allowed text-gray-500'}`}
             title="Redo (Ctrl+Y)"
             aria-label="Redo"
           >
@@ -187,7 +189,7 @@ export default function HeaderControls({
             size="icon"
             onClick={onCopy}
             disabled={!canCopy}
-            className={`${canCopy ? "text-gray-300 hover:bg-gray-700" : "text-gray-500 cursor-not-allowed"}`}
+            className={`${canCopy ? 'text-gray-300 hover:bg-gray-700' : 'cursor-not-allowed text-gray-500'}`}
             title="Copy (Ctrl+C)"
             aria-label="Copy"
           >
@@ -199,7 +201,7 @@ export default function HeaderControls({
             size="icon"
             onClick={onPaste}
             disabled={!canPaste}
-            className={`${canPaste ? "text-gray-300 hover:bg-gray-700" : "text-gray-500 cursor-not-allowed"}`}
+            className={`${canPaste ? 'text-gray-300 hover:bg-gray-700' : 'cursor-not-allowed text-gray-500'}`}
             title="Paste (Ctrl+V)"
             aria-label="Paste"
           >
@@ -245,13 +247,14 @@ export default function HeaderControls({
       </div>
 
       <div className="flex items-center gap-2">
-        <div
-          className="flex items-center gap-2 px-2 py-1"
-          title={autosaveTitle}
-        >
+        <div className="flex items-center gap-2 px-2 py-1" title={autosaveTitle}>
           <span
             className={`whitespace-nowrap text-xs ${
-              autosaveStatus === "error" ? "text-red-400" : autosaveEnabled ? "text-green-400" : "text-gray-500"
+              autosaveStatus === 'error'
+                ? 'text-red-400'
+                : autosaveEnabled
+                  ? 'text-green-400'
+                  : 'text-gray-500'
             }`}
             aria-live="polite"
           >
@@ -270,7 +273,7 @@ export default function HeaderControls({
           className="bg-blue-600 text-white shadow-lg shadow-blue-600/30 hover:bg-blue-500 hover:text-white"
           title="Open Incident Log"
         >
-          <ClipboardList className="h-4 w-4 mr-2" aria-hidden="true" />
+          <ClipboardList className="mr-2 h-4 w-4" aria-hidden="true" />
           Incident Log
         </Button>
         <DropdownMenu>
@@ -304,12 +307,18 @@ export default function HeaderControls({
           variant="ghost"
           size="icon"
           onClick={onToggleAnimations}
-          className={`${animationsEnabled ? "text-gray-400" : "text-green-400"} hover:bg-gray-700`}
-          title={animationsEnabled ? "Disable animations" : "Enable animations"}
-          aria-label={animationsEnabled ? "Disable animations" : "Enable animations"}
+          className={`${animationsEnabled ? 'text-gray-400' : 'text-green-400'} hover:bg-gray-700`}
+          title={animationsEnabled ? 'Disable animations' : 'Enable animations'}
+          aria-label={animationsEnabled ? 'Disable animations' : 'Enable animations'}
         >
-          {animationsEnabled ? <Pause className="h-5 w-5" aria-hidden="true" /> : <Play className="h-5 w-5" aria-hidden="true" />}
-          <span className="sr-only">{animationsEnabled ? "Disable animations" : "Enable animations"}</span>
+          {animationsEnabled ? (
+            <Pause className="h-5 w-5" aria-hidden="true" />
+          ) : (
+            <Play className="h-5 w-5" aria-hidden="true" />
+          )}
+          <span className="sr-only">
+            {animationsEnabled ? 'Disable animations' : 'Enable animations'}
+          </span>
         </Button>
 
         <Button
@@ -354,5 +363,5 @@ export default function HeaderControls({
         </Button>
       </div>
     </header>
-  )
+  );
 }

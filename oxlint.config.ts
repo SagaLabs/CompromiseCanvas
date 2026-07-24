@@ -1,8 +1,8 @@
-import { defineConfig } from "oxlint";
+import { defineConfig } from 'oxlint';
 
 export default defineConfig({
   categories: {
-    correctness: "error",
+    correctness: 'error',
     suspicious: 'warn',
     perf: 'warn',
     restriction: 'off',
