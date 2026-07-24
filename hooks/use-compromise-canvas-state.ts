@@ -1,10 +1,19 @@
 import { useState, useCallback, useEffect, useMemo, useRef } from "react"
-import { useNodesState, useEdgesState, type Viewport } from "@xyflow/react"
+import { flushSync } from "react-dom"
+import {
+  applyNodeChanges,
+  useNodesState,
+  useEdgesState,
+  type EdgeChange,
+  type NodeChange,
+  type Viewport,
+} from "@xyflow/react"
 import { useUndoRedo } from "@/hooks/use-undo-redo"
 import { useCopyPaste } from "@/hooks/use-copy-paste"
 import { useToast } from "@/components/ui/use-toast"
 import { initialNodes, initialEdges } from "@/lib/utils/compromise-canvas-constants"
-import type { ActivityLogEntry, CustomNode, CustomEdge, IncidentLogEntry } from "@/lib/types"
+import type { ActivityLogEntry, CustomNode, CustomEdge, IncidentLogEntry, InvestigationStatus } from "@/lib/types"
+import { layoutSelectedNodes, type SelectionLayoutAction } from "@/lib/selection-layout"
 
 const AUTOSAVE_ENABLED_KEY = "compromise-canvas-autosave-enabled"
 const AUTOSAVE_FLOW_KEY = "compromise-canvas-autosave-flow"
@@ -58,8 +67,8 @@ export const useCompromiseCanvasState = () => {
   // Initialize copy/paste functionality
   const { copyElements, pasteElements, hasClipboardData, clearClipboard } = useCopyPaste()
 
-  const [nodes, setNodes, onNodesChange] = useNodesState(initialNodes)
-  const [edges, setEdges, setEdgesChange] = useEdgesState(initialEdges)
+  const [nodes, setNodes, applyNodesChange] = useNodesState(initialNodes)
+  const [edges, setEdges, applyEdgesChange] = useEdgesState(initialEdges)
   const [reactFlowInstance, setReactFlowInstance] = useState<any>(null)
   const [selectionReference, setSelectionReference] = useState<SelectionReference | null>(null)
   const [snapToGrid, setSnapToGrid] = useState(true)
@@ -101,6 +110,25 @@ export const useCompromiseCanvasState = () => {
       ? nodes.find((node) => node.id === selectionReference.id) ?? null
       : edges.find((edge) => edge.id === selectionReference.id) ?? null
   }, [selectionReference, nodes, edges])
+
+  const selectedNodeCount = useMemo(() => nodes.filter((node) => node.selected).length, [nodes])
+  const selectedEdgeCount = useMemo(() => edges.filter((edge) => edge.selected).length, [edges])
+  const arrangeableNodeCount = useMemo(
+    () => nodes.filter((node) => node.selected && node.type !== "labeledGroupNode").length,
+    [nodes],
+  )
+  const bulkStatusNodes = useMemo(
+    () => nodes.filter(
+      (node) => node.selected && node.type === "customNode" && node.data.type !== "attacker",
+    ),
+    [nodes],
+  )
+  const allBulkStatusNodesCompromised = bulkStatusNodes.length > 0 && bulkStatusNodes.every(
+    (node) => node.data.isCompromised,
+  )
+  const bulkInvestigationStatus = bulkStatusNodes.length > 0 && bulkStatusNodes.every(
+    (node) => node.data.investigationStatus === bulkStatusNodes[0].data.investigationStatus,
+  ) ? bulkStatusNodes[0].data.investigationStatus : null
 
   const setSelectedElement = useCallback((element: CustomNode | CustomEdge | null) => {
     setSelectionReference(
@@ -286,43 +314,74 @@ export const useCompromiseCanvasState = () => {
     [setEdges, takeSnapshot, nodes],
   )
 
+  const onNodesChange = useCallback(
+    (changes: NodeChange<CustomNode>[]) => {
+      const applyChanges = () => applyNodesChange(changes)
+
+      // React Flow reads selection from its internal copy before controlled
+      // state normally renders back. Commit selection immediately so a second
+      // fast Shift-click sees the result of the first one and can toggle it.
+      if (changes.some((change) => change.type === "select")) flushSync(applyChanges)
+      else applyChanges()
+
+      // Selection changes are transient. Record only completed position
+      // changes so pointer drags and keyboard moves each become undoable.
+      if (changes.some((change) => change.type === "position" && change.dragging !== true)) {
+        const changedNodes = applyNodeChanges(changes, nodes).map(
+          ({ dragging: _dragging, ...node }) => node as CustomNode,
+        )
+        takeSnapshot({ nodes: changedNodes, edges })
+      }
+    },
+    [applyNodesChange, nodes, edges, takeSnapshot],
+  )
+
+  const setEdgesChange = useCallback(
+    (changes: EdgeChange<CustomEdge>[]) => {
+      const applyChanges = () => applyEdgesChange(changes)
+      if (changes.some((change) => change.type === "select")) flushSync(applyChanges)
+      else applyChanges()
+    },
+    [applyEdgesChange],
+  )
+
   // Handle undo/redo operations
   const handleUndo = useCallback(() => {
     const previousState = undo()
     if (previousState) {
-      setNodes(previousState.nodes)
-      setEdges(previousState.edges)
+      const selectedNodeIds = new Set(nodes.filter((node) => node.selected).map((node) => node.id))
+      const selectedEdgeIds = new Set(edges.filter((edge) => edge.selected).map((edge) => edge.id))
+      setNodes(previousState.nodes.map((node) => ({ ...node, selected: selectedNodeIds.has(node.id) })))
+      setEdges(previousState.edges.map((edge) => ({ ...edge, selected: selectedEdgeIds.has(edge.id) })))
     }
-  }, [undo, setNodes, setEdges])
+  }, [undo, nodes, edges, setNodes, setEdges])
 
   const handleRedo = useCallback(() => {
     const nextState = redo()
     if (nextState) {
-      setNodes(nextState.nodes)
-      setEdges(nextState.edges)
+      const selectedNodeIds = new Set(nodes.filter((node) => node.selected).map((node) => node.id))
+      const selectedEdgeIds = new Set(edges.filter((edge) => edge.selected).map((edge) => edge.id))
+      setNodes(nextState.nodes.map((node) => ({ ...node, selected: selectedNodeIds.has(node.id) })))
+      setEdges(nextState.edges.map((edge) => ({ ...edge, selected: selectedEdgeIds.has(edge.id) })))
     }
-  }, [redo, setNodes, setEdges])
+  }, [redo, nodes, edges, setNodes, setEdges])
 
   // Copy/Paste handlers
   const handleCopy = useCallback(() => {
     if (!reactFlowInstance) return false
 
     const selectedNodes = nodes.filter((node) => node.selected)
-    const selectedEdges = edges.filter((edge) => edge.selected)
-
-    if (selectedNodes.length === 0 && selectedEdges.length === 0) {
+    if (selectedNodes.length === 0) {
       // If no multi-selection, copy the single selected element
-      if (selectedElement) {
-        if (selectedElement.type !== "customEdge") {
-          return copyElements([selectedElement as CustomNode], [])
-        } else {
-          return copyElements([], [selectedElement as CustomEdge])
-        }
+      if (selectedElement && selectedElement.type !== "customEdge") {
+        return copyElements([selectedElement as CustomNode], edges)
       }
       return false
     }
 
-    return copyElements(selectedNodes, selectedEdges)
+    // Pass the complete edge set. The clipboard helper keeps only edges whose
+    // source and target are both in the selected node set.
+    return copyElements(selectedNodes, edges)
   }, [reactFlowInstance, nodes, edges, selectedElement, copyElements])
 
   const handlePaste = useCallback(
@@ -342,8 +401,9 @@ export const useCompromiseCanvasState = () => {
       const allNodes = [...clearedNodes, ...newNodes]
       const allEdges = [...clearedEdges, ...newEdges]
 
-      updateNodes(allNodes)
-      updateEdges(allEdges)
+      setNodes(allNodes)
+      setEdges(allEdges)
+      takeSnapshot({ nodes: allNodes, edges: allEdges })
 
       // Clear single element selection since we now have multi-selection
       setSelectedElement(null)
@@ -354,16 +414,63 @@ export const useCompromiseCanvasState = () => {
         variant: "default",
       })
     },
-    [reactFlowInstance, hasClipboardData, pasteElements, nodes, edges, updateNodes, updateEdges, setSelectedElement, toast],
+    [reactFlowInstance, hasClipboardData, pasteElements, nodes, edges, setNodes, setEdges, takeSnapshot, setSelectedElement, toast],
   )
+
+  const handleSelectionLayout = useCallback(
+    (action: SelectionLayoutAction) => {
+      const arrangedNodes = layoutSelectedNodes(nodes, action)
+      if (arrangedNodes === nodes) return false
+
+      setNodes(arrangedNodes)
+      takeSnapshot({ nodes: arrangedNodes, edges })
+      return true
+    },
+    [nodes, edges, setNodes, takeSnapshot],
+  )
+
+  const updateBulkStatusNodes = useCallback(
+    (data: Partial<Pick<CustomNode["data"], "isCompromised" | "investigationStatus">>) => {
+      const eligibleIds = new Set(bulkStatusNodes.map((node) => node.id))
+      if (eligibleIds.size === 0) return false
+
+      const updatedNodes = nodes.map((node) =>
+        eligibleIds.has(node.id) ? { ...node, data: { ...node.data, ...data } } : node,
+      )
+      setNodes(updatedNodes)
+      takeSnapshot({ nodes: updatedNodes, edges })
+      return true
+    },
+    [bulkStatusNodes, nodes, edges, setNodes, takeSnapshot],
+  )
+
+  const handleToggleSelectedCompromised = useCallback(
+    () => updateBulkStatusNodes({ isCompromised: !allBulkStatusNodesCompromised }),
+    [allBulkStatusNodesCompromised, updateBulkStatusNodes],
+  )
+
+  const handleSetSelectedInvestigationStatus = useCallback(
+    (investigationStatus: InvestigationStatus) => updateBulkStatusNodes({ investigationStatus }),
+    [updateBulkStatusNodes],
+  )
+
+  const clearSelection = useCallback(() => {
+    setNodes((current) => current.map((node) => node.selected ? { ...node, selected: false } : node))
+    setEdges((current) => current.map((edge) => edge.selected ? { ...edge, selected: false } : edge))
+    setSelectedElement(null)
+  }, [setNodes, setEdges, setSelectedElement])
 
   // Keyboard event listener for Delete/Backspace and Undo/Redo
   const setupKeyboardHandlers = useCallback(
-    (handleDeleteSelected: () => void) => {
+    (handleDeleteSelected: () => boolean) => {
       const handleKeyDown = (event: KeyboardEvent) => {
+        // Let focused controls such as Radix menus consume Escape first.
+        if (event.defaultPrevented) return
+
         // Check if the event target is an input or textarea to avoid interfering with typing
         const targetTagName = (event.target as HTMLElement).tagName
-        if (targetTagName === "INPUT" || targetTagName === "TEXTAREA") {
+        const target = event.target as HTMLElement
+        if (targetTagName === "INPUT" || targetTagName === "TEXTAREA" || targetTagName === "SELECT" || target.isContentEditable) {
           return
         }
 
@@ -390,11 +497,10 @@ export const useCompromiseCanvasState = () => {
           event.preventDefault()
           handleRedo()
         } else if (event.key === "Delete" || event.key === "Backspace") {
-          if (selectedElement) {
-            // Only trigger if an element is selected
-            event.preventDefault() // Prevent default browser behavior
-            handleDeleteSelected()
-          }
+          if (handleDeleteSelected()) event.preventDefault()
+        } else if (event.key === "Escape" && (selectedNodeCount > 0 || selectedEdgeCount > 0)) {
+          event.preventDefault()
+          clearSelection()
         }
       }
 
@@ -403,7 +509,7 @@ export const useCompromiseCanvasState = () => {
         window.removeEventListener("keydown", handleKeyDown)
       }
     },
-    [handleCopy, handlePaste, handleUndo, handleRedo, selectedElement, toast],
+    [handleCopy, handlePaste, handleUndo, handleRedo, selectedNodeCount, selectedEdgeCount, clearSelection, toast],
   )
 
   return {
@@ -412,6 +518,12 @@ export const useCompromiseCanvasState = () => {
     edges,
     reactFlowInstance,
     selectedElement,
+    selectedNodeCount,
+    selectedEdgeCount,
+    arrangeableNodeCount,
+    bulkStatusNodeCount: bulkStatusNodes.length,
+    allBulkStatusNodesCompromised,
+    bulkInvestigationStatus,
     snapToGrid,
     showTemplatePanel,
     showTimelinePanel,
@@ -459,6 +571,9 @@ export const useCompromiseCanvasState = () => {
     // Copy/Paste
     handleCopy,
     handlePaste,
+    handleSelectionLayout,
+    handleToggleSelectedCompromised,
+    handleSetSelectedInvestigationStatus,
     hasClipboardData,
     clearClipboard,
     // Keyboard handlers

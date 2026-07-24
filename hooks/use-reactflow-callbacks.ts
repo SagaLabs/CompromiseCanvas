@@ -142,12 +142,20 @@ export const useReactFlowCallbacks = ({
   )
 
   const onNodeClick = useCallback((event: React.MouseEvent, node: CustomNode) => {
-    setSelectedElement(node)
+    if (!event.shiftKey && !event.ctrlKey) setSelectedElement(node)
   }, [setSelectedElement])
 
   const onEdgeClick = useCallback((event: React.MouseEvent, edge: CustomEdge) => {
-    setSelectedElement(edge)
+    if (!event.shiftKey && !event.ctrlKey) setSelectedElement(edge)
   }, [setSelectedElement])
+
+  const onSelectionChange = useCallback(
+    ({ nodes: selectedNodes, edges: selectedEdges }: { nodes: CustomNode[]; edges: CustomEdge[] }) => {
+      const selection = [...selectedNodes, ...selectedEdges]
+      setSelectedElement(selection.length === 1 ? selection[0] : null)
+    },
+    [setSelectedElement],
+  )
 
   const onPaneClick = useCallback(() => {
     setSelectedElement(null)
@@ -156,6 +164,11 @@ export const useReactFlowCallbacks = ({
   const onPaneContextMenu = useCallback(
     (event: MouseEvent | React.MouseEvent) => {
       event.preventDefault()
+
+      // A multiselection owns right-click for its bulk action menu. Never let
+      // the pane's legacy paste-at-cursor gesture fire underneath it.
+      const selectedCount = nodes.filter((node) => node.selected).length + edges.filter((edge) => edge.selected).length
+      if (selectedCount > 1) return
 
       if (hasClipboardData()) {
         if (reactFlowInstance) {
@@ -167,7 +180,7 @@ export const useReactFlowCallbacks = ({
         }
       }
     },
-    [hasClipboardData, reactFlowInstance, handlePaste],
+    [nodes, edges, hasClipboardData, reactFlowInstance, handlePaste],
   )
 
   const updateNode = useCallback(
@@ -203,29 +216,43 @@ export const useReactFlowCallbacks = ({
   )
 
   const handleDeleteSelected = useCallback(() => {
-    if (selectedElement) {
-      if (selectedElement.id && (selectedElement as any).type !== "customEdge") {
-        // It's a node - delete node and connected edges in one operation
-        const newNodes = nodes.filter((node) => node.id !== selectedElement.id)
-        const newEdges = edges.filter((edge) => edge.source !== selectedElement.id && edge.target !== selectedElement.id)
-        setNodes(newNodes)
-        setEdges(newEdges)
-        // Take snapshot after both updates
-        takeSnapshot({ nodes: newNodes, edges: newEdges })
-      } else {
-        // It's an edge
-        updateEdges((eds) => eds.filter((edge) => edge.id !== selectedElement.id))
-      }
+    const selectedNodeIds = new Set(nodes.filter((node) => node.selected).map((node) => node.id))
+    const selectedEdgeIds = new Set(edges.filter((edge) => edge.selected).map((edge) => edge.id))
 
-      toast({
-        title: "Element Deleted",
-        description: `Removed selected ${selectedElement.type === "customEdge" ? "edge" : "node"}. You can undo with Ctrl+Z.`,
-        variant: "default",
-      })
-
-      setSelectedElement(null) // Deselect after deletion
+    if (selectedNodeIds.size === 0 && selectedEdgeIds.size === 0 && selectedElement) {
+      if (selectedElement.type === "customEdge") selectedEdgeIds.add(selectedElement.id)
+      else selectedNodeIds.add(selectedElement.id)
     }
-  }, [selectedElement, nodes, edges, updateEdges, takeSnapshot, setNodes, setEdges, setSelectedElement])
+
+    if (selectedNodeIds.size === 0 && selectedEdgeIds.size === 0) return false
+
+    const newNodes = nodes.filter((node) => !selectedNodeIds.has(node.id))
+    const newEdges = edges.filter(
+      (edge) =>
+        !selectedEdgeIds.has(edge.id) &&
+        !selectedNodeIds.has(edge.source) &&
+        !selectedNodeIds.has(edge.target),
+    )
+    const removedEdgeCount = edges.length - newEdges.length
+
+    setNodes(newNodes)
+    setEdges(newEdges)
+    takeSnapshot({ nodes: newNodes, edges: newEdges })
+    setSelectedElement(null)
+
+    const removed = [
+      selectedNodeIds.size > 0 && `${selectedNodeIds.size} node${selectedNodeIds.size === 1 ? "" : "s"}`,
+      removedEdgeCount > 0 && `${removedEdgeCount} edge${removedEdgeCount === 1 ? "" : "s"}`,
+    ].filter(Boolean).join(" and ")
+
+    toast({
+      title: "Selection Deleted",
+      description: `Removed ${removed}. You can undo with Ctrl+Z.`,
+      variant: "default",
+    })
+
+    return true
+  }, [selectedElement, nodes, edges, takeSnapshot, setNodes, setEdges, setSelectedElement])
 
   const deleteEdgeById = useCallback(
     (edgeId: string) => {
@@ -250,6 +277,7 @@ export const useReactFlowCallbacks = ({
     onDrop,
     onNodeClick,
     onEdgeClick,
+    onSelectionChange,
     onPaneClick,
     onPaneContextMenu,
     updateNode,

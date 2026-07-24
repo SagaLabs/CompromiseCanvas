@@ -36,6 +36,7 @@ import {
   getMitreTechniqueUrl,
   normalizeMitreTechniqueReferences,
 } from "@/lib/mitre-attack"
+import { useCanvasActions } from "./canvas-actions-context"
 
 interface CustomEdgeProps extends EdgeProps<Edge<EdgeData>> {
   animationsEnabled?: boolean
@@ -117,6 +118,7 @@ const CustomEdge = memo(function CustomEdge({
   onSetEdgeLabelOffset,
   onToggleEdgeUnlocked,
 }: CustomEdgeProps) {
+  const { multiSelectionActive } = useCanvasActions()
   const unlocked = !!data?.unlocked
   // Track hover so the quick-action toolbar can appear without selecting the edge.
   const [hovered, setHovered] = useState(false)
@@ -223,6 +225,26 @@ const CustomEdge = memo(function CustomEdge({
       onSetEdgeLabelOffset?.(id, nx, ny)
     },
     [zoom, id, onSelectEdge, onSetEdgeLabelOffset],
+  )
+  const onEdgeLabelPointerDown = useCallback(
+    (e: React.PointerEvent) => {
+      if (unlocked) {
+        onLabelPointerDown(e)
+        return
+      }
+
+      // Edge labels are rendered in a portal outside the edge wrapper.
+      // Prevent a label press from selecting the asset underneath it.
+      e.stopPropagation()
+    },
+    [unlocked, onLabelPointerDown],
+  )
+  const onEdgeLabelClick = useCallback(
+    (e: React.MouseEvent) => {
+      e.stopPropagation()
+      if (!unlocked) onSelectEdge?.(id, e.shiftKey)
+    },
+    [id, unlocked, onSelectEdge],
   )
 
   // Use React Flow's built-in smooth step path for the default (locked) routing.
@@ -426,7 +448,7 @@ const CustomEdge = memo(function CustomEdge({
   const baseEdgeStyle = getEdgeStyle(data?.actionType)
 
   const flowAnimation = animationsEnabled ? "edge-flow 2.5s linear infinite" : ""
-  const pulseAnimation = selected ? "edge-pulse 1.5s ease-in-out infinite" : ""
+  const pulseAnimation = selected && !multiSelectionActive ? "edge-pulse 1.5s ease-in-out infinite" : ""
   const animationValue = [flowAnimation, pulseAnimation].filter(Boolean).join(", ")
 
   // Apply selection styling if edge is selected
@@ -537,7 +559,7 @@ const CustomEdge = memo(function CustomEdge({
         id={id}
         labelX={labelX}
         labelY={labelY}
-        isVisible={hovered || selected || menuOpen || pinned}
+        isVisible={!multiSelectionActive && (hovered || selected || menuOpen || pinned)}
         currentActionType={data?.actionType}
         unlocked={unlocked}
         onSetActionType={(actionType) => onSetEdgeActionType?.(id, actionType)}
@@ -581,14 +603,16 @@ const CustomEdge = memo(function CustomEdge({
             style={{
               transform: `translate(-50%, -50%) translate(${labelX}px,${labelY}px)`,
             }}
-            onPointerDown={onLabelPointerDown}
+            onPointerDown={onEdgeLabelPointerDown}
             onPointerMove={onLabelPointerMove}
             onPointerUp={onLabelPointerUp}
+            onClick={onEdgeLabelClick}
             onMouseEnter={showToolbar}
             onMouseLeave={hideToolbar}
             className={cn(
               "nodrag nopan absolute pointer-events-auto rounded-lg border border-gray-700 bg-gray-800 p-3 shadow-lg",
               "min-w-[220px] max-w-[300px] text-xs text-white", // Increased min-width for better readability
+              selected && "ip-selection-highlight border-blue-400",
               unlocked && (drag ? "cursor-grabbing select-none" : "cursor-grab"),
             )}
           >

@@ -64,12 +64,21 @@ const actionIcons = {
 
 interface PropertiesPanelProps {
   selectedElement: CustomNode | CustomEdge | null
+  selectedNodeCount?: number
+  selectedEdgeCount?: number
   updateNode: (id: string, data: Partial<NodeData>) => void
   updateEdge: (id: string, data: Partial<EdgeData>) => void
   onDelete: () => void
 }
 
-export default function PropertiesPanel({ selectedElement, updateNode, updateEdge, onDelete }: PropertiesPanelProps) {
+export default function PropertiesPanel({
+  selectedElement,
+  selectedNodeCount = 0,
+  selectedEdgeCount = 0,
+  updateNode,
+  updateEdge,
+  onDelete,
+}: PropertiesPanelProps) {
   const [nodeData, setNodeData] = useState<NodeData | null>(null)
   const [edgeData, setEdgeData] = useState<EdgeData | null>(null)
   const toLocalInputValue = (isoString?: string) => {
@@ -555,10 +564,22 @@ export default function PropertiesPanel({ selectedElement, updateNode, updateEdg
   }, [nodeData?.type])
 
   if (!selectedElement) {
+    const totalSelected = selectedNodeCount + selectedEdgeCount
     return (
       <aside className="ip-panel w-80 flex-shrink-0 border-l p-4">
-        <h2 className="mb-4 text-lg font-semibold">Properties</h2>
-        <p className="text-sm text-gray-400">Select a node or edge to view/edit its properties.</p>
+        <h2 className="mb-4 text-lg font-semibold">{totalSelected > 1 ? "Selection" : "Properties"}</h2>
+        {totalSelected > 1 ? (
+          <div className="space-y-2">
+            <p className="text-sm text-gray-300">
+              {selectedNodeCount} node{selectedNodeCount === 1 ? "" : "s"} and {selectedEdgeCount} edge{selectedEdgeCount === 1 ? "" : "s"} selected.
+            </p>
+            <p className="text-xs text-gray-400">
+              Use the selection toolbar to edit, arrange, copy, or delete the selection.
+            </p>
+          </div>
+        ) : (
+          <p className="text-sm text-gray-400">Select a node or edge to view/edit its properties.</p>
+        )}
       </aside>
     )
   }

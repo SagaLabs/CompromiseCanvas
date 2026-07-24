@@ -462,6 +462,25 @@
   background: var(--ip-canvas);
 }
 
+.ip-selection-toolbar {
+  background: color-mix(in srgb, var(--ip-surface-1) 94%, transparent);
+  border-color: var(--ip-border);
+  color: var(--ip-text);
+}
+
+.ip-multi-selected,
+.ip-selection-highlight {
+  box-shadow:
+    0 0 0 2px var(--ip-accent),
+    0 0 18px color-mix(in srgb, var(--ip-accent) 32%, transparent) !important;
+}
+
+.react-flow__selection,
+.react-flow__nodesselection-rect {
+  background: color-mix(in srgb, var(--ip-accent) 12%, transparent) !important;
+  border: 1px solid var(--ip-accent) !important;
+}
+
 .ip-divider {
   background: var(--ip-border);
 }

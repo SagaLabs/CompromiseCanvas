@@ -27,6 +27,11 @@ interface UseCompromiseCanvasHandlersProps {
   toast: (options: any) => void
 }
 
+const withoutTransientSelection = ({ nodes, edges }: { nodes: CustomNode[]; edges: CustomEdge[] }) => ({
+  nodes: nodes.map(({ selected: _selected, dragging: _dragging, ...node }) => node as CustomNode),
+  edges: edges.map(({ selected: _selected, ...edge }) => edge as CustomEdge),
+})
+
 export const useCompromiseCanvasHandlers = ({
   reactFlowInstance,
   nodes,
@@ -51,8 +56,10 @@ export const useCompromiseCanvasHandlers = ({
   const handleSave = useCallback(() => {
     if (reactFlowInstance) {
       const flow = reactFlowInstance.toObject()
+      const graph = withoutTransientSelection({ nodes: flow.nodes as CustomNode[], edges: flow.edges as CustomEdge[] })
       const saveData = {
         ...flow,
+        ...graph,
         canvasTitle: canvasTitle,
         incidentLog: incidentLog,
       }
@@ -80,11 +87,14 @@ export const useCompromiseCanvasHandlers = ({
           },
           // Enforce z-index layering
           zIndex: node.type === "labeledGroupNode" ? LAYER_Z_INDEX.GROUP : LAYER_Z_INDEX.NODE,
+          selected: false,
+          dragging: false,
         }))
         const newNodes = nodesWithDisplaySettings || []
-        const newEdges = flow.edges || []
+        const newEdges = (flow.edges || []).map((edge: CustomEdge) => ({ ...edge, selected: false }))
         setNodes(newNodes)
         setEdges(newEdges)
+        setSelectedElement(null)
         // Reset undo/redo history when loading
         reset({ nodes: newNodes, edges: newEdges })
 
@@ -114,19 +124,20 @@ export const useCompromiseCanvasHandlers = ({
         variant: "destructive",
       })
     }
-  }, [setNodes, setEdges, reset, setCanvasTitle, setIncidentLog])
+  }, [setNodes, setEdges, setSelectedElement, reset, setCanvasTitle, setIncidentLog, toast])
 
   const handleSaveAsJSON = useCallback(() => {
     if (reactFlowInstance) {
       const flow = reactFlowInstance.toObject()
+      const graph = withoutTransientSelection({ nodes: flow.nodes as CustomNode[], edges: flow.edges as CustomEdge[] })
       const jsonData = {
         version: "1.0",
         timestamp: new Date().toISOString(),
         canvasTitle: canvasTitle,
         incidentLog: incidentLog,
         diagram: {
-          nodes: flow.nodes,
-          edges: flow.edges,
+          nodes: graph.nodes,
+          edges: graph.edges,
           viewport: flow.viewport,
         },
       }
@@ -172,15 +183,18 @@ export const useCompromiseCanvasHandlers = ({
                 displaySettings: node.data.displaySettings || { ...defaultDisplaySettings },
                 isCompromised: node.data.isCompromised || false,
               },
+              selected: false,
+              dragging: false,
             }))
+            const importedEdges = jsonData.diagram.edges.map((edge: CustomEdge) => ({ ...edge, selected: false }))
 
             if (nodes.length > 0 || edges.length > 0) {
               if (window.confirm("Importing will replace the current diagram. Continue?")) {
                 setNodes(nodesWithDisplaySettings)
-                setEdges(jsonData.diagram.edges)
+                setEdges(importedEdges)
                 setSelectedElement(null)
                 // Reset undo/redo history when importing
-                reset({ nodes: nodesWithDisplaySettings, edges: jsonData.diagram.edges })
+                reset({ nodes: nodesWithDisplaySettings, edges: importedEdges })
 
                 // Load canvas title if available
                 if (jsonData.canvasTitle) {
@@ -201,10 +215,10 @@ export const useCompromiseCanvasHandlers = ({
               }
             } else {
               setNodes(nodesWithDisplaySettings)
-              setEdges(jsonData.diagram.edges)
+              setEdges(importedEdges)
               setSelectedElement(null)
               // Reset undo/redo history when importing
-              reset({ nodes: nodesWithDisplaySettings, edges: jsonData.diagram.edges })
+              reset({ nodes: nodesWithDisplaySettings, edges: importedEdges })
 
               // Load canvas title if available
               if (jsonData.canvasTitle) {
@@ -299,14 +313,17 @@ export const useCompromiseCanvasHandlers = ({
           displaySettings: node.data.displaySettings || { ...defaultDisplaySettings },
           isCompromised: node.data.isCompromised || false,
         },
+        selected: false,
+        dragging: false,
       }))
+      const templateEdges = (template.edges as CustomEdge[]).map((edge) => ({ ...edge, selected: false }))
       setNodes(nodesWithDisplaySettings)
-      setEdges(template.edges as CustomEdge[])
+      setEdges(templateEdges)
       setIncidentLog(template.incidentLog ?? [])
       setSelectedElement(null)
       setShowTemplatePanel(false) // Close template panel after loading
       // Reset undo/redo history when loading template
-      reset({ nodes: nodesWithDisplaySettings, edges: template.edges as CustomEdge[] })
+      reset({ nodes: nodesWithDisplaySettings, edges: templateEdges })
 
       // setTimeout(() => {
       //   if (onAutoAlign) onAutoAlign()
@@ -354,15 +371,17 @@ export const useCompromiseCanvasHandlers = ({
     setShowDataHandlingModal(false)
   }, [setShowDataHandlingModal])
 
-  const handleHighlightEdge = useCallback(
+  const selectTimelineEdge = useCallback(
     (edgeId: string) => {
-      // Find and highlight the edge
       const edge = edges.find((e) => e.id === edgeId)
       if (edge) {
-        setSelectedElement(edge)
+        const selectedEdge = { ...edge, selected: true }
+        setNodes(nodes.map((node) => ({ ...node, selected: false })))
+        setEdges(edges.map((item) => ({ ...item, selected: item.id === edgeId })))
+        setSelectedElement(selectedEdge)
       }
     },
-    [edges, setSelectedElement],
+    [nodes, edges, setNodes, setEdges, setSelectedElement],
   )
 
   const handleSelectEdge = useCallback(
@@ -372,12 +391,15 @@ export const useCompromiseCanvasHandlers = ({
 
       if (additive) {
         const willSelect = !edge.selected
-        setEdges(
-          edges.map((item) =>
-            item.id === edgeId ? { ...item, selected: willSelect } : item,
-          ),
+        const nextEdges = edges.map((item) =>
+          item.id === edgeId ? { ...item, selected: willSelect } : item,
         )
-        setSelectedElement(willSelect ? { ...edge, selected: true } : null)
+        const selection = [
+          ...nodes.filter((node) => node.selected),
+          ...nextEdges.filter((item) => item.selected),
+        ]
+        setEdges(nextEdges)
+        setSelectedElement(selection.length === 1 ? selection[0] : null)
         return
       }
 
@@ -388,6 +410,8 @@ export const useCompromiseCanvasHandlers = ({
     },
     [nodes, edges, setNodes, setEdges, setSelectedElement],
   )
+
+  const handleHighlightEdge = selectTimelineEdge
 
   const handleAutoAlign = useCallback(() => {
     if (nodes.length === 0) return
