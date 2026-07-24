@@ -193,8 +193,8 @@ export default function CompromiseCanvas() {
 
   // Memoize edge types to prevent recreation on every render during dragging
   const edgeTypes = useMemo(
-    () => createEdgeTypes(animationsEnabled, selectedElement, deleteEdgeById, handleSetEdgeActionType, handleSetEdgeLabelOffset, handleToggleEdgeUnlocked),
-    [animationsEnabled, selectedElement, deleteEdgeById, handleSetEdgeActionType, handleSetEdgeLabelOffset, handleToggleEdgeUnlocked],
+    () => createEdgeTypes(animationsEnabled, selectedElement, deleteEdgeById, handleSetEdgeActionType, handleSelectEdge, handleSetEdgeLabelOffset, handleToggleEdgeUnlocked),
+    [animationsEnabled, selectedElement, deleteEdgeById, handleSetEdgeActionType, handleSelectEdge, handleSetEdgeLabelOffset, handleToggleEdgeUnlocked],
   )
 
   // Keyboard event listener for Delete/Backspace and Undo/Redo
@@ -297,7 +297,7 @@ export default function CompromiseCanvas() {
               elementsSelectable={true}
               selectNodesOnDrag={false}
               // Enable multi-selection
-              multiSelectionKeyCode="Shift"
+              multiSelectionKeyCode={["Shift", "Control"]}
               panOnDrag={true}
               zoomOnScroll={true}
               zoomOnPinch={true}
