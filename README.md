@@ -153,6 +153,14 @@ Contributions are welcome! Please feel free to submit a Pull Request.
 4. Push to the branch (`git push origin feature/amazing-feature`)
 5. Open a Pull Request
 
+## Contributors
+
+Thanks to everyone who has helped improve Compromise Canvas.
+
+<a href="https://github.com/SagaLabs/CompromiseCanvas/graphs/contributors">
+  <img src="https://contrib.rocks/image?repo=SagaLabs/CompromiseCanvas" alt="Compromise Canvas contributors" />
+</a>
+
 ## License
 
 This project is licensed under the GNU General Public License v3.0 - see the [LICENSE](LICENSE) file for details.
