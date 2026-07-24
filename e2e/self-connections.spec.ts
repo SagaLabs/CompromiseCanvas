@@ -144,6 +144,185 @@ test("still allows a connection between different assets", async ({ page }) => {
   await expect(page.locator(".react-flow__edge")).toHaveCount(1)
 })
 
+test("combines multiple action types on one self-connection", async ({ page }) => {
+  const selfEdge = {
+    id: "e-multi",
+    source: "n1",
+    target: "n1",
+    type: "customEdge",
+    data: {
+      label: "Privilege Escalation",
+      actionType: "Privilege Escalation",
+      toolUsed: "",
+      userUsed: "",
+      timestamp: "",
+      description: "",
+      displaySettings,
+    },
+  }
+
+  await seedDiagram(page, {
+    ...seed,
+    nodes: [seed.nodes[0]],
+    edges: [selfEdge],
+    viewport: { x: 600, y: 500, zoom: 1 },
+  })
+
+  const edge = page.locator(".react-flow__edge")
+  const edgePaths = edge.locator(".react-flow__edge-path")
+  await expect(edgePaths).toHaveCount(1)
+
+  const label = page
+    .locator(".react-flow__edgelabel-renderer > div")
+    .filter({ hasText: "Privilege Escalation" })
+  await label.click()
+
+  await expect(page.getByText("Action Types", { exact: true })).toBeVisible()
+  const primaryActionType = page.getByRole("combobox", {
+    name: "Action type 1",
+  })
+  await primaryActionType.click()
+  await page
+    .getByRole("option", { name: "Vulnerability Exploitation" })
+    .click()
+
+  await expect(edgePaths).toHaveCount(1)
+  await expect(
+    page.locator('[data-edge-action-type="Privilege Escalation"]'),
+  ).toHaveCount(0)
+  await expect(
+    page.locator('[data-edge-action-type="Vulnerability Exploitation"]'),
+  ).toBeVisible()
+
+  await page.getByRole("button", { name: "Add action type" }).click()
+  await page
+    .getByRole("menuitem", { name: "Privilege Escalation" })
+    .click()
+
+  await expect(edgePaths).toHaveCount(2)
+  await expect(
+    page.locator('[data-edge-action-type="Privilege Escalation"]'),
+  ).toBeVisible()
+  await expect(
+    page.locator('[data-edge-action-type="Vulnerability Exploitation"]'),
+  ).toBeVisible()
+
+  const routeColors = await edgePaths.evaluateAll((paths) =>
+    paths.map((path) => getComputedStyle(path).stroke),
+  )
+  expect(new Set(routeColors).size).toBe(2)
+
+  await page.getByRole("button", { name: "Save to browser storage" }).click()
+  const saved = await page.evaluate(() =>
+    JSON.parse(localStorage.getItem("compromise-canvas-flow") || "{}"),
+  )
+  expect(saved.edges[0].data.actionType).toBe("Vulnerability Exploitation")
+  expect(saved.edges[0].data.actionTypes).toEqual([
+    "Vulnerability Exploitation",
+    "Privilege Escalation",
+  ])
+
+  await page.keyboard.press("Control+z")
+  await expect(edgePaths).toHaveCount(1)
+  await expect(
+    page.locator('[data-edge-action-type="Privilege Escalation"]'),
+  ).toHaveCount(0)
+  await expect(
+    page.locator('[data-edge-action-type="Vulnerability Exploitation"]'),
+  ).toBeVisible()
+
+  await page.keyboard.press("Control+y")
+  await expect(edgePaths).toHaveCount(2)
+
+  const pathsBeforeMove = await edgePaths.evaluateAll((paths) =>
+    paths.map((path) => path.getAttribute("d")),
+  )
+  await page.getByRole("button", { name: "Unlock edge to move it" }).click()
+
+  const labelBox = await label.boundingBox()
+  expect(labelBox).not.toBeNull()
+  const startX = labelBox!.x + labelBox!.width / 2
+  const startY = labelBox!.y + labelBox!.height / 2
+  await page.mouse.move(startX, startY)
+  await page.mouse.down()
+  await page.mouse.move(startX + 60, startY - 40, { steps: 8 })
+  await page.mouse.up()
+
+  const pathsAfterMove = await edgePaths.evaluateAll((paths) =>
+    paths.map((path) => path.getAttribute("d")),
+  )
+  expect(pathsAfterMove).not.toEqual(pathsBeforeMove)
+})
+
+test("edits and removes any self-connection action type", async ({ page }) => {
+  const selfEdge = {
+    id: "e-editable-actions",
+    source: "n1",
+    target: "n1",
+    type: "customEdge",
+    data: {
+      label: "Privilege Escalation",
+      actionType: "Privilege Escalation",
+      actionTypes: [
+        "Privilege Escalation",
+        "Vulnerability Exploitation",
+      ],
+      toolUsed: "",
+      userUsed: "",
+      timestamp: "",
+      description: "",
+      displaySettings,
+    },
+  }
+
+  await seedDiagram(page, {
+    ...seed,
+    nodes: [seed.nodes[0]],
+    edges: [selfEdge],
+    viewport: { x: 600, y: 500, zoom: 1 },
+  })
+
+  const edge = page.locator(".react-flow__edge")
+  await page
+    .locator(".react-flow__edgelabel-renderer > div")
+    .filter({ hasText: "Privilege Escalation" })
+    .click()
+
+  await page
+    .getByRole("combobox", { name: "Action type 2" })
+    .click()
+  await page
+    .getByRole("option", { name: "Lateral Movement" })
+    .click()
+
+  await expect(
+    page.locator('[data-edge-action-type="Vulnerability Exploitation"]'),
+  ).toHaveCount(0)
+  await expect(
+    page.locator('[data-edge-action-type="Lateral Movement"]'),
+  ).toBeVisible()
+
+  await page
+    .getByRole("button", { name: "Remove Privilege Escalation" })
+    .click()
+
+  await expect(edge).toHaveCount(1)
+  await expect(edge.locator(".react-flow__edge-path")).toHaveCount(1)
+  await expect(
+    page.locator('[data-edge-action-type="Privilege Escalation"]'),
+  ).toHaveCount(0)
+  await expect(
+    page.getByRole("button", { name: "Remove Lateral Movement" }),
+  ).toHaveCount(0)
+
+  await page.getByRole("button", { name: "Save to browser storage" }).click()
+  const saved = await page.evaluate(() =>
+    JSON.parse(localStorage.getItem("compromise-canvas-flow") || "{}"),
+  )
+  expect(saved.edges[0].data.actionType).toBe("Lateral Movement")
+  expect(saved.edges[0].data.actionTypes).toBeUndefined()
+})
+
 test("keeps a self-connection label outside a tall resized asset", async ({ page }) => {
   const tallNode = {
     ...seed.nodes[0],

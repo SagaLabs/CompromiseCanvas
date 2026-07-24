@@ -7,6 +7,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Textarea } from "@/components/ui/textarea"
 import { Button } from "@/components/ui/button"
 import { MitreTechniquePicker } from "@/components/mitre-technique-picker"
+import { EdgeActionTypePicker } from "@/components/edge-action-type-picker"
 import { Switch } from "@/components/ui/switch"
 import { Slider } from "@/components/ui/slider"
 import {
@@ -45,6 +46,10 @@ import {
 } from "@/lib/types"
 import type { CustomNode, CustomEdge } from "@/lib/types"
 import { normalizeMitreTechniqueReferences } from "@/lib/mitre-attack"
+import {
+  createEdgeActionTypeUpdate,
+  getEdgeActionTypes,
+} from "@/lib/edge-action-types"
 
 // Define action icons mapping directly in this component
 const actionIcons = {
@@ -81,6 +86,12 @@ export default function PropertiesPanel({
 }: PropertiesPanelProps) {
   const [nodeData, setNodeData] = useState<NodeData | null>(null)
   const [edgeData, setEdgeData] = useState<EdgeData | null>(null)
+  const edgeActionTypes = getEdgeActionTypes(edgeData)
+  const isSelfConnection =
+    selectedElement?.type === "customEdge" &&
+    "source" in selectedElement &&
+    selectedElement.source === selectedElement.target
+  const edgeHasCommandAndControl = edgeActionTypes.includes("Command & Control")
   const toLocalInputValue = (isoString?: string) => {
     if (!isoString) return ""
     const date = new Date(isoString)
@@ -195,6 +206,17 @@ export default function PropertiesPanel({
       setEdgeData(newData)
       updateEdge(selectedElement!.id, newData)
     }
+  }
+
+  const handleEdgeActionTypesChange = (actionTypes: EdgeActionType[]) => {
+    if (!edgeData || !selectedElement) return
+
+    const newData = {
+      ...edgeData,
+      ...createEdgeActionTypeUpdate(actionTypes),
+    }
+    setEdgeData(newData)
+    updateEdge(selectedElement.id, newData)
   }
 
   const handleMitreTechniqueChange = (techniques: Array<{ id: string; name: string }>) => {
@@ -2361,28 +2383,37 @@ export default function PropertiesPanel({
             />
           </div>
           <div>
-            <Label htmlFor="edge-action-type" className="text-sm">
-              Action Type
+            <Label htmlFor={isSelfConnection ? undefined : "edge-action-type"} className="text-sm">
+              {isSelfConnection ? "Action Types" : "Action Type"}
             </Label>
-            <Select
-              value={edgeData.actionType}
-              onValueChange={(value: EdgeActionType) => handleEdgeChange("actionType", value)}
-            >
-              <SelectTrigger className="mt-1 w-full bg-gray-800 text-white border-gray-700">
-                <SelectValue placeholder="Select action type" />
-              </SelectTrigger>
-              <SelectContent className="bg-gray-800 text-white border-gray-700">
-                {EDGE_ACTION_TYPES.map((type) => (
-                  <SelectItem key={type} value={type}>
-                    {type}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
+            {isSelfConnection ? (
+              <EdgeActionTypePicker
+                actionTypes={edgeActionTypes}
+                onChange={handleEdgeActionTypesChange}
+              />
+            ) : (
+              <Select
+                value={edgeData.actionType}
+                onValueChange={(value: EdgeActionType) =>
+                  handleEdgeActionTypesChange([value])
+                }
+              >
+                <SelectTrigger className="mt-1 w-full bg-gray-800 text-white border-gray-700">
+                  <SelectValue placeholder="Select action type" />
+                </SelectTrigger>
+                <SelectContent className="bg-gray-800 text-white border-gray-700">
+                  {EDGE_ACTION_TYPES.map((type) => (
+                    <SelectItem key={type} value={type}>
+                      {type}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            )}
           </div>
 
           {/* Conditional fields based on action type */}
-          {edgeData.actionType === "Command & Control" ? (
+          {edgeHasCommandAndControl ? (
             <>
               <div>
                 <Label htmlFor="c2-channel" className="text-sm">
@@ -2599,7 +2630,7 @@ export default function PropertiesPanel({
                   onCheckedChange={(checked) => handleEdgeDisplaySettingChange("showDescription", checked)}
                 />
               </div>
-              {edgeData.actionType === "Command & Control" && (
+              {edgeHasCommandAndControl && (
                 <>
                   <div className="flex items-center justify-between">
                     <Label htmlFor="show-c2-channel" className="text-xs text-gray-400">

@@ -36,13 +36,14 @@ import {
   getMitreTechniqueUrl,
   normalizeMitreTechniqueReferences,
 } from "@/lib/mitre-attack"
+import { getEdgeActionTypes } from "@/lib/edge-action-types"
 import { useCanvasActions } from "./canvas-actions-context"
 
 interface CustomEdgeProps extends EdgeProps<Edge<EdgeData>> {
   animationsEnabled?: boolean
   selected?: boolean
   onDeleteEdge?: (id: string) => void
-  onSetEdgeActionType?: (id: string, actionType: EdgeActionType) => void
+  onSetEdgeActionTypes?: (id: string, actionTypes: EdgeActionType[]) => void
   onSelectEdge?: (id: string, additive?: boolean) => void
   onSetEdgeLabelOffset?: (id: string, x: number, y: number) => void
   onToggleEdgeUnlocked?: (id: string) => void
@@ -50,6 +51,7 @@ interface CustomEdgeProps extends EdgeProps<Edge<EdgeData>> {
 
 const EDGE_ROUTE_DRAG_THRESHOLD_PX = 4
 const SELF_LOOP_LABEL_CLEARANCE_PX = 80
+const SELF_LOOP_ACTION_LANE_GAP_PX = 10
 
 interface SelfLoopGeometry {
   path: string
@@ -65,6 +67,7 @@ function getSelfLoopGeometry({
   nodeHeight = 0,
   offsetX = 0,
   offsetY = 0,
+  laneOffset = 0,
 }: {
   sourceX: number
   sourceY: number
@@ -73,12 +76,14 @@ function getSelfLoopGeometry({
   nodeHeight?: number
   offsetX?: number
   offsetY?: number
+  laneOffset?: number
 }): SelfLoopGeometry {
   const nodeWidth = Math.abs(sourceX - targetX)
-  const sideOffset = Math.max(90, nodeWidth * 0.35)
+  const sideOffset = Math.max(90, nodeWidth * 0.35) + laneOffset
   const nodeClearanceHeight =
     ((nodeHeight / 2 + SELF_LOOP_LABEL_CLEARANCE_PX) * 4) / 3
-  const controlHeight = Math.max(220, nodeWidth, nodeClearanceHeight)
+  const controlHeight =
+    Math.max(220, nodeWidth, nodeClearanceHeight) + laneOffset
 
   // At the midpoint of a cubic curve, the two control points contribute 3/4
   // of its position. Scaling the drag offset by 4/3 keeps the label on the line.
@@ -113,7 +118,7 @@ const CustomEdge = memo(function CustomEdge({
   animationsEnabled = true,
   selected = false,
   onDeleteEdge,
-  onSetEdgeActionType,
+  onSetEdgeActionTypes,
   onSelectEdge,
   onSetEdgeLabelOffset,
   onToggleEdgeUnlocked,
@@ -270,6 +275,12 @@ const CustomEdge = memo(function CustomEdge({
   const midX = (sourceX + targetX) / 2
   const midY = (sourceY + targetY) / 2
   const isSelfConnection = source === target
+  const actionTypes = isSelfConnection
+    ? getEdgeActionTypes(data)
+    : data?.actionType
+      ? [data.actionType]
+      : []
+  const primaryActionType = actionTypes[0] ?? data?.actionType
 
   const selfLoop = getSelfLoopGeometry({
     sourceX,
@@ -279,6 +290,21 @@ const CustomEdge = memo(function CustomEdge({
     nodeHeight: sourceNodeHeight,
     offsetX: unlocked ? offsetX : 0,
     offsetY: unlocked ? offsetY : 0,
+  })
+  const selfLoopPaths = actionTypes.map((_, index) => {
+    const laneOffset =
+      (index - (actionTypes.length - 1) / 2) *
+      SELF_LOOP_ACTION_LANE_GAP_PX
+    return getSelfLoopGeometry({
+      sourceX,
+      sourceY,
+      targetX,
+      targetY,
+      nodeHeight: sourceNodeHeight,
+      offsetX: unlocked ? offsetX : 0,
+      offsetY: unlocked ? offsetY : 0,
+      laneOffset,
+    }).path
   })
 
   const edgePath = isSelfConnection
@@ -414,7 +440,7 @@ const CustomEdge = memo(function CustomEdge({
         }
       case "Vulnerability Exploitation":
         return {
-          stroke: "#dc2626", // Red
+          stroke: "#f97316", // Orange
           strokeWidth: 3,
           strokeDasharray: "7 3",
         }
@@ -445,28 +471,42 @@ const CustomEdge = memo(function CustomEdge({
     }
   }
 
-  const baseEdgeStyle = getEdgeStyle(data?.actionType)
-
   const flowAnimation = animationsEnabled ? "edge-flow 2.5s linear infinite" : ""
   const pulseAnimation = selected && !multiSelectionActive ? "edge-pulse 1.5s ease-in-out infinite" : ""
   const animationValue = [flowAnimation, pulseAnimation].filter(Boolean).join(", ")
 
-  // Apply selection styling if edge is selected
-  const edgeStyle = selected
-    ? {
-        ...baseEdgeStyle,
-        strokeWidth: baseEdgeStyle.strokeWidth + 2, // Make selected edge thicker
-        filter: "drop-shadow(0 0 8px rgba(59, 130, 246, 0.6))",
-        strokeDasharray: baseEdgeStyle.strokeDasharray || "6 6",
-        strokeDashoffset: 0,
-        animation: animationValue || undefined,
-      }
-    : {
-        ...baseEdgeStyle,
-        strokeDasharray: baseEdgeStyle.strokeDasharray || "6 6",
-        strokeDashoffset: 0,
-        animation: animationValue || undefined,
-      }
+  const getRenderedEdgeStyle = (actionType?: EdgeActionType) => {
+    const baseStyle = getEdgeStyle(actionType)
+    return selected
+      ? {
+          ...baseStyle,
+          strokeWidth: baseStyle.strokeWidth + 2,
+          filter: "drop-shadow(0 0 8px rgba(59, 130, 246, 0.6))",
+          strokeDasharray: baseStyle.strokeDasharray || "6 6",
+          strokeDashoffset: 0,
+          animation: animationValue || undefined,
+        }
+      : {
+          ...baseStyle,
+          strokeDasharray: baseStyle.strokeDasharray || "6 6",
+          strokeDashoffset: 0,
+          animation: animationValue || undefined,
+        }
+  }
+
+  const edgeStyle = getRenderedEdgeStyle(primaryActionType)
+  const edgeLayers =
+    isSelfConnection && actionTypes.length > 1
+      ? actionTypes.map((actionType, index) => ({
+          actionType,
+          path: selfLoopPaths[index],
+          style: getRenderedEdgeStyle(actionType),
+        }))
+      : [{
+          actionType: primaryActionType,
+          path: edgePath,
+          style: edgeStyle,
+        }]
 
   // Determine icon for Action Type
   const getActionTypeIcon = (actionType?: string) => {
@@ -524,18 +564,19 @@ const CustomEdge = memo(function CustomEdge({
     }
   }
 
-  const ActionTypeIcon = getActionTypeIcon(data?.actionType)
-
   // Check if this edge should have animations based on global setting
-  const shouldAnimate = animationsEnabled && data?.actionType
+  const shouldAnimate = animationsEnabled && actionTypes.length > 0
 
   return (
     <>
-      <BaseEdge
-        id={id}
-        path={edgePath}
-        style={{ ...style, ...edgeStyle }}
-      />
+      {edgeLayers.map((layer, index) => (
+        <BaseEdge
+          key={`${id}-${layer.actionType ?? index}`}
+          id={index === 0 ? id : `${id}-action-${index}`}
+          path={layer.path}
+          style={{ ...style, ...layer.style }}
+        />
+      ))}
 
       {/* Invisible wide interaction path so hovering near the edge is detected.
           When unlocked, this path is also the drag handle for rerouting. */}
@@ -560,9 +601,12 @@ const CustomEdge = memo(function CustomEdge({
         labelX={labelX}
         labelY={labelY}
         isVisible={!multiSelectionActive && (hovered || selected || menuOpen || pinned)}
-        currentActionType={data?.actionType}
+        currentActionTypes={actionTypes}
+        allowsMultipleActionTypes={isSelfConnection}
         unlocked={unlocked}
-        onSetActionType={(actionType) => onSetEdgeActionType?.(id, actionType)}
+        onSetActionTypes={(nextActionTypes) =>
+          onSetEdgeActionTypes?.(id, nextActionTypes)
+        }
         onToggleUnlocked={() => onToggleEdgeUnlocked?.(id)}
         onDelete={() => onDeleteEdge?.(id)}
         onMouseEnter={showToolbar}
@@ -572,30 +616,47 @@ const CustomEdge = memo(function CustomEdge({
 
       {/* Animated circles only for specific action types and when animations are enabled */}
       {shouldAnimate && (
-        <>
-          {/* Animated circle moving along the edge path */}
-          <circle r="4" fill={edgeStyle.stroke} opacity="0.8">
-            <animateMotion
-              dur="3s"
-              repeatCount="indefinite"
-              path={edgePath}
-              calcMode="spline"
-              keySplines="0.4 0 0.6 1"
-            />
-          </circle>
-
-          {/* Second animated circle with different timing */}
-          <circle r="3" fill={edgeStyle.stroke} opacity="0.6">
-            <animateMotion
-              dur="4s"
-              repeatCount="indefinite"
-              path={edgePath}
-              calcMode="spline"
-              keySplines="0.4 0 0.6 1"
-              begin="-1s"
-            />
-          </circle>
-        </>
+        isSelfConnection && edgeLayers.length > 1 ? (
+          edgeLayers.map((layer, index) => (
+            <circle
+              key={`${id}-marker-${layer.actionType ?? index}`}
+              r={index === 0 ? 4 : 3}
+              fill={layer.style.stroke}
+              opacity={index === 0 ? "0.8" : "0.65"}
+            >
+              <animateMotion
+                dur={`${3 + index * 0.5}s`}
+                repeatCount="indefinite"
+                path={layer.path}
+                calcMode="spline"
+                keySplines="0.4 0 0.6 1"
+                begin={`${index * -0.75}s`}
+              />
+            </circle>
+          ))
+        ) : (
+          <>
+            <circle r="4" fill={edgeStyle.stroke} opacity="0.8">
+              <animateMotion
+                dur="3s"
+                repeatCount="indefinite"
+                path={edgePath}
+                calcMode="spline"
+                keySplines="0.4 0 0.6 1"
+              />
+            </circle>
+            <circle r="3" fill={edgeStyle.stroke} opacity="0.6">
+              <animateMotion
+                dur="4s"
+                repeatCount="indefinite"
+                path={edgePath}
+                calcMode="spline"
+                keySplines="0.4 0 0.6 1"
+                begin="-1s"
+              />
+            </circle>
+          </>
+        )
       )}
       {data?.displaySettings?.showLabel !== false && (
         <EdgeLabelRenderer>
@@ -616,15 +677,36 @@ const CustomEdge = memo(function CustomEdge({
               unlocked && (drag ? "cursor-grabbing select-none" : "cursor-grab"),
             )}
           >
-            {/* Main Label / Action Type */}
-            <div className="mb-1 flex items-center justify-center gap-2 text-sm font-semibold" style={{ color: edgeStyle.stroke }}>
-              {ActionTypeIcon && <ActionTypeIcon className="h-4 w-4" />}
-              <span>{data?.actionType || "New Technique"}</span>
+            {/* Main Label / Action Types */}
+            <div className="mb-1 space-y-1">
+              {actionTypes.length > 0 ? (
+                actionTypes.map((actionType) => {
+                  const ActionTypeIcon = getActionTypeIcon(actionType)
+                  const actionTypeStyle = getEdgeStyle(actionType)
+                  return (
+                    <div
+                      key={actionType}
+                      data-edge-action-type={actionType}
+                      className="flex items-center justify-center gap-2 text-sm font-semibold"
+                      style={{ color: actionTypeStyle.stroke }}
+                    >
+                      <ActionTypeIcon className="h-4 w-4" />
+                      <span>{actionType}</span>
+                    </div>
+                  )
+                })
+              ) : (
+                <div className="text-center text-sm font-semibold" style={{ color: edgeStyle.stroke }}>
+                  New Technique
+                </div>
+              )}
             </div>
 
             <div className="space-y-1 text-gray-400">
               {/* Custom Label (if different from action type) */}
-              {data?.label && data.label !== data.actionType && data?.displaySettings?.showLabel && (
+              {data?.label &&
+                !actionTypes.includes(data.label as EdgeActionType) &&
+                data?.displaySettings?.showLabel && (
                 <div className="flex items-center gap-1">
                   <FileText className="h-3 w-3" />
                   <span>Label: {data.label}</span>
@@ -694,7 +776,7 @@ const CustomEdge = memo(function CustomEdge({
               )}
 
               {/* C2 Channel (for Command & Control edges) */}
-              {data?.actionType === "Command & Control" && data?.c2Channel && data?.displaySettings?.showC2Channel && (
+              {actionTypes.includes("Command & Control") && data?.c2Channel && data?.displaySettings?.showC2Channel && (
                 <div className="flex items-center gap-1">
                   <Wifi className="h-3 w-3" />
                   <span>Channel: {data.c2Channel}</span>
@@ -702,7 +784,7 @@ const CustomEdge = memo(function CustomEdge({
               )}
 
               {/* C2 Framework (for Command & Control edges) */}
-              {data?.actionType === "Command & Control" && data?.c2Framework && data?.displaySettings?.showC2Framework && (
+              {actionTypes.includes("Command & Control") && data?.c2Framework && data?.displaySettings?.showC2Framework && (
                 <div className="flex items-center gap-1">
                   <Code className="h-3 w-3" />
                   <span>Framework: {data.c2Framework}</span>

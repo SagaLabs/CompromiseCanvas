@@ -25,6 +25,7 @@ import IncidentLogPanel from "./incident-log-panel"
 import DataHandlingModal from "./data-handling-modal"
 import { createEdgeTypes } from "@/lib/utils/compromise-canvas-utils"
 import type { CustomEdge as CanvasEdge, CustomNode as CanvasNode, EdgeActionType } from "@/lib/types"
+import { createEdgeActionTypeUpdate } from "@/lib/edge-action-types"
 import { FIT_VIEW_OPTIONS } from "@/lib/utils/compromise-canvas-constants"
 import { useCompromiseCanvasState } from "@/hooks/use-compromise-canvas-state"
 import { useCompromiseCanvasHandlers } from "@/hooks/use-compromise-canvas-handlers"
@@ -247,9 +248,10 @@ export default function CompromiseCanvas() {
     toast,
   })
 
-  // Change an edge's action type (updates its color/icon), undo-safe via updateEdge
-  const handleSetEdgeActionType = useCallback(
-    (id: string, actionType: EdgeActionType) => updateEdge(id, { actionType }),
+  // Change an edge's action types (updates its routes/labels), undo-safe via updateEdge.
+  const handleSetEdgeActionTypes = useCallback(
+    (id: string, actionTypes: EdgeActionType[]) =>
+      updateEdge(id, createEdgeActionTypeUpdate(actionTypes)),
     [updateEdge],
   )
 
@@ -270,8 +272,8 @@ export default function CompromiseCanvas() {
 
   // Memoize edge types to prevent recreation on every render during dragging
   const edgeTypes = useMemo(
-    () => createEdgeTypes(animationsEnabled, selectedElement, deleteEdgeById, handleSetEdgeActionType, handleSelectEdge, handleSetEdgeLabelOffset, handleToggleEdgeUnlocked),
-    [animationsEnabled, selectedElement, deleteEdgeById, handleSetEdgeActionType, handleSelectEdge, handleSetEdgeLabelOffset, handleToggleEdgeUnlocked],
+    () => createEdgeTypes(animationsEnabled, selectedElement, deleteEdgeById, handleSetEdgeActionTypes, handleSelectEdge, handleSetEdgeLabelOffset, handleToggleEdgeUnlocked),
+    [animationsEnabled, selectedElement, deleteEdgeById, handleSetEdgeActionTypes, handleSelectEdge, handleSetEdgeLabelOffset, handleToggleEdgeUnlocked],
   )
 
   const copySelection = useCallback(() => {

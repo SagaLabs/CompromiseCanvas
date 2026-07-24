@@ -316,6 +316,10 @@ export interface MitreTechniqueReference {
 export interface EdgeData extends Record<string, unknown> {
   label?: string
   actionType: EdgeActionType
+  // Self-connections can describe more than one action without adding
+  // overlapping edges. `actionType` remains the primary value so existing
+  // canvases and consumers stay backward compatible.
+  actionTypes?: EdgeActionType[]
   toolUsed: string // For non-C2 edges, this is "Tool Used"
   userUsed: string // For non-C2 edges, this is "User Used"
   timestamp: string // ISO8601 format (e.g., 'YYYY-MM-DDTHH:MM:SSZ')
