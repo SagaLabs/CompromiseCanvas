@@ -30,14 +30,21 @@ const seed = {
   timestamp: new Date().toISOString(),
 }
 
-async function seedDiagram(page: Page) {
+interface DiagramSnapshot {
+  nodes: unknown[]
+  edges: unknown[]
+  timestamp: string
+  [key: string]: unknown
+}
+
+async function seedDiagram(page: Page, snapshot: DiagramSnapshot = seed) {
   await page.addInitScript((snapshot) => {
     localStorage.setItem("compromise-canvas-autosave-enabled", "true")
     localStorage.setItem("compromise-canvas-autosave-flow", JSON.stringify(snapshot))
     localStorage.setItem("compromise-canvas-autosave-timestamp", snapshot.timestamp)
-  }, seed)
+  }, snapshot)
   await page.goto("/")
-  await expect(page.locator(".react-flow__node")).toHaveCount(2)
+  await expect(page.locator(".react-flow__node")).toHaveCount(snapshot.nodes.length)
 }
 
 async function handleCenter(handle: Locator) {
@@ -135,4 +142,48 @@ test("still allows a connection between different assets", async ({ page }) => {
   const target = page.locator('.react-flow__node[data-id="n2"] .react-flow__handle.target')
   await connect(page, source, target)
   await expect(page.locator(".react-flow__edge")).toHaveCount(1)
+})
+
+test("keeps a self-connection label outside a tall resized asset", async ({ page }) => {
+  const tallNode = {
+    ...seed.nodes[0],
+    data: {
+      ...seed.nodes[0].data,
+      width: 220,
+      height: 600,
+    },
+  }
+  const selfEdge = {
+    id: "e1",
+    source: tallNode.id,
+    target: tallNode.id,
+    type: "customEdge",
+    data: {
+      actionType: "Privilege Escalation",
+      toolUsed: "",
+      userUsed: "",
+      timestamp: "",
+      description: "",
+      displaySettings,
+    },
+  }
+
+  await seedDiagram(page, {
+    ...seed,
+    nodes: [tallNode],
+    edges: [selfEdge],
+    viewport: { x: 600, y: 500, zoom: 1 },
+  })
+
+  const node = page.locator('.react-flow__node[data-id="n1"]')
+  const label = page
+    .locator(".react-flow__edgelabel-renderer > div")
+    .filter({ hasText: "Privilege Escalation" })
+  await expect(label).toBeVisible()
+
+  const nodeBox = await node.boundingBox()
+  const labelBox = await label.boundingBox()
+  expect(nodeBox).not.toBeNull()
+  expect(labelBox).not.toBeNull()
+  expect(labelBox!.y + labelBox!.height).toBeLessThan(nodeBox!.y)
 })

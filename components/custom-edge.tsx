@@ -48,6 +48,7 @@ interface CustomEdgeProps extends EdgeProps<Edge<EdgeData>> {
 }
 
 const EDGE_ROUTE_DRAG_THRESHOLD_PX = 4
+const SELF_LOOP_LABEL_CLEARANCE_PX = 80
 
 interface SelfLoopGeometry {
   path: string
@@ -60,6 +61,7 @@ function getSelfLoopGeometry({
   sourceY,
   targetX,
   targetY,
+  nodeHeight = 0,
   offsetX = 0,
   offsetY = 0,
 }: {
@@ -67,12 +69,15 @@ function getSelfLoopGeometry({
   sourceY: number
   targetX: number
   targetY: number
+  nodeHeight?: number
   offsetX?: number
   offsetY?: number
 }): SelfLoopGeometry {
   const nodeWidth = Math.abs(sourceX - targetX)
   const sideOffset = Math.max(90, nodeWidth * 0.35)
-  const controlHeight = Math.max(220, nodeWidth)
+  const nodeClearanceHeight =
+    ((nodeHeight / 2 + SELF_LOOP_LABEL_CLEARANCE_PX) * 4) / 3
+  const controlHeight = Math.max(220, nodeWidth, nodeClearanceHeight)
 
   // At the midpoint of a cubic curve, the two control points contribute 3/4
   // of its position. Scaling the drag offset by 4/3 keeps the label on the line.
@@ -153,6 +158,9 @@ const CustomEdge = memo(function CustomEdge({
 
   // Current viewport zoom, so a screen-space drag maps to the right flow-space delta.
   const zoom = useStore((s) => s.transform[2])
+  const sourceNodeHeight = useStore(
+    (state) => state.nodeLookup.get(source)?.measured.height ?? 0,
+  )
 
   // Manual routing drag (only when the edge is unlocked). `drag` holds the live
   // control-point offset; once released the committed offset lives on the edge
@@ -246,6 +254,7 @@ const CustomEdge = memo(function CustomEdge({
     sourceY,
     targetX,
     targetY,
+    nodeHeight: sourceNodeHeight,
     offsetX: unlocked ? offsetX : 0,
     offsetY: unlocked ? offsetY : 0,
   })
