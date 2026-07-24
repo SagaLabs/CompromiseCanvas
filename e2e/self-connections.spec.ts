@@ -207,10 +207,76 @@ test("combines multiple action types on one self-connection", async ({ page }) =
     page.locator('[data-edge-action-type="Vulnerability Exploitation"]'),
   ).toBeVisible()
 
+  const bundleCard = page.locator(
+    '[data-self-connection-action-bundle-card="true"]',
+  )
+  await expect(bundleCard).toBeVisible()
+  const bundleCardBox = await bundleCard.boundingBox()
+  expect(bundleCardBox).not.toBeNull()
+  expect(bundleCardBox!.width).toBeLessThanOrEqual(301)
+
+  const actionRows = page.locator("[data-edge-action-row]")
+  await expect(actionRows).toHaveCount(2)
+  const actionRowTextMetrics = await page
+    .locator("[data-edge-action-row-text]")
+    .evaluateAll((labels) =>
+      labels.map((label) => ({
+        clientWidth: label.clientWidth,
+        scrollWidth: label.scrollWidth,
+        clientHeight: label.clientHeight,
+        scrollHeight: label.scrollHeight,
+      })),
+    )
+  actionRowTextMetrics.forEach((label) => {
+    expect(label.scrollWidth).toBeLessThanOrEqual(
+      label.clientWidth + 1,
+    )
+    expect(label.scrollHeight).toBeLessThanOrEqual(
+      label.clientHeight + 1,
+    )
+  })
+
   const routeColors = await edgePaths.evaluateAll((paths) =>
     paths.map((path) => getComputedStyle(path).stroke),
   )
   expect(new Set(routeColors).size).toBe(2)
+  const routePresentation = await edgePaths.evaluateAll((paths) =>
+    paths.map((path) => {
+      const style = getComputedStyle(path)
+      return {
+        dashArray: style.strokeDasharray,
+        width: style.strokeWidth,
+      }
+    }),
+  )
+  routePresentation.forEach((route) => {
+    expect(route.dashArray).not.toBe("none")
+    expect(Number.parseFloat(route.width)).toBeCloseTo(5)
+  })
+  await expect(page.locator("[data-edge-action-marker]")).toHaveCount(
+    2,
+  )
+  const bundleGeometry = await edgePaths.evaluateAll((paths) =>
+    paths.map((path) => {
+      const svgPath = path as SVGPathElement
+      const totalLength = svgPath.getTotalLength()
+      const start = svgPath.getPointAtLength(0)
+      const middle = svgPath.getPointAtLength(totalLength / 2)
+      const end = svgPath.getPointAtLength(totalLength)
+      return {
+        start: { x: start.x, y: start.y },
+        middle: { x: middle.x, y: middle.y },
+        end: { x: end.x, y: end.y },
+      }
+    }),
+  )
+  expect(bundleGeometry[0].start).toEqual(bundleGeometry[1].start)
+  expect(bundleGeometry[0].end).toEqual(bundleGeometry[1].end)
+  const middleSeparation = Math.hypot(
+    bundleGeometry[0].middle.x - bundleGeometry[1].middle.x,
+    bundleGeometry[0].middle.y - bundleGeometry[1].middle.y,
+  )
+  expect(middleSeparation).toBeCloseTo(5, 0)
 
   await page.getByRole("button", { name: "Save to browser storage" }).click()
   const saved = await page.evaluate(() =>
@@ -321,6 +387,54 @@ test("edits and removes any self-connection action type", async ({ page }) => {
   )
   expect(saved.edges[0].data.actionType).toBe("Lateral Movement")
   expect(saved.edges[0].data.actionTypes).toBeUndefined()
+})
+
+test("keeps a multi-action self-connection card outside the asset", async ({
+  page,
+}) => {
+  const selfEdge = {
+    id: "e-multi-clearance",
+    source: "n1",
+    target: "n1",
+    type: "customEdge",
+    data: {
+      label: "Privilege Escalation",
+      actionType: "Privilege Escalation",
+      actionTypes: [
+        "Privilege Escalation",
+        "Vulnerability Exploitation",
+        "Persistence",
+        "Credential Access",
+      ],
+      toolUsed: "",
+      userUsed: "",
+      timestamp: "",
+      description: "",
+      displaySettings,
+    },
+  }
+
+  await seedDiagram(page, {
+    ...seed,
+    nodes: [seed.nodes[0]],
+    edges: [selfEdge],
+    viewport: { x: 600, y: 650, zoom: 1 },
+  })
+
+  const node = page.locator('.react-flow__node[data-id="n1"]')
+  const bundleCard = page.locator(
+    '[data-self-connection-action-bundle-card="true"]',
+  )
+  await expect(bundleCard).toBeVisible()
+  await expect(bundleCard.locator("[data-edge-action-row]")).toHaveCount(4)
+
+  const nodeBox = await node.boundingBox()
+  const bundleCardBox = await bundleCard.boundingBox()
+  expect(nodeBox).not.toBeNull()
+  expect(bundleCardBox).not.toBeNull()
+  expect(bundleCardBox!.y + bundleCardBox!.height).toBeLessThan(
+    nodeBox!.y - 8,
+  )
 })
 
 test("keeps a self-connection label outside a tall resized asset", async ({ page }) => {
