@@ -297,7 +297,7 @@ export default function CompromiseCanvas() {
               elementsSelectable={true}
               selectNodesOnDrag={false}
               // Enable multi-selection
-              multiSelectionKeyCode="Shift"
+              multiSelectionKeyCode={["Shift", "Control"]}
               panOnDrag={true}
               zoomOnScroll={true}
               zoomOnPinch={true}

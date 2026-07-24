@@ -184,6 +184,62 @@ test("an unlocked edge can be selected without accidentally rerouting it", async
   await expect(reloadedPath).toHaveAttribute("d", reloadedBefore ?? "")
 })
 
+test("Ctrl-click adds an unlocked edge to the current selection", async ({ page }) => {
+  await seedDiagram(page, {
+    ...seed,
+    edges: seed.edges.map((edge) => ({
+      ...edge,
+      data: { ...edge.data, unlocked: true },
+    })),
+  })
+
+  await page.locator(".react-flow__node").filter({ hasText: "Alpha" }).click()
+  await expect(page.locator(".react-flow__node.selected")).toHaveCount(1)
+
+  const routeHandle = page.locator(".react-flow__edge path.nopan").first()
+  const point = await routeHandle.evaluate((element: SVGPathElement) => {
+    const position = element.getPointAtLength(element.getTotalLength() * 0.2)
+    const matrix = element.getScreenCTM()
+    if (!matrix) throw new Error("Could not read the edge screen transform")
+    return {
+      x: matrix.a * position.x + matrix.c * position.y + matrix.e,
+      y: matrix.b * position.x + matrix.d * position.y + matrix.f,
+    }
+  })
+
+  await page.keyboard.down("Control")
+  await page.mouse.click(point.x, point.y)
+  await page.keyboard.up("Control")
+
+  await expect(page.locator(".react-flow__node.selected")).toHaveCount(1)
+  await expect(page.locator(".react-flow__edge.selected")).toHaveCount(1)
+})
+
+test("Ctrl-click adds a locked edge to the current selection", async ({ page }) => {
+  await seedDiagram(page)
+
+  await page.locator(".react-flow__node").filter({ hasText: "Alpha" }).click()
+  await expect(page.locator(".react-flow__node.selected")).toHaveCount(1)
+
+  const routeHandle = page.locator('.react-flow__edge path[stroke="transparent"]').first()
+  const point = await routeHandle.evaluate((element: SVGPathElement) => {
+    const position = element.getPointAtLength(element.getTotalLength() * 0.2)
+    const matrix = element.getScreenCTM()
+    if (!matrix) throw new Error("Could not read the edge screen transform")
+    return {
+      x: matrix.a * position.x + matrix.c * position.y + matrix.e,
+      y: matrix.b * position.x + matrix.d * position.y + matrix.f,
+    }
+  })
+
+  await page.keyboard.down("Control")
+  await page.mouse.click(point.x, point.y)
+  await page.keyboard.up("Control")
+
+  await expect(page.locator(".react-flow__node.selected")).toHaveCount(1)
+  await expect(page.locator(".react-flow__edge.selected")).toHaveCount(1)
+})
+
 test("toolbar edge changes remain intact after a properties edit", async ({ page }) => {
   await seedDiagram(page)
   const label = page

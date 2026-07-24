@@ -366,9 +366,20 @@ export const useCompromiseCanvasHandlers = ({
   )
 
   const handleSelectEdge = useCallback(
-    (edgeId: string) => {
+    (edgeId: string, additive = false) => {
       const edge = edges.find((e) => e.id === edgeId)
       if (!edge) return
+
+      if (additive) {
+        const willSelect = !edge.selected
+        setEdges(
+          edges.map((item) =>
+            item.id === edgeId ? { ...item, selected: willSelect } : item,
+          ),
+        )
+        setSelectedElement(willSelect ? { ...edge, selected: true } : null)
+        return
+      }
 
       const selectedEdge = { ...edge, selected: true }
       setNodes(nodes.map((node) => ({ ...node, selected: false })))
