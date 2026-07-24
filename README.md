@@ -157,9 +157,24 @@ Contributions are welcome! Please feel free to submit a Pull Request.
 
 Thanks to everyone who has helped improve Compromise Canvas.
 
-<a href="https://github.com/SagaLabs/CompromiseCanvas/graphs/contributors">
-  <img src="https://contrib.rocks/image?repo=SagaLabs/CompromiseCanvas" alt="Compromise Canvas contributors" />
-</a>
+<table>
+  <tr>
+    <td align="center">
+      <a href="https://github.com/Guzzy711">
+        <img src="https://avatars.githubusercontent.com/u/27682662?s=96&v=4" width="80" alt="Guzzy711" /><br />
+        <sub><b>Guzzy711</b></sub>
+      </a>
+    </td>
+    <td align="center">
+      <a href="https://github.com/Fuzzdkk">
+        <img src="https://avatars.githubusercontent.com/u/50987338?s=96&v=4" width="80" alt="Fuzzdkk" /><br />
+        <sub><b>Fuzzdkk</b></sub>
+      </a>
+    </td>
+  </tr>
+</table>
+
+[See all contributors](https://github.com/SagaLabs/CompromiseCanvas/graphs/contributors)
 
 ## License
 
