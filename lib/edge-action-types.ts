@@ -6,8 +6,35 @@ import {
 
 const edgeActionTypeSet = new Set<string>(EDGE_ACTION_TYPES)
 
+const compactActionTypeLabels: Partial<Record<EdgeActionType, string>> = {
+  "Initial Access": "IA",
+  "Lateral Movement": "Lat Move",
+  "Privilege Escalation": "PrivEsc",
+  "Defense Evasion": "Def Evasion",
+  "Credential Access": "Cred Access",
+  Exfiltration: "Exfil",
+  "Command & Control": "C2",
+  Reconnaissance: "Recon",
+  Weaponization: "Weaponize",
+  Exploitation: "Exploit",
+  Installation: "Install",
+  "Data Manipulation": "Data Manip",
+  "Service Abuse": "Svc Abuse",
+  "Network Scanning": "Net Scan",
+  "Vulnerability Exploitation": "Vuln Exploit",
+  "Social Engineering": "Social Eng",
+  "Physical Access": "Phys Access",
+  "Supply Chain Attack": "Supply Ch.",
+}
+
 const isEdgeActionType = (value: unknown): value is EdgeActionType =>
   typeof value === "string" && edgeActionTypeSet.has(value)
+
+export function getCompactEdgeActionTypeLabel(
+  actionType: EdgeActionType,
+): string {
+  return compactActionTypeLabels[actionType] ?? actionType
+}
 
 export function getEdgeActionTypes(
   data?: Pick<EdgeData, "actionType" | "actionTypes"> | null,

@@ -20,8 +20,10 @@ import { cn } from "@/lib/utils"
 
 interface EdgeToolbarProps {
   id: string
-  labelX: number
-  labelY: number
+  x: number
+  y: number
+  alignX?: "left" | "center" | "right"
+  alignY?: "top" | "center" | "bottom"
   isVisible: boolean
   currentActionTypes: EdgeActionType[]
   allowsMultipleActionTypes?: boolean
@@ -41,8 +43,10 @@ interface EdgeToolbarProps {
  */
 export default function EdgeToolbar({
   id,
-  labelX,
-  labelY,
+  x,
+  y,
+  alignX = "center",
+  alignY = "bottom",
   isVisible,
   currentActionTypes,
   allowsMultipleActionTypes = false,
@@ -61,10 +65,11 @@ export default function EdgeToolbar({
   return (
     <XYEdgeToolbar
       edgeId={id}
-      x={labelX}
-      y={labelY - 60}
+      x={x}
+      y={y}
       isVisible={isVisible}
-      alignY="bottom"
+      alignX={alignX}
+      alignY={alignY}
       className={cn(
         "nodrag nopan flex items-center gap-1 rounded-lg",
         "border border-gray-700 bg-gray-800 p-1 shadow-lg",

@@ -255,6 +255,13 @@ export default function CompromiseCanvas() {
     [updateEdge],
   )
 
+  // Keep the expanded action list open for presentations or screenshots.
+  const handleSetEdgeActionTypesExpanded = useCallback(
+    (id: string, expanded: boolean) =>
+      updateEdge(id, { actionTypesExpanded: expanded }),
+    [updateEdge],
+  )
+
   // Reposition an edge's control point (dropped after a drag), undo-safe via updateEdge
   const handleSetEdgeLabelOffset = useCallback(
     (id: string, x: number, y: number) => updateEdge(id, { labelOffsetX: x, labelOffsetY: y }),
@@ -272,8 +279,8 @@ export default function CompromiseCanvas() {
 
   // Memoize edge types to prevent recreation on every render during dragging
   const edgeTypes = useMemo(
-    () => createEdgeTypes(animationsEnabled, selectedElement, deleteEdgeById, handleSetEdgeActionTypes, handleSelectEdge, handleSetEdgeLabelOffset, handleToggleEdgeUnlocked),
-    [animationsEnabled, selectedElement, deleteEdgeById, handleSetEdgeActionTypes, handleSelectEdge, handleSetEdgeLabelOffset, handleToggleEdgeUnlocked],
+    () => createEdgeTypes(animationsEnabled, selectedElement, deleteEdgeById, handleSetEdgeActionTypes, handleSetEdgeActionTypesExpanded, handleSelectEdge, handleSetEdgeLabelOffset, handleToggleEdgeUnlocked),
+    [animationsEnabled, selectedElement, deleteEdgeById, handleSetEdgeActionTypes, handleSetEdgeActionTypesExpanded, handleSelectEdge, handleSetEdgeLabelOffset, handleToggleEdgeUnlocked],
   )
 
   const copySelection = useCallback(() => {

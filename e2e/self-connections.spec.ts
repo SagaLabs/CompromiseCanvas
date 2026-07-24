@@ -37,6 +37,29 @@ interface DiagramSnapshot {
   [key: string]: unknown
 }
 
+interface BoundingRect {
+  x: number
+  y: number
+  width: number
+  height: number
+}
+
+function boxesOverlap(first: BoundingRect, second: BoundingRect) {
+  return (
+    first.x < second.x + second.width &&
+    first.x + first.width > second.x &&
+    first.y < second.y + second.height &&
+    first.y + first.height > second.y
+  )
+}
+
+function horizontalBoxGap(first: BoundingRect, second: BoundingRect) {
+  return Math.max(
+    second.x - (first.x + first.width),
+    first.x - (second.x + second.width),
+  )
+}
+
 async function seedDiagram(page: Page, snapshot: DiagramSnapshot = seed) {
   await page.addInitScript((snapshot) => {
     localStorage.setItem("compromise-canvas-autosave-enabled", "true")
@@ -235,6 +258,21 @@ test("combines multiple action types on one self-connection", async ({ page }) =
       label.clientHeight + 1,
     )
   })
+  const actionRevealBox = await page
+    .locator('[data-edge-action-reveal="true"]')
+    .boundingBox()
+  const actionToolbarBox = await page
+    .locator(".react-flow__edge-toolbar")
+    .boundingBox()
+  expect(actionRevealBox).not.toBeNull()
+  expect(actionToolbarBox).not.toBeNull()
+  expect(boxesOverlap(actionToolbarBox!, actionRevealBox!)).toBe(false)
+  expect(
+    horizontalBoxGap(actionToolbarBox!, actionRevealBox!),
+  ).toBeGreaterThanOrEqual(16)
+  expect(
+    horizontalBoxGap(actionToolbarBox!, actionRevealBox!),
+  ).toBeLessThanOrEqual(32)
 
   const routeColors = await edgePaths.evaluateAll((paths) =>
     paths.map((path) => getComputedStyle(path).stroke),
@@ -349,10 +387,7 @@ test("edits and removes any self-connection action type", async ({ page }) => {
   })
 
   const edge = page.locator(".react-flow__edge")
-  await page
-    .locator(".react-flow__edgelabel-renderer > div")
-    .filter({ hasText: "Privilege Escalation" })
-    .click()
+  await page.locator('[data-edge-action-summary="true"]').click()
 
   await page
     .getByRole("combobox", { name: "Action type 2" })
@@ -410,6 +445,229 @@ test("keeps a multi-action self-connection card outside the asset", async ({
       userUsed: "",
       timestamp: "",
       description: "",
+      mitreAttackTechniques: [
+        {
+          id: "T1068",
+          name: "Exploitation for Privilege Escalation",
+        },
+        {
+          id: "T1059",
+          name: "Command and Scripting Interpreter",
+        },
+      ],
+      displaySettings: {
+        ...displaySettings,
+        showMitreId: true,
+      },
+    },
+  }
+
+  await seedDiagram(page, {
+    ...seed,
+    nodes: [seed.nodes[0]],
+    edges: [selfEdge],
+    viewport: { x: 600, y: 650, zoom: 1 },
+  })
+
+  const node = page.locator('.react-flow__node[data-id="n1"]')
+  const bundleCard = page.locator(
+    '[data-self-connection-action-bundle-card="true"]',
+  )
+  const actionSummary = page.locator(
+    '[data-edge-action-summary="true"]',
+  )
+  const actionReveal = page.locator(
+    '[data-edge-action-reveal="true"]',
+  )
+  await expect(bundleCard).toBeVisible()
+  await expect(actionSummary).toBeVisible()
+  await expect(actionReveal).toHaveCount(0)
+  await expect(bundleCard).toContainText("T1068")
+  await expect(bundleCard).toContainText("T1059")
+  await expect(
+    actionSummary.locator("[data-edge-action-summary-icon]"),
+  ).toHaveCount(4)
+  await expect(
+    actionSummary.locator(
+      '[data-edge-action-summary-label="Privilege Escalation"]',
+    ),
+  ).toHaveText("PrivEsc")
+  await expect(
+    actionSummary.locator(
+      '[data-edge-action-summary-label="Vulnerability Exploitation"]',
+    ),
+  ).toHaveText("Vuln Exploit")
+  await expect(
+    actionSummary.locator(
+      '[data-edge-action-summary-label="Persistence"]',
+    ),
+  ).toHaveText("Persistence")
+  await expect(
+    actionSummary.locator(
+      '[data-edge-action-summary-label="Credential Access"]',
+    ),
+  ).toHaveText("Cred Access")
+  await expect(
+    actionSummary.locator("[data-edge-action-summary-overflow]"),
+  ).toHaveCount(0)
+  await expect(
+    bundleCard.locator("[data-edge-action-color-strip]"),
+  ).toHaveCount(1)
+
+  await expect
+    .poll(async () => {
+      const nodeBox = await node.boundingBox()
+      const cardBox = await bundleCard.boundingBox()
+      if (!nodeBox || !cardBox) return Number.NEGATIVE_INFINITY
+      return nodeBox.y - (cardBox.y + cardBox.height)
+    })
+    .toBeGreaterThanOrEqual(12)
+
+  const nodeBox = await node.boundingBox()
+  const bundleCardBox = await bundleCard.boundingBox()
+  expect(nodeBox).not.toBeNull()
+  expect(bundleCardBox).not.toBeNull()
+
+  await actionSummary.hover()
+  await expect(actionReveal).toBeVisible()
+  await expect(actionReveal.locator("[data-edge-action-row]")).toHaveCount(4)
+
+  const actionRevealBox = await actionReveal.boundingBox()
+  const toolbarBox = await page
+    .locator(".react-flow__edge-toolbar")
+    .boundingBox()
+  expect(actionRevealBox).not.toBeNull()
+  expect(toolbarBox).not.toBeNull()
+  expect(actionRevealBox!.y + actionRevealBox!.height).toBeLessThan(
+    bundleCardBox!.y,
+  )
+  expect(boxesOverlap(toolbarBox!, actionRevealBox!)).toBe(false)
+  expect(horizontalBoxGap(toolbarBox!, bundleCardBox!)).toBeGreaterThanOrEqual(
+    16,
+  )
+  expect(horizontalBoxGap(toolbarBox!, bundleCardBox!)).toBeLessThanOrEqual(
+    32,
+  )
+  expect(boxesOverlap(toolbarBox!, nodeBox!)).toBe(false)
+
+  await page
+    .getByRole("button", { name: "Keep action types visible" })
+    .click()
+  await expect(
+    page.getByRole("button", {
+      name: "Return to compact action summary",
+    }),
+  ).toHaveAttribute("aria-pressed", "true")
+  await expect(
+    bundleCard.locator("[data-edge-action-color-strip]"),
+  ).toHaveCount(0)
+
+  await page.mouse.move(400, 180)
+  await expect(actionReveal).toBeVisible()
+  const pinnedCardBox = await bundleCard.boundingBox()
+  const pinnedActionRevealBox = await actionReveal.boundingBox()
+  const visibilityToggleBox = await page
+    .getByRole("button", {
+      name: "Return to compact action summary",
+    })
+    .boundingBox()
+  expect(pinnedCardBox).not.toBeNull()
+  expect(pinnedActionRevealBox).not.toBeNull()
+  expect(visibilityToggleBox).not.toBeNull()
+  await expect
+    .poll(async () => {
+      const currentNodeBox = await node.boundingBox()
+      const currentCardBox = await bundleCard.boundingBox()
+      if (!currentNodeBox || !currentCardBox) {
+        return Number.NEGATIVE_INFINITY
+      }
+      return (
+        currentNodeBox.y -
+        (currentCardBox.y + currentCardBox.height)
+      )
+    })
+    .toBeGreaterThanOrEqual(12)
+  expect(pinnedActionRevealBox!.x).toBeGreaterThanOrEqual(
+    pinnedCardBox!.x,
+  )
+  expect(pinnedActionRevealBox!.y).toBeGreaterThanOrEqual(
+    pinnedCardBox!.y,
+  )
+  expect(
+    pinnedActionRevealBox!.x + pinnedActionRevealBox!.width,
+  ).toBeLessThanOrEqual(
+    pinnedCardBox!.x + pinnedCardBox!.width,
+  )
+  expect(
+    pinnedActionRevealBox!.y + pinnedActionRevealBox!.height,
+  ).toBeLessThanOrEqual(
+    pinnedCardBox!.y + pinnedCardBox!.height,
+  )
+  await actionSummary.hover()
+  const expandedToolbarBox = await page
+    .locator(".react-flow__edge-toolbar")
+    .boundingBox()
+  expect(expandedToolbarBox).not.toBeNull()
+  expect(boxesOverlap(expandedToolbarBox!, pinnedCardBox!)).toBe(false)
+  expect(
+    horizontalBoxGap(expandedToolbarBox!, pinnedCardBox!),
+  ).toBeGreaterThanOrEqual(16)
+  expect(
+    horizontalBoxGap(expandedToolbarBox!, pinnedCardBox!),
+  ).toBeLessThanOrEqual(32)
+  expect(visibilityToggleBox!.x).toBeGreaterThanOrEqual(
+    pinnedCardBox!.x,
+  )
+  expect(visibilityToggleBox!.x + visibilityToggleBox!.width).toBeLessThanOrEqual(
+    pinnedCardBox!.x + pinnedCardBox!.width,
+  )
+
+  await page.getByRole("button", { name: "Save to browser storage" }).click()
+  const saved = await page.evaluate(() =>
+    JSON.parse(localStorage.getItem("compromise-canvas-flow") || "{}"),
+  )
+  expect(saved.edges[0].data.actionTypesExpanded).toBe(true)
+
+  await page
+    .getByRole("button", {
+      name: "Return to compact action summary",
+    })
+    .click()
+  await page.mouse.move(400, 180)
+  await expect(actionReveal).toHaveCount(0)
+
+  await page.keyboard.press("Control+z")
+  await expect(actionReveal).toBeVisible()
+
+  await page.keyboard.press("Control+y")
+  await expect(actionReveal).toHaveCount(0)
+})
+
+test("keeps a large pinned action list clear of its asset", async ({
+  page,
+}) => {
+  const selfEdge = {
+    id: "e-many-actions",
+    source: "n1",
+    target: "n1",
+    type: "customEdge",
+    data: {
+      label: "Privilege Escalation",
+      actionType: "Privilege Escalation",
+      actionTypes: [
+        "Privilege Escalation",
+        "Vulnerability Exploitation",
+        "Persistence",
+        "Credential Access",
+        "Defense Evasion",
+        "Discovery",
+        "Collection",
+        "Impact",
+      ],
+      toolUsed: "",
+      userUsed: "",
+      timestamp: "",
+      description: "",
       displaySettings,
     },
   }
@@ -425,16 +683,40 @@ test("keeps a multi-action self-connection card outside the asset", async ({
   const bundleCard = page.locator(
     '[data-self-connection-action-bundle-card="true"]',
   )
-  await expect(bundleCard).toBeVisible()
-  await expect(bundleCard.locator("[data-edge-action-row]")).toHaveCount(4)
-
-  const nodeBox = await node.boundingBox()
-  const bundleCardBox = await bundleCard.boundingBox()
-  expect(nodeBox).not.toBeNull()
-  expect(bundleCardBox).not.toBeNull()
-  expect(bundleCardBox!.y + bundleCardBox!.height).toBeLessThan(
-    nodeBox!.y - 8,
+  const actionSummary = page.locator(
+    '[data-edge-action-summary="true"]',
   )
+  await expect(
+    actionSummary.locator("[data-edge-action-summary-icon]"),
+  ).toHaveCount(3)
+  await expect(
+    actionSummary.locator("[data-edge-action-summary-overflow]"),
+  ).toHaveText("+5 more")
+
+  await page
+    .getByRole("button", { name: "Keep action types visible" })
+    .click()
+  await expect(bundleCard.locator("[data-edge-action-row]")).toHaveCount(8)
+
+  await expect
+    .poll(async () => {
+      const nodeBox = await node.boundingBox()
+      const cardBox = await bundleCard.boundingBox()
+      if (!nodeBox || !cardBox) return Number.NEGATIVE_INFINITY
+      return nodeBox.y - (cardBox.y + cardBox.height)
+    })
+    .toBeGreaterThanOrEqual(12)
+
+  await actionSummary.hover()
+  const cardBox = await bundleCard.boundingBox()
+  const toolbarBox = await page
+    .locator(".react-flow__edge-toolbar")
+    .boundingBox()
+  expect(cardBox).not.toBeNull()
+  expect(toolbarBox).not.toBeNull()
+  expect(boxesOverlap(toolbarBox!, cardBox!)).toBe(false)
+  expect(horizontalBoxGap(toolbarBox!, cardBox!)).toBeGreaterThanOrEqual(16)
+  expect(horizontalBoxGap(toolbarBox!, cardBox!)).toBeLessThanOrEqual(32)
 })
 
 test("keeps a self-connection label outside a tall resized asset", async ({ page }) => {

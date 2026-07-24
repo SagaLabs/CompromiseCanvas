@@ -336,6 +336,9 @@ export interface EdgeData extends Record<string, unknown> {
   unlocked?: boolean
   labelOffsetX?: number
   labelOffsetY?: number
+  // Presentation state for compact multi-action self-connections. When set,
+  // the complete action list stays visible without requiring hover or selection.
+  actionTypesExpanded?: boolean
   // Display settings
   displaySettings: EdgeDisplaySettings
 }
