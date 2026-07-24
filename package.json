@@ -25,7 +25,10 @@
   "scripts": {
     "build": "next build",
     "dev": "next dev",
-    "lint": "next lint",
+    "lint": "oxlint",
+    "lint:fix": "oxlint --fix",
+    "fmt": "oxfmt",
+    "fmt:check": "oxfmt --check",
     "test:mitre": "node --test tests/mitre-techniques.test.cjs",
     "test:selection": "node --test tests/selection-layout.test.cjs",
     "update:mitre": "node scripts/update-mitre-techniques.mjs",
