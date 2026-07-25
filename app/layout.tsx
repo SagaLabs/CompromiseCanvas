@@ -1,8 +1,10 @@
-import type { Metadata } from 'next'
-import { GeistSans } from 'geist/font/sans'
-import { GeistMono } from 'geist/font/mono'
-import { ThemeProvider } from '@/components/theme-provider'
-import './globals.css'
+import { GeistMono } from 'geist/font/mono';
+import { GeistSans } from 'geist/font/sans';
+import type { Metadata } from 'next';
+
+import { ThemeProvider } from '@/components/theme-provider';
+
+import './globals.css';
 
 export const metadata: Metadata = {
   title: 'Compromise Canvas',
@@ -16,12 +18,12 @@ export const metadata: Metadata = {
     shortcut: '/favicons/favicon.ico',
   },
   manifest: '/favicons/site.webmanifest',
-}
+};
 
 export default function RootLayout({
   children,
 }: Readonly<{
-  children: React.ReactNode
+  children: React.ReactNode;
 }>) {
   return (
     <html lang="en" suppressHydrationWarning>
@@ -41,7 +43,10 @@ html {
       </head>
       <body suppressHydrationWarning={true}>
         <ThemeProvider attribute="data-theme" defaultTheme="dark" enableSystem={false}>
-          <a href="#main-content" className="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-50 focus:rounded-md focus:bg-black focus:px-3 focus:py-2 focus:text-white">
+          <a
+            href="#main-content"
+            className="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-50 focus:rounded-md focus:bg-black focus:px-3 focus:py-2 focus:text-white"
+          >
             Skip to main content
           </a>
           <main id="main-content" className="h-full">
@@ -50,5 +55,5 @@ html {
         </ThemeProvider>
       </body>
     </html>
-  )
+  );
 }

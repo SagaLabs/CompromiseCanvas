@@ -33,7 +33,7 @@ Compromise Canvas helps cybersecurity professionals visualize attack paths, docu
 
 ## Screenshots
 
-*Coming soon*
+_Coming soon_
 
 ## Getting Started
 
@@ -77,12 +77,12 @@ pnpm run start
 
 ### Asset Categories
 
-| Category | Assets |
-|----------|--------|
-| **On-Premises** | Web Server, Database, Workstation, Domain Controller, Firewall, Router, Email Server, File Server |
-| **Cloud** | Cloud Instance, Cloud Database, Load Balancer, Container, Function, Kubernetes, Tenant, Email, Storage, Collaboration |
-| **Identity** | User accounts, Service accounts with MFA status and privilege levels |
-| **Threat Actors** | Attacker, Command & Control (C2), Exfiltration endpoints |
+| Category          | Assets                                                                                                                |
+| ----------------- | --------------------------------------------------------------------------------------------------------------------- |
+| **On-Premises**   | Web Server, Database, Workstation, Domain Controller, Firewall, Router, Email Server, File Server                     |
+| **Cloud**         | Cloud Instance, Cloud Database, Load Balancer, Container, Function, Kubernetes, Tenant, Email, Storage, Collaboration |
+| **Identity**      | User accounts, Service accounts with MFA status and privilege levels                                                  |
+| **Threat Actors** | Attacker, Command & Control (C2), Exfiltration endpoints                                                              |
 
 ### Edge Action Types
 
@@ -95,13 +95,13 @@ Connections between nodes can be labeled with MITRE ATT&CK-aligned actions:
 
 ### Keyboard Shortcuts
 
-| Shortcut | Action |
-|----------|--------|
-| `Ctrl/Cmd + Z` | Undo |
-| `Ctrl/Cmd + Y` | Redo |
-| `Ctrl/Cmd + C` | Copy selected |
-| `Ctrl/Cmd + V` | Paste |
-| `Delete` | Delete selected |
+| Shortcut       | Action          |
+| -------------- | --------------- |
+| `Ctrl/Cmd + Z` | Undo            |
+| `Ctrl/Cmd + Y` | Redo            |
+| `Ctrl/Cmd + C` | Copy selected   |
+| `Ctrl/Cmd + V` | Paste           |
+| `Delete`       | Delete selected |
 
 ### Exporting
 

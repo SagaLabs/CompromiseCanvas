@@ -1,55 +1,58 @@
-"use client"
+'use client';
 
-import type React from "react"
-import { useRef, useEffect, useMemo, useCallback } from "react"
-import {
-  ReactFlow,
-  Controls,
-  Background,
-  Panel,
-  useReactFlow,
-  useStoreApi,
-} from "@xyflow/react"
-import "@xyflow/react/dist/style.css"
-import CustomNode from "./custom-node"
-import { GroupNode } from "./labeled-group-node"
-import AssetLibrary from "./asset-library"
-import PropertiesPanel from "./properties-panel"
-import HeaderControls from "./header-controls"
-import MobileWarning from "./mobile-warning"
-import CanvasTitle from "./canvas-title"
-import { useMobile } from "@/hooks/use-mobile"
-import TemplatePanel from "./template-panel"
-import TimelineModal from "./timeline-modal"
-import IncidentLogPanel from "./incident-log-panel"
-import DataHandlingModal from "./data-handling-modal"
-import { createEdgeTypes } from "@/lib/utils/compromise-canvas-utils"
-import type { CustomEdge as CanvasEdge, CustomNode as CanvasNode, EdgeActionType } from "@/lib/types"
-import { FIT_VIEW_OPTIONS } from "@/lib/utils/compromise-canvas-constants"
-import { useCompromiseCanvasState } from "@/hooks/use-compromise-canvas-state"
-import { useCompromiseCanvasHandlers } from "@/hooks/use-compromise-canvas-handlers"
-import { useReactFlowCallbacks } from "@/hooks/use-reactflow-callbacks"
-import { useState } from "react"
-import { Button } from "@/components/ui/button"
-import { CanvasActionsProvider } from "./canvas-actions-context"
-import SelectionContextMenu from "./selection-context-menu"
-import SelectionToolbar from "./selection-toolbar"
+import { ReactFlow, Controls, Background, Panel, useReactFlow, useStoreApi } from '@xyflow/react';
+import type React from 'react';
+import { useRef, useEffect, useMemo, useCallback } from 'react';
+
+import '@xyflow/react/dist/style.css';
+import { useState } from 'react';
+
+import { Button } from '@/components/ui/button';
+import { useCompromiseCanvasHandlers } from '@/hooks/use-compromise-canvas-handlers';
+import { useCompromiseCanvasState } from '@/hooks/use-compromise-canvas-state';
+import { useMobile } from '@/hooks/use-mobile';
+import { useReactFlowCallbacks } from '@/hooks/use-reactflow-callbacks';
+import type {
+  CustomEdge as CanvasEdge,
+  CustomNode as CanvasNode,
+  EdgeActionType,
+} from '@/lib/types';
+import { FIT_VIEW_OPTIONS } from '@/lib/utils/compromise-canvas-constants';
+import { createEdgeTypes } from '@/lib/utils/compromise-canvas-utils';
+
+import AssetLibrary from './asset-library';
+import { CanvasActionsProvider } from './canvas-actions-context';
+import CanvasTitle from './canvas-title';
+import CustomNode from './custom-node';
+import DataHandlingModal from './data-handling-modal';
+import HeaderControls from './header-controls';
+import IncidentLogPanel from './incident-log-panel';
+import { GroupNode } from './labeled-group-node';
+import MobileWarning from './mobile-warning';
+import PropertiesPanel from './properties-panel';
+import SelectionContextMenu from './selection-context-menu';
+import SelectionToolbar from './selection-toolbar';
+import TemplatePanel from './template-panel';
+import TimelineModal from './timeline-modal';
 
 const nodeTypes = {
   customNode: CustomNode,
   labeledGroupNode: GroupNode,
-}
+};
 
 export default function CompromiseCanvas() {
-  const reactFlowWrapper = useRef<HTMLDivElement>(null)
-  const { fitView } = useReactFlow()
-  const reactFlowStore = useStoreApi()
+  const reactFlowWrapper = useRef<HTMLDivElement>(null);
+  const { fitView } = useReactFlow();
+  const reactFlowStore = useStoreApi();
 
   // Mobile detection
-  const isMobile = useMobile()
-  const [showMobileWarning, setShowMobileWarning] = useState(true)
-  const [dismissedMobileWarning, setDismissedMobileWarning] = useState(false)
-  const [selectionContextMenuPoint, setSelectionContextMenuPoint] = useState<{ x: number; y: number } | null>(null)
+  const isMobile = useMobile();
+  const [showMobileWarning, setShowMobileWarning] = useState(true);
+  const [dismissedMobileWarning, setDismissedMobileWarning] = useState(false);
+  const [selectionContextMenuPoint, setSelectionContextMenuPoint] = useState<{
+    x: number;
+    y: number;
+  } | null>(null);
 
   // Use centralized state management hook
   const {
@@ -106,7 +109,7 @@ export default function CompromiseCanvas() {
     toast,
     showIncidentLogPanel,
     setShowIncidentLogPanel,
-  } = useCompromiseCanvasState()
+  } = useCompromiseCanvasState();
 
   // Use ReactFlow callbacks hook
   const {
@@ -136,71 +139,76 @@ export default function CompromiseCanvas() {
     takeSnapshot,
     hasClipboardData,
     handlePaste,
-  })
+  });
 
-  const selectedElementCount = selectedNodeCount + selectedEdgeCount
-  const multiSelectionActive = selectedElementCount > 1
+  const selectedElementCount = selectedNodeCount + selectedEdgeCount;
+  const multiSelectionActive = selectedElementCount > 1;
   const renderedNodes = useMemo(
-    () => nodes.map((node) => ({
-      ...node,
-      className: [node.className, "nokey"].filter(Boolean).join(" "),
-    })),
+    () =>
+      nodes.map((node) => ({
+        ...node,
+        className: [node.className, 'nokey'].filter(Boolean).join(' '),
+      })),
     [nodes],
-  )
+  );
 
   const handleNodeContextMenu = useCallback(
     (event: React.MouseEvent, node: CanvasNode) => {
-      event.preventDefault()
-      event.stopPropagation()
+      event.preventDefault();
+      event.stopPropagation();
 
       if (!node.selected) {
-        setNodes((current) => current.map((item) => ({ ...item, selected: item.id === node.id })))
-        setEdges((current) => current.map((item) => item.selected ? { ...item, selected: false } : item))
-        setSelectedElement(node)
+        setNodes((current) => current.map((item) => ({ ...item, selected: item.id === node.id })));
+        setEdges((current) =>
+          current.map((item) => (item.selected ? { ...item, selected: false } : item)),
+        );
+        setSelectedElement(node);
       }
 
-      setSelectionContextMenuPoint({ x: event.clientX, y: event.clientY })
+      setSelectionContextMenuPoint({ x: event.clientX, y: event.clientY });
     },
     [setNodes, setEdges, setSelectedElement],
-  )
+  );
 
   const handleEdgeContextMenu = useCallback(
     (event: React.MouseEvent, edge: CanvasEdge) => {
-      event.preventDefault()
-      event.stopPropagation()
+      event.preventDefault();
+      event.stopPropagation();
 
       if (!edge.selected) {
-        setNodes((current) => current.map((item) => item.selected ? { ...item, selected: false } : item))
-        setEdges((current) => current.map((item) => ({ ...item, selected: item.id === edge.id })))
-        setSelectedElement(edge)
+        setNodes((current) =>
+          current.map((item) => (item.selected ? { ...item, selected: false } : item)),
+        );
+        setEdges((current) => current.map((item) => ({ ...item, selected: item.id === edge.id })));
+        setSelectedElement(edge);
       }
 
-      setSelectionContextMenuPoint({ x: event.clientX, y: event.clientY })
+      setSelectionContextMenuPoint({ x: event.clientX, y: event.clientY });
     },
     [setNodes, setEdges, setSelectedElement],
-  )
+  );
 
   const handleSelectionContextMenuOpenChange = useCallback((open: boolean) => {
-    if (!open) setSelectionContextMenuPoint(null)
-  }, [])
+    if (!open) setSelectionContextMenuPoint(null);
+  }, []);
 
   const handleSelectionPointerDownCapture = useCallback(
     (event: React.PointerEvent<HTMLDivElement>) => {
-      if (event.button !== 0) return
+      if (event.button !== 0) return;
 
       // React Flow updates its modifier state in an effect. A fast modified
       // click can reach node selection first and replace the existing selection.
       // Synchronize the real pointer modifier before React Flow handles it.
       reactFlowStore.setState({
         multiSelectionActive: event.shiftKey || event.ctrlKey,
-      })
+      });
     },
     [reactFlowStore],
-  )
+  );
 
   useEffect(() => {
-    if (selectedElementCount === 0) setSelectionContextMenuPoint(null)
-  }, [selectedElementCount])
+    if (selectedElementCount === 0) setSelectionContextMenuPoint(null);
+  }, [selectedElementCount]);
 
   // Use handlers hook
   const {
@@ -211,7 +219,6 @@ export default function CompromiseCanvas() {
     handleClear,
     handleStartFromScratch,
     handleFitView,
-    handleToggleGrid,
     handleLoadTemplate,
     handleSaveAsTemplate,
     handleToggleTemplatePanel,
@@ -224,7 +231,6 @@ export default function CompromiseCanvas() {
     handleHighlightEdge,
     handleSelectEdge,
     handleAutoAlign,
-
   } = useCompromiseCanvasHandlers({
     reactFlowInstance,
     nodes,
@@ -245,59 +251,76 @@ export default function CompromiseCanvas() {
     reset,
     fitView,
     toast,
-  })
+  });
 
   // Change an edge's action type (updates its color/icon), undo-safe via updateEdge
   const handleSetEdgeActionType = useCallback(
     (id: string, actionType: EdgeActionType) => updateEdge(id, { actionType }),
     [updateEdge],
-  )
+  );
 
   // Reposition an edge's control point (dropped after a drag), undo-safe via updateEdge
   const handleSetEdgeLabelOffset = useCallback(
     (id: string, x: number, y: number) => updateEdge(id, { labelOffsetX: x, labelOffsetY: y }),
     [updateEdge],
-  )
+  );
 
   // Toggle whether an edge is unlocked for manual routing, undo-safe via updateEdge
   const handleToggleEdgeUnlocked = useCallback(
     (id: string) => {
-      const edge = edges.find((e) => e.id === id)
-      updateEdge(id, { unlocked: !edge?.data?.unlocked })
+      const edge = edges.find((e) => e.id === id);
+      updateEdge(id, { unlocked: !edge?.data?.unlocked });
     },
     [edges, updateEdge],
-  )
+  );
 
   // Memoize edge types to prevent recreation on every render during dragging
   const edgeTypes = useMemo(
-    () => createEdgeTypes(animationsEnabled, selectedElement, deleteEdgeById, handleSetEdgeActionType, handleSelectEdge, handleSetEdgeLabelOffset, handleToggleEdgeUnlocked),
-    [animationsEnabled, selectedElement, deleteEdgeById, handleSetEdgeActionType, handleSelectEdge, handleSetEdgeLabelOffset, handleToggleEdgeUnlocked],
-  )
+    () =>
+      createEdgeTypes(
+        animationsEnabled,
+        selectedElement,
+        deleteEdgeById,
+        handleSetEdgeActionType,
+        handleSelectEdge,
+        handleSetEdgeLabelOffset,
+        handleToggleEdgeUnlocked,
+      ),
+    [
+      animationsEnabled,
+      selectedElement,
+      deleteEdgeById,
+      handleSetEdgeActionType,
+      handleSelectEdge,
+      handleSetEdgeLabelOffset,
+      handleToggleEdgeUnlocked,
+    ],
+  );
 
   const copySelection = useCallback(() => {
-    if (!handleCopy()) return
+    if (!handleCopy()) return;
     toast({
-      title: "Copied",
-      description: "Selected nodes and their internal connections were copied.",
-      variant: "default",
-    })
-  }, [handleCopy, toast])
+      title: 'Copied',
+      description: 'Selected nodes and their internal connections were copied.',
+      variant: 'default',
+    });
+  }, [handleCopy, toast]);
 
   // Keyboard event listener for Delete/Backspace and Undo/Redo
   useEffect(() => {
-    return setupKeyboardHandlers(handleDeleteSelected)
-  }, [setupKeyboardHandlers, handleDeleteSelected])
+    return setupKeyboardHandlers(handleDeleteSelected);
+  }, [setupKeyboardHandlers, handleDeleteSelected]);
 
   // Show mobile warning if on mobile and not dismissed
   if (isMobile && showMobileWarning && !dismissedMobileWarning) {
     return (
       <MobileWarning
         onDismiss={() => {
-          setDismissedMobileWarning(true)
-          setShowMobileWarning(false)
+          setDismissedMobileWarning(true);
+          setShowMobileWarning(false);
         }}
       />
-    )
+    );
   }
 
   return (
@@ -329,7 +352,9 @@ export default function CompromiseCanvas() {
         animationsEnabled={animationsEnabled}
         canUndo={canUndo}
         canRedo={canRedo}
-        canCopy={nodes.some((n) => n.selected) || edges.some((e) => e.selected) || selectedElement !== null}
+        canCopy={
+          nodes.some((n) => n.selected) || edges.some((e) => e.selected) || selectedElement !== null
+        }
         canPaste={hasClipboardData()}
         autosaveEnabled={autosaveEnabled}
         autosaveStatus={autosaveStatus}
@@ -348,8 +373,11 @@ export default function CompromiseCanvas() {
         ) : (
           <AssetLibrary />
         )}
-        <div className="flex-1 relative" ref={reactFlowWrapper}>
-          <CanvasActionsProvider updateNode={updateNode} multiSelectionActive={multiSelectionActive}>
+        <div className="relative flex-1" ref={reactFlowWrapper}>
+          <CanvasActionsProvider
+            updateNode={updateNode}
+            multiSelectionActive={multiSelectionActive}
+          >
             <ReactFlow
               nodes={renderedNodes}
               edges={edges}
@@ -362,8 +390,8 @@ export default function CompromiseCanvas() {
               nodeTypes={nodeTypes}
               edgeTypes={edgeTypes}
               defaultEdgeOptions={{
-                type: "smoothstep",
-                style: { strokeWidth: 2, stroke: "#8B5CF6", strokeDasharray: "5 5" },
+                type: 'smoothstep',
+                style: { strokeWidth: 2, stroke: '#8B5CF6', strokeDasharray: '5 5' },
                 animated: false,
               }}
               fitView
@@ -389,7 +417,7 @@ export default function CompromiseCanvas() {
               selectNodesOnDrag={false}
               // Preserve the existing canvas controls: plain drag pans and
               // Shift-drag on empty canvas starts the selection marquee.
-              multiSelectionKeyCode={["Shift", "Control"]}
+              multiSelectionKeyCode={['Shift', 'Control']}
               panOnDrag={true}
               zoomOnScroll={true}
               zoomOnPinch={true}
@@ -398,8 +426,8 @@ export default function CompromiseCanvas() {
               preventScrolling={true}
               nodeOrigin={[0.5, 0.5]}
               // Disable expensive features during interaction
-              connectionLineType={"smoothstep" as any}
-              connectionLineStyle={{ strokeWidth: 2, stroke: "#8B5CF6" }}
+              connectionLineType={'smoothstep' as any}
+              connectionLineStyle={{ strokeWidth: 2, stroke: '#8B5CF6' }}
               deleteKeyCode={null}
             >
               {multiSelectionActive && (
@@ -420,13 +448,13 @@ export default function CompromiseCanvas() {
                 </Panel>
               )}
               <Controls />
-              <Background variant={"dots" as any} gap={12} size={1} color="#4B5563" />
+              <Background variant={'dots' as any} gap={12} size={1} color="#4B5563" />
               <Panel position="top-left" className="z-10 p-2 text-sm text-gray-400">
                 <CanvasTitle title={canvasTitle} onTitleChange={setCanvasTitle} />
                 <div className="mt-2">
                   {nodes.length === 0 && edges.length === 0
-                    ? "Start by dragging assets from the left panel or open a template."
-                    : "Drag to pan. Hold Shift and drag to select."}
+                    ? 'Start by dragging assets from the left panel or open a template.'
+                    : 'Drag to pan. Hold Shift and drag to select.'}
                 </div>
               </Panel>
               <Panel position="bottom-right" className="p-2 text-xs text-gray-500">
@@ -495,5 +523,5 @@ export default function CompromiseCanvas() {
       {/* Data Handling Modal */}
       <DataHandlingModal isOpen={showDataHandlingModal} onClose={handleCloseDataHandling} />
     </div>
-  )
+  );
 }

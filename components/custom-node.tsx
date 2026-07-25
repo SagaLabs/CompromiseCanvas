@@ -1,7 +1,11 @@
-import { memo, useMemo, useState, useCallback, useRef, useEffect } from "react"
-import { Handle, Position, NodeResizer, type Node, type NodeProps, useReactFlow } from "@xyflow/react"
-import NodeToolbar from "./node-toolbar"
-import { useCanvasActions } from "./canvas-actions-context"
+import {
+  Handle,
+  Position,
+  NodeResizer,
+  type Node,
+  type NodeProps,
+  useReactFlow,
+} from '@xyflow/react';
 import {
   Server,
   Database,
@@ -25,7 +29,6 @@ import {
   Radio,
   Skull,
   HelpCircle,
-
   AlertTriangle,
   UserX,
   Cloud,
@@ -39,92 +42,102 @@ import {
   Video,
   Clock,
   CheckCircle,
-} from "lucide-react"
-import type { NodeData, Criticality, InvestigationStatus } from "@/lib/types"
-import { cn } from "@/lib/utils"
+} from 'lucide-react';
+import { memo, useMemo, useState, useCallback, useRef, useEffect } from 'react';
+
+import type { NodeData, Criticality, InvestigationStatus } from '@/lib/types';
+import { cn } from '@/lib/utils';
+
+import { useCanvasActions } from './canvas-actions-context';
+import NodeToolbar from './node-toolbar';
 
 const assetIcons = {
-  "web-server": Server,
+  'web-server': Server,
   database: Database,
   workstation: Laptop,
-  "domain-controller": Shield,
+  'domain-controller': Shield,
   firewall: Router, // Using Router for Firewall as it's network-related
-  "vpn-gateway": Lock,
+  'vpn-gateway': Lock,
   router: Router,
-  "email-server": Mail,
-  "file-server": Folder,
+  'email-server': Mail,
+  'file-server': Folder,
   identity: UserCheck,
   exfiltration: Upload,
-  "command-control": Radio,
+  'command-control': Radio,
   attacker: UserX,
-  "cloud-instance": Cloud,
-  "cloud-storage": HardDrive,
-  "cloud-database": Database,
-  "cloud-load-balancer": Loader,
-  "cloud-container": Box,
-  "cloud-function": Zap,
-  "cloud-kubernetes": Layers,
-  "cloud-tenant": Building2,
-  "cloud-email": Mail,
-  "cloud-productivity-storage": Folder,
-  "cloud-collaboration": MessageSquare,
-  "cloud-calendar": Calendar,
-  "cloud-video": Video,
+  'cloud-instance': Cloud,
+  'cloud-storage': HardDrive,
+  'cloud-database': Database,
+  'cloud-load-balancer': Loader,
+  'cloud-container': Box,
+  'cloud-function': Zap,
+  'cloud-kubernetes': Layers,
+  'cloud-tenant': Building2,
+  'cloud-email': Mail,
+  'cloud-productivity-storage': Folder,
+  'cloud-collaboration': MessageSquare,
+  'cloud-calendar': Calendar,
+  'cloud-video': Video,
   group: Users,
   other: HelpCircle,
-}
+};
 
 const criticalityColors: Record<Criticality, string> = {
-  Low: "bg-green-500",
-  Medium: "bg-yellow-500",
-  High: "bg-orange-500",
-  Critical: "bg-red-500",
-}
+  Low: 'bg-green-500',
+  Medium: 'bg-yellow-500',
+  High: 'bg-orange-500',
+  Critical: 'bg-red-500',
+};
 
 const actionIcons = {
-  "Initial Access": Key,
-  "Lateral Movement": MoveRight,
-  "Privilege Escalation": ArrowUpCircle,
+  'Initial Access': Key,
+  'Lateral Movement': MoveRight,
+  'Privilege Escalation': ArrowUpCircle,
   Persistence: HardDrive,
-  "Defense Evasion": Shield,
-  "Credential Access": Key,
+  'Defense Evasion': Shield,
+  'Credential Access': Key,
   Discovery: Eye,
   Collection: Folder,
   Exfiltration: Upload,
-  "Command and Control": Terminal,
+  'Command and Control': Terminal,
   Impact: Zap,
   Other: Info,
-}
+};
 
-const CustomNode = memo(function CustomNode({ data, isConnectable, selected, id }: NodeProps<Node<NodeData>>) {
-  const { setNodes } = useReactFlow()
-  const { updateNode, multiSelectionActive } = useCanvasActions()
-  const Icon = assetIcons[data.type] || ServerCog // Default icon
-  const CriticalityColorClass = criticalityColors[data.criticality] || "bg-gray-500"
+const CustomNode = memo(function CustomNode({
+  data,
+  isConnectable,
+  selected,
+  id,
+}: NodeProps<Node<NodeData>>) {
+  const { setNodes } = useReactFlow();
+  const { updateNode, multiSelectionActive } = useCanvasActions();
+  const Icon = assetIcons[data.type] || ServerCog; // Default icon
+  const CriticalityColorClass = criticalityColors[data.criticality] || 'bg-gray-500';
 
   // Memoize node className to avoid repeated conditional evaluation
   const nodeClassName = useMemo(() => {
-    if (data.type === "attacker") {
-      return "ip-attacker shadow-lg"
+    if (data.type === 'attacker') {
+      return 'ip-attacker shadow-lg';
     }
     if (data.isCompromised) {
-      return "bg-red-900/30 border-red-500/50"
+      return 'bg-red-900/30 border-red-500/50';
     }
     switch (data.investigationStatus) {
-      case "Done":
-        return "bg-green-900/20 border-green-500/40"
-      case "Investigating":
-        return "bg-yellow-900/20 border-yellow-500/40"
-      case "Not Investigated":
-        return "bg-purple-900/20 border-purple-500/40"
+      case 'Done':
+        return 'bg-green-900/20 border-green-500/40';
+      case 'Investigating':
+        return 'bg-yellow-900/20 border-yellow-500/40';
+      case 'Not Investigated':
+        return 'bg-purple-900/20 border-purple-500/40';
       default:
-        return "bg-gray-800 border-gray-700"
+        return 'bg-gray-800 border-gray-700';
     }
-  }, [data.type, data.isCompromised, data.investigationStatus])
+  }, [data.type, data.isCompromised, data.investigationStatus]);
 
   // Memoize date formatting for attacker nodes
   const formattedDates = useMemo(() => {
-    if (data.type !== "attacker" || !data.attackerData) return null
+    if (data.type !== 'attacker' || !data.attackerData) return null;
     return {
       lastSeen: data.attackerData.lastSeen
         ? new Date(data.attackerData.lastSeen).toLocaleDateString()
@@ -132,24 +145,29 @@ const CustomNode = memo(function CustomNode({ data, isConnectable, selected, id 
       firstSeen: data.attackerData.firstSeen
         ? new Date(data.attackerData.firstSeen).toLocaleDateString()
         : null,
-    }
-  }, [data.type, data.attackerData?.lastSeen, data.attackerData?.firstSeen])
+    };
+  }, [data.type, data.attackerData?.lastSeen, data.attackerData?.firstSeen]);
 
   // Memoize style object to prevent recreation on every render
-  const nodeStyle = useMemo(() => ({
-    width: data.width || 'auto',
-    height: data.height || 'auto',
-    minWidth: '200px',
-    minHeight: '120px',
-  }), [data.width, data.height])
+  const nodeStyle = useMemo(
+    () => ({
+      width: data.width || 'auto',
+      height: data.height || 'auto',
+      minWidth: '200px',
+      minHeight: '120px',
+    }),
+    [data.width, data.height],
+  );
 
   const renderNodeInfo = () => {
-    if (data.type === "identity" && data.identityData) {
+    if (data.type === 'identity' && data.identityData) {
       return (
-        <div className="mt-1 text-sm text-gray-400 text-center">
+        <div className="mt-1 text-center text-sm text-gray-400">
           {data.displaySettings.showUsername && data.identityData.username && (
             <div>
-              {data.displaySettings.showDomain && data.identityData.domain && `${data.identityData.domain}\\`}
+              {data.displaySettings.showDomain &&
+                data.identityData.domain &&
+                `${data.identityData.domain}\\`}
               {data.identityData.username}
             </div>
           )}
@@ -163,16 +181,20 @@ const CustomNode = memo(function CustomNode({ data, isConnectable, selected, id 
             <div className="text-xs">Status: {data.identityData.accountStatus}</div>
           )}
           {data.displaySettings.showMfaStatus && (
-            <div className="text-xs">MFA: {data.identityData.mfaEnabled ? "Enabled" : "Disabled"}</div>
+            <div className="text-xs">
+              MFA: {data.identityData.mfaEnabled ? 'Enabled' : 'Disabled'}
+            </div>
           )}
         </div>
-      )
+      );
     }
 
-    if (data.type === "exfiltration" && data.exfiltrationData) {
+    if (data.type === 'exfiltration' && data.exfiltrationData) {
       return (
-        <div className="mt-1 text-sm text-gray-400 text-center">
-          {data.displaySettings.showMethod && data.exfiltrationData.method && <div>{data.exfiltrationData.method}</div>}
+        <div className="mt-1 text-center text-sm text-gray-400">
+          {data.displaySettings.showMethod && data.exfiltrationData.method && (
+            <div>{data.exfiltrationData.method}</div>
+          )}
           {data.displaySettings.showDestination && data.exfiltrationData.destination && (
             <div className="text-xs">{data.exfiltrationData.destination}</div>
           )}
@@ -183,17 +205,17 @@ const CustomNode = memo(function CustomNode({ data, isConnectable, selected, id 
             data.exfiltrationData.dataTypes &&
             data.exfiltrationData.dataTypes.length > 0 && (
               <div className="text-xs">
-                Types: {data.exfiltrationData.dataTypes.slice(0, 2).join(", ")}
-                {data.exfiltrationData.dataTypes.length > 2 ? "…" : ""}
+                Types: {data.exfiltrationData.dataTypes.slice(0, 2).join(', ')}
+                {data.exfiltrationData.dataTypes.length > 2 ? '…' : ''}
               </div>
             )}
         </div>
-      )
+      );
     }
 
-    if (data.type === "command-control" && data.commandControlData) {
+    if (data.type === 'command-control' && data.commandControlData) {
       return (
-        <div className="mt-1 text-sm text-gray-400 text-center">
+        <div className="mt-1 text-center text-sm text-gray-400">
           {data.displaySettings.showC2Type && data.commandControlData.c2Type && (
             <div>{data.commandControlData.c2Type}</div>
           )}
@@ -207,14 +229,14 @@ const CustomNode = memo(function CustomNode({ data, isConnectable, selected, id 
             <div className="text-xs">{data.commandControlData.implantType}</div>
           )}
         </div>
-      )
+      );
     }
 
-    if (data.type === "cloud-tenant" && data.cloudTenantData) {
+    if (data.type === 'cloud-tenant' && data.cloudTenantData) {
       return (
-        <div className="mt-1 text-sm text-gray-400 text-center">
+        <div className="mt-1 text-center text-sm text-gray-400">
           {data.displaySettings.showTenantId && data.cloudTenantData.tenantId && (
-            <div className="text-xs font-mono">{data.cloudTenantData.tenantId}</div>
+            <div className="font-mono text-xs">{data.cloudTenantData.tenantId}</div>
           )}
           {data.displaySettings.showTenantName && data.cloudTenantData.tenantName && (
             <div className="text-xs">{data.cloudTenantData.tenantName}</div>
@@ -234,31 +256,36 @@ const CustomNode = memo(function CustomNode({ data, isConnectable, selected, id 
           {data.displaySettings.showResourceCount && data.cloudTenantData.resourceCount > 0 && (
             <div className="text-xs">{data.cloudTenantData.resourceCount} resources</div>
           )}
-          {data.displaySettings.showSecurityScore && data.cloudTenantData.securityScore !== undefined && (
-            <div className="text-xs">Security: {data.cloudTenantData.securityScore}/100</div>
-          )}
+          {data.displaySettings.showSecurityScore &&
+            data.cloudTenantData.securityScore !== undefined && (
+              <div className="text-xs">Security: {data.cloudTenantData.securityScore}/100</div>
+            )}
         </div>
-      )
+      );
     }
 
-    if (data.type === "attacker" && data.attackerData) {
+    if (data.type === 'attacker' && data.attackerData) {
       return (
-        <div className="mt-1 text-sm text-gray-400 text-center">
-          {data.displaySettings.showTargetIndustries && data.attackerData.targetIndustries && data.attackerData.targetIndustries.length > 0 && (
-            <div className="text-xs">
-              Targets: {data.attackerData.targetIndustries.slice(0, 2).join(", ")}
-              {data.attackerData.targetIndustries.length > 2 ? "…" : ""}
-            </div>
-          )}
+        <div className="mt-1 text-center text-sm text-gray-400">
+          {data.displaySettings.showTargetIndustries &&
+            data.attackerData.targetIndustries &&
+            data.attackerData.targetIndustries.length > 0 && (
+              <div className="text-xs">
+                Targets: {data.attackerData.targetIndustries.slice(0, 2).join(', ')}
+                {data.attackerData.targetIndustries.length > 2 ? '…' : ''}
+              </div>
+            )}
           {data.displaySettings.showIp && data.attackerData.ip && (
             <div className="text-xs">{data.attackerData.ip}</div>
           )}
-          {data.displaySettings.showAttackVectors && data.attackerData.attackVectors && data.attackerData.attackVectors.length > 0 && (
-            <div className="text-xs">
-              Vectors: {data.attackerData.attackVectors.slice(0, 2).join(", ")}
-              {data.attackerData.attackVectors.length > 2 ? "…" : ""}
-            </div>
-          )}
+          {data.displaySettings.showAttackVectors &&
+            data.attackerData.attackVectors &&
+            data.attackerData.attackVectors.length > 0 && (
+              <div className="text-xs">
+                Vectors: {data.attackerData.attackVectors.slice(0, 2).join(', ')}
+                {data.attackerData.attackVectors.length > 2 ? '…' : ''}
+              </div>
+            )}
           {data.displaySettings.showInfrastructureAge && data.attackerData.infrastructureAge && (
             <div className="text-xs">Age: {data.attackerData.infrastructureAge}</div>
           )}
@@ -268,9 +295,10 @@ const CustomNode = memo(function CustomNode({ data, isConnectable, selected, id 
           {data.displaySettings.showFirstSeen && formattedDates?.firstSeen && (
             <div className="text-xs">First: {formattedDates.firstSeen}</div>
           )}
-          {data.displaySettings.showInfrastructureStatus && data.attackerData.infrastructureStatus && (
-            <div className="text-xs">Status: {data.attackerData.infrastructureStatus}</div>
-          )}
+          {data.displaySettings.showInfrastructureStatus &&
+            data.attackerData.infrastructureStatus && (
+              <div className="text-xs">Status: {data.attackerData.infrastructureStatus}</div>
+            )}
           {data.displaySettings.showThreatActor && data.attackerData.threatActor && (
             <div className="text-xs">{data.attackerData.threatActor}</div>
           )}
@@ -284,130 +312,136 @@ const CustomNode = memo(function CustomNode({ data, isConnectable, selected, id 
             <div className="text-xs">{data.attackerData.infrastructureType}</div>
           )}
         </div>
-      )
+      );
     }
 
     // Default display for other node types (including "other")
-    const infoItems = []
+    const infoItems = [];
 
     // Don't show hostname, IP, or OS for cloud tenant or attacker nodes
-    if (data.type !== "cloud-tenant" && data.type !== "attacker") {
+    if (data.type !== 'cloud-tenant' && data.type !== 'attacker') {
       if (data.displaySettings.showHostname && data.hostname) {
-        infoItems.push(data.hostname)
+        infoItems.push(data.hostname);
       }
 
       if (data.displaySettings.showIpAddress && data.ipAddress) {
-        infoItems.push(data.ipAddress)
+        infoItems.push(data.ipAddress);
       }
 
       if (data.displaySettings.showOs && data.os) {
-        infoItems.push(data.os)
+        infoItems.push(data.os);
       }
     }
 
     if (data.displaySettings.showServices && data.services && data.services.length > 0) {
-      infoItems.push(`Services: ${data.services.join(", ")}`)
+      infoItems.push(`Services: ${data.services.join(', ')}`);
     }
 
     if (infoItems.length === 0) {
-      return <div className="mt-1 text-sm text-gray-400">No display info</div>
+      return <div className="mt-1 text-sm text-gray-400">No display info</div>;
     }
 
     return (
-      <div className="mt-1 text-sm text-gray-400 text-center">
+      <div className="mt-1 text-center text-sm text-gray-400">
         {infoItems.map((item, index) => (
-          <div key={index} className={index > 0 ? "text-xs" : ""}>
+          <div key={index} className={index > 0 ? 'text-xs' : ''}>
             {item}
           </div>
         ))}
       </div>
-    )
-  }
+    );
+  };
 
   const renderStatusBadge = () => {
-    let statusLabel = ""
-    let statusValue = ""
-    let shouldShow = false
+    let statusLabel = '';
+    let statusValue = '';
+    let shouldShow = false;
 
-    if (data.type === "identity") {
-      statusLabel = "Risk Level:"
-      statusValue = data.identityData?.riskLevel || data.criticality
-      shouldShow = data.displaySettings.showRiskLevel
-    } else if (data.type === "exfiltration") {
-      statusLabel = "Status:"
-      statusValue = data.exfiltrationData?.status || "Planned"
-      shouldShow = data.displaySettings.showStatus
-    } else if (data.type === "command-control") {
-      statusLabel = "Status:"
-      statusValue = data.commandControlData?.operationalStatus || "Active"
-      shouldShow = data.displaySettings.showStatus
-    } else if (data.type === "attacker") {
-      statusLabel = "Status:"
-      statusValue = data.attackerData?.infrastructureStatus || "Active"
-      shouldShow = data.displaySettings.showInfrastructureStatus
+    if (data.type === 'identity') {
+      statusLabel = 'Risk Level:';
+      statusValue = data.identityData?.riskLevel || data.criticality;
+      shouldShow = data.displaySettings.showRiskLevel;
+    } else if (data.type === 'exfiltration') {
+      statusLabel = 'Status:';
+      statusValue = data.exfiltrationData?.status || 'Planned';
+      shouldShow = data.displaySettings.showStatus;
+    } else if (data.type === 'command-control') {
+      statusLabel = 'Status:';
+      statusValue = data.commandControlData?.operationalStatus || 'Active';
+      shouldShow = data.displaySettings.showStatus;
+    } else if (data.type === 'attacker') {
+      statusLabel = 'Status:';
+      statusValue = data.attackerData?.infrastructureStatus || 'Active';
+      shouldShow = data.displaySettings.showInfrastructureStatus;
     } else {
-      statusLabel = "Criticality:"
-      statusValue = data.criticality
-      shouldShow = data.displaySettings.showCriticality
+      statusLabel = 'Criticality:';
+      statusValue = data.criticality;
+      shouldShow = data.displaySettings.showCriticality;
     }
 
     if (!shouldShow) {
-      return null
+      return null;
     }
 
     return (
       <div className="mt-2 flex items-center gap-2 text-xs">
         <span className="font-medium">{statusLabel}</span>
-        <span className={cn("rounded-full px-2 py-0.5 text-white", CriticalityColorClass)}>{statusValue}</span>
+        <span className={cn('rounded-full px-2 py-0.5 text-white', CriticalityColorClass)}>
+          {statusValue}
+        </span>
       </div>
-    )
-  }
+    );
+  };
 
-  const [isHovered, setIsHovered] = useState(false)
+  const [isHovered, setIsHovered] = useState(false);
   // Keep the toolbar mounted while its status menu is open (pointer leaves the node).
-  const [menuOpen, setMenuOpen] = useState(false)
+  const [menuOpen, setMenuOpen] = useState(false);
 
   // Hover-intent: delay hiding so the pointer can travel from the node to the
   // floating toolbar without it vanishing mid-reach.
-  const hideTimer = useRef<ReturnType<typeof setTimeout> | null>(null)
+  const hideTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const showToolbar = useCallback(() => {
-    if (hideTimer.current) clearTimeout(hideTimer.current)
-    setIsHovered(true)
-  }, [])
+    if (hideTimer.current) clearTimeout(hideTimer.current);
+    setIsHovered(true);
+  }, []);
   const hideToolbar = useCallback(() => {
-    if (hideTimer.current) clearTimeout(hideTimer.current)
-    hideTimer.current = setTimeout(() => setIsHovered(false), 300)
-  }, [])
-  useEffect(() => () => {
-    if (hideTimer.current) clearTimeout(hideTimer.current)
-  }, [])
+    if (hideTimer.current) clearTimeout(hideTimer.current);
+    hideTimer.current = setTimeout(() => setIsHovered(false), 300);
+  }, []);
+  useEffect(
+    () => () => {
+      if (hideTimer.current) clearTimeout(hideTimer.current);
+    },
+    [],
+  );
 
   const toggleCompromised = useCallback(() => {
-    updateNode(id, { isCompromised: !data.isCompromised })
-  }, [data.isCompromised, id, updateNode])
+    updateNode(id, { isCompromised: !data.isCompromised });
+  }, [data.isCompromised, id, updateNode]);
 
   const setInvestigationStatus = useCallback(
     (investigationStatus: InvestigationStatus) => {
-      updateNode(id, { investigationStatus })
+      updateNode(id, { investigationStatus });
     },
     [id, updateNode],
-  )
+  );
 
   return (
     <div
       className={cn(
-        "relative flex flex-col items-center justify-center rounded-lg border px-4 py-3 shadow-md",
+        'relative flex flex-col items-center justify-center rounded-lg border px-4 py-3 shadow-md',
         nodeClassName,
-        "text-white",
-        selected && (multiSelectionActive
-          ? "ip-multi-selected border-2 border-blue-400"
-          : "animate-border-pulse border-4 border-blue-400")
+        'text-white',
+        selected &&
+          (multiSelectionActive
+            ? 'ip-multi-selected border-2 border-blue-400'
+            : 'animate-border-pulse border-4 border-blue-400'),
       )}
       style={nodeStyle}
       onMouseEnter={showToolbar}
       onMouseLeave={hideToolbar}
     >
-      {data.type !== "attacker" && !multiSelectionActive && (
+      {data.type !== 'attacker' && !multiSelectionActive && (
         <NodeToolbar
           nodeId={id}
           isVisible={isHovered || selected || menuOpen}
@@ -437,18 +471,23 @@ const CustomNode = memo(function CustomNode({ data, isConnectable, selected, id 
                     width: params.width,
                     height: params.height,
                   },
-                }
+                };
               }
-              return node
-            })
-          )
+              return node;
+            }),
+          );
         }}
       />
-      <Handle type="target" position={Position.Left} isConnectable={isConnectable} className="!bg-red-500" />
+      <Handle
+        type="target"
+        position={Position.Left}
+        isConnectable={isConnectable}
+        className="!bg-red-500"
+      />
 
       {/* Compromised indicator */}
       {data.isCompromised && (
-        <div className="absolute -top-2 -right-2 bg-red-600 rounded-full p-1">
+        <div className="absolute -right-2 -top-2 rounded-full bg-red-600 p-1">
           <Skull className="h-3 w-3 text-white" />
         </div>
       )}
@@ -456,20 +495,24 @@ const CustomNode = memo(function CustomNode({ data, isConnectable, selected, id 
       {/* Investigation status indicators */}
       {/* No Status shows no icon */}
 
-      {data.investigationStatus === "Not Investigated" && !data.isCompromised && data.type !== "attacker" && (
-        <div className="absolute -top-2 -left-2 bg-purple-600 rounded-full p-1">
-          <HelpCircle className="h-3 w-3 text-white" />
-        </div>
-      )}
+      {data.investigationStatus === 'Not Investigated' &&
+        !data.isCompromised &&
+        data.type !== 'attacker' && (
+          <div className="absolute -left-2 -top-2 rounded-full bg-purple-600 p-1">
+            <HelpCircle className="h-3 w-3 text-white" />
+          </div>
+        )}
 
-      {data.investigationStatus === "Investigating" && !data.isCompromised && data.type !== "attacker" && (
-        <div className="absolute -top-2 -left-2 bg-yellow-600 rounded-full p-1">
-          <Clock className="h-3 w-3 text-white animate-pulse" />
-        </div>
-      )}
+      {data.investigationStatus === 'Investigating' &&
+        !data.isCompromised &&
+        data.type !== 'attacker' && (
+          <div className="absolute -left-2 -top-2 rounded-full bg-yellow-600 p-1">
+            <Clock className="h-3 w-3 animate-pulse text-white" />
+          </div>
+        )}
 
-      {data.investigationStatus === "Done" && !data.isCompromised && data.type !== "attacker" && (
-        <div className="absolute -top-2 -left-2 bg-green-600 rounded-full p-1">
+      {data.investigationStatus === 'Done' && !data.isCompromised && data.type !== 'attacker' && (
+        <div className="absolute -left-2 -top-2 rounded-full bg-green-600 p-1">
           <CheckCircle className="h-3 w-3 text-white" />
         </div>
       )}
@@ -477,37 +520,59 @@ const CustomNode = memo(function CustomNode({ data, isConnectable, selected, id 
       {/* Combined indicators when both investigated and compromised */}
       {/* No Status shows no icon even when compromised */}
 
-      {data.investigationStatus === "Not Investigated" && data.isCompromised && data.type !== "attacker" && (
-        <div className="absolute -top-2 -left-2 bg-purple-600 rounded-full p-1">
-          <HelpCircle className="h-3 w-3 text-white" />
-        </div>
-      )}
+      {data.investigationStatus === 'Not Investigated' &&
+        data.isCompromised &&
+        data.type !== 'attacker' && (
+          <div className="absolute -left-2 -top-2 rounded-full bg-purple-600 p-1">
+            <HelpCircle className="h-3 w-3 text-white" />
+          </div>
+        )}
 
-      {data.investigationStatus === "Investigating" && data.isCompromised && data.type !== "attacker" && (
-        <div className="absolute -top-2 -left-2 bg-yellow-600 rounded-full p-1">
-          <Clock className="h-3 w-3 text-white animate-pulse" />
-        </div>
-      )}
+      {data.investigationStatus === 'Investigating' &&
+        data.isCompromised &&
+        data.type !== 'attacker' && (
+          <div className="absolute -left-2 -top-2 rounded-full bg-yellow-600 p-1">
+            <Clock className="h-3 w-3 animate-pulse text-white" />
+          </div>
+        )}
 
-      {data.investigationStatus === "Done" && data.isCompromised && data.type !== "attacker" && (
-        <div className="absolute -top-2 -left-2 bg-green-600 rounded-full p-1">
+      {data.investigationStatus === 'Done' && data.isCompromised && data.type !== 'attacker' && (
+        <div className="absolute -left-2 -top-2 rounded-full bg-green-600 p-1">
           <CheckCircle className="h-3 w-3 text-white" />
         </div>
       )}
 
       {/* Attacker threat indicator */}
-      {data.type === "attacker" && (
-        <div className={cn(
-          "absolute bg-orange-600 rounded-full p-1 animate-pulse",
-          data.investigationStatus !== "Not Investigated" ? "-bottom-2 -left-2" : "-top-2 -left-2"
-        )}>
+      {data.type === 'attacker' && (
+        <div
+          className={cn(
+            'absolute bg-orange-600 rounded-full p-1 animate-pulse',
+            data.investigationStatus !== 'Not Investigated'
+              ? '-bottom-2 -left-2'
+              : '-top-2 -left-2',
+          )}
+        >
           <AlertTriangle className="h-3 w-3 text-white" />
         </div>
       )}
 
       <div className="flex items-center gap-2">
-        {Icon && <Icon className={cn("h-6 w-6", data.type === "attacker" ? "text-orange-400" : "text-blue-400")} />}
-        <div className={cn("text-lg font-semibold", data.type === "attacker" ? "text-orange-100" : "text-white")}>{data.label}</div>
+        {Icon && (
+          <Icon
+            className={cn(
+              'h-6 w-6',
+              data.type === 'attacker' ? 'text-orange-400' : 'text-blue-400',
+            )}
+          />
+        )}
+        <div
+          className={cn(
+            'text-lg font-semibold',
+            data.type === 'attacker' ? 'text-orange-100' : 'text-white',
+          )}
+        >
+          {data.label}
+        </div>
       </div>
 
       {renderNodeInfo()}
@@ -516,7 +581,9 @@ const CustomNode = memo(function CustomNode({ data, isConnectable, selected, id 
       {data.displaySettings.showDescription && data.description && (
         <div className="mt-2 w-full text-left text-xs text-gray-400">
           <div className="font-medium text-gray-300">Description:</div>
-          <div className="text-xs text-gray-400 break-words whitespace-pre-wrap overflow-hidden max-w-full">{data.description}</div>
+          <div className="max-w-full overflow-hidden whitespace-pre-wrap break-words text-xs text-gray-400">
+            {data.description}
+          </div>
         </div>
       )}
 
@@ -525,7 +592,7 @@ const CustomNode = memo(function CustomNode({ data, isConnectable, selected, id 
           <div className="font-medium text-gray-300">Actions:</div>
           <ul className="list-inside list-none space-y-1">
             {data.actions.map((action) => {
-              const ActionIcon = actionIcons[action.type] || Info
+              const ActionIcon = actionIcons[action.type] || Info;
               return (
                 <li key={action.id} className="flex items-center gap-1">
                   <ActionIcon className="h-3 w-3 text-purple-400" />
@@ -533,14 +600,19 @@ const CustomNode = memo(function CustomNode({ data, isConnectable, selected, id 
                     {action.type}: {action.technique}
                   </span>
                 </li>
-              )
+              );
             })}
           </ul>
         </div>
       )}
-      <Handle type="source" position={Position.Right} isConnectable={isConnectable} className="!bg-red-500" />
+      <Handle
+        type="source"
+        position={Position.Right}
+        isConnectable={isConnectable}
+        className="!bg-red-500"
+      />
     </div>
-  )
-})
+  );
+});
 
-export default CustomNode
+export default CustomNode;

@@ -82,6 +82,7 @@ Run checks proportional to the change and report exactly what passed or failed.
 
 ```bash
 pnpm exec tsc --noEmit
+pnpm run fmt:check
 pnpm run test:mitre
 pnpm run test:selection
 pnpm exec playwright test
@@ -93,7 +94,7 @@ Known baseline at the time this file was written:
 
 - Unit tests cover the MITRE catalog and selection layout, and Playwright covers core canvas flows.
 - `pnpm run build` succeeds, but the active Next config explicitly skips type validation and linting; a green build is not a full correctness check.
-- `pnpm run lint` currently fails in the deprecated `next lint` path with the installed flat ESLint configuration.
+- Oxfmt formats supported source and documentation files; the generated MITRE catalog is intentionally excluded.
 
 Do not hide new failures behind those baselines. For a touched area, run the closest available static check and manually exercise the relevant browser flow. A canvas/state change should normally smoke-test: add and connect assets, edit node/edge properties, select/delete, copy/paste, undo/redo, save/load, JSON round-trip, template load, incident-log/timeline behavior, and any affected export. Also check an empty canvas and malformed or older imported data where relevant.
 
