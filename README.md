@@ -39,8 +39,8 @@ Compromise Canvas helps cybersecurity professionals visualize attack paths, docu
 
 ### Prerequisites
 
-- Node.js 18+
-- npm, yarn, or pnpm
+- Node.js 22.13+
+- pnpm
 
 ### Installation
 
@@ -50,10 +50,10 @@ git clone https://github.com/SagaLabs/CompromiseCanvas.git
 cd CompromiseCanvas
 
 # Install dependencies
-npm install
+pnpm install
 
 # Start development server
-npm run dev
+pnpm run dev
 ```
 
 Open [http://localhost:3000](http://localhost:3000) in your browser.
@@ -61,8 +61,8 @@ Open [http://localhost:3000](http://localhost:3000) in your browser.
 ### Build for Production
 
 ```bash
-npm run build
-npm run start
+pnpm run build
+pnpm run start
 ```
 
 ## Usage

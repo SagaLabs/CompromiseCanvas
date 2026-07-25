@@ -7,7 +7,7 @@ revoked and deprecated objects are omitted.
 Refresh the catalog with:
 
 ```sh
-npm run update:mitre
+pnpm run update:mitre
 ```
 
 Source: https://github.com/mitre-attack/attack-stix-data
