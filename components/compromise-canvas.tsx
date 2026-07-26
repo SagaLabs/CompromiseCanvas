@@ -144,6 +144,7 @@ export default function CompromiseCanvas() {
     () => nodes.map((node) => ({
       ...node,
       className: [node.className, "nokey"].filter(Boolean).join(" "),
+      connectable: node.type !== "labeledGroupNode",
     })),
     [nodes],
   )

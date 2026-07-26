@@ -59,25 +59,30 @@ const GroupNode = memo(function GroupNode({ data, selected }: NodeProps<Node<Nod
           </div>
         )}
 
+        {/* Keep non-interactive anchors so routes in older saved canvases still render. */}
         <Handle
           type="target"
           position={Position.Top}
-          className={cn("!border-2 !border-background !w-3 !h-3", styles.handle.replace("border-", "!bg-"))}
+          isConnectable={false}
+          className="!pointer-events-none !opacity-0"
         />
         <Handle
           type="source"
           position={Position.Bottom}
-          className={cn("!border-2 !border-background !w-3 !h-3", styles.handle.replace("border-", "!bg-"))}
+          isConnectable={false}
+          className="!pointer-events-none !opacity-0"
         />
         <Handle
           type="target"
           position={Position.Left}
-          className={cn("!border-2 !border-background !w-3 !h-3", styles.handle.replace("border-", "!bg-"))}
+          isConnectable={false}
+          className="!pointer-events-none !opacity-0"
         />
         <Handle
           type="source"
           position={Position.Right}
-          className={cn("!border-2 !border-background !w-3 !h-3", styles.handle.replace("border-", "!bg-"))}
+          isConnectable={false}
+          className="!pointer-events-none !opacity-0"
         />
       </div>
       <NodeResizer
