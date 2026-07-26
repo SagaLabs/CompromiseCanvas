@@ -501,6 +501,9 @@ test("right-clicking one asset selects it and opens the shared actions menu", as
   await expectSelectedNodes(page, ["a"])
   await expect(menu.getByRole("menuitem", { name: "Copy selection" })).toBeVisible()
   await expect(menu.getByRole("menuitem", { name: "Delete selection" })).toBeVisible()
+  const arrangeSelection = menu.getByRole("menuitem", { name: "Arrange selection" })
+  await expect(arrangeSelection).toBeDisabled()
+  await expect(arrangeSelection).toHaveCSS("opacity", "0.5")
 
   await page.keyboard.press("Escape")
   await node(page, "b").click({ button: "right" })
