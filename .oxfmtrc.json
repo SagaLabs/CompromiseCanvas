@@ -1,0 +1,9 @@
+{
+  "$schema": "./node_modules/oxfmt/configuration_schema.json",
+  "ignorePatterns": ["lib/data/mitre-enterprise-techniques.json"],
+  "printWidth": 100,
+  "sortImports": true,
+  "singleQuote": true,
+  "jsxSingleQuote": false,
+  "sortTailwindcss": true
+}

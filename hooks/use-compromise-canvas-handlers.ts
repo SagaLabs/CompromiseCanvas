@@ -1,36 +1,47 @@
-import { useCallback } from "react"
-import type { ReactFlowInstance, FitViewOptions } from "@xyflow/react"
-import type { CustomNode, CustomEdge } from "@/lib/types"
-import type { Template } from "@/components/template-panel"
-import { defaultDisplaySettings, LAYER_Z_INDEX, FIT_VIEW_OPTIONS } from "@/lib/utils/compromise-canvas-constants"
-import { calculateAutoAlignedPositions } from "@/lib/utils/compromise-canvas-utils"
+import type { ReactFlowInstance, FitViewOptions } from '@xyflow/react';
+import { useCallback } from 'react';
+
+import type { Template } from '@/components/template-panel';
+import type { CustomNode, CustomEdge } from '@/lib/types';
+import {
+  defaultDisplaySettings,
+  LAYER_Z_INDEX,
+  FIT_VIEW_OPTIONS,
+} from '@/lib/utils/compromise-canvas-constants';
+import { calculateAutoAlignedPositions } from '@/lib/utils/compromise-canvas-utils';
 
 interface UseCompromiseCanvasHandlersProps {
-  reactFlowInstance: ReactFlowInstance | null
-  nodes: CustomNode[]
-  edges: CustomEdge[]
-  canvasTitle: string
-  incidentLog: any[]
-  setNodes: (nodes: CustomNode[]) => void
-  setEdges: (edges: CustomEdge[]) => void
-  updateNodes: (nodesOrUpdater: CustomNode[] | ((nodes: CustomNode[]) => CustomNode[])) => void
-  setSelectedElement: (element: CustomNode | CustomEdge | null) => void
-  setShowTemplatePanel: (show: boolean | ((prev: boolean) => boolean)) => void
-  setShowTimelinePanel: (show: boolean | ((prev: boolean) => boolean)) => void
-  setShowDataHandlingModal: (show: boolean | ((prev: boolean) => boolean)) => void
-  setAnimationsEnabled: (enabled: boolean | ((prev: boolean) => boolean)) => void
-  setSnapToGrid: (enabled: boolean | ((prev: boolean) => boolean)) => void
-  setCanvasTitle: (title: string) => void
-  setIncidentLog: (log: any[] | ((prev: any[]) => any[])) => void
-  reset: (state: { nodes: CustomNode[]; edges: CustomEdge[] }) => void
-  fitView: (options?: FitViewOptions) => void
-  toast: (options: any) => void
+  reactFlowInstance: ReactFlowInstance | null;
+  nodes: CustomNode[];
+  edges: CustomEdge[];
+  canvasTitle: string;
+  incidentLog: any[];
+  setNodes: (nodes: CustomNode[]) => void;
+  setEdges: (edges: CustomEdge[]) => void;
+  updateNodes: (nodesOrUpdater: CustomNode[] | ((nodes: CustomNode[]) => CustomNode[])) => void;
+  setSelectedElement: (element: CustomNode | CustomEdge | null) => void;
+  setShowTemplatePanel: (show: boolean | ((prev: boolean) => boolean)) => void;
+  setShowTimelinePanel: (show: boolean | ((prev: boolean) => boolean)) => void;
+  setShowDataHandlingModal: (show: boolean | ((prev: boolean) => boolean)) => void;
+  setAnimationsEnabled: (enabled: boolean | ((prev: boolean) => boolean)) => void;
+  setSnapToGrid: (enabled: boolean | ((prev: boolean) => boolean)) => void;
+  setCanvasTitle: (title: string) => void;
+  setIncidentLog: (log: any[] | ((prev: any[]) => any[])) => void;
+  reset: (state: { nodes: CustomNode[]; edges: CustomEdge[] }) => void;
+  fitView: (options?: FitViewOptions) => void;
+  toast: (options: any) => void;
 }
 
-const withoutTransientSelection = ({ nodes, edges }: { nodes: CustomNode[]; edges: CustomEdge[] }) => ({
+const withoutTransientSelection = ({
+  nodes,
+  edges,
+}: {
+  nodes: CustomNode[];
+  edges: CustomEdge[];
+}) => ({
   nodes: nodes.map(({ selected: _selected, dragging: _dragging, ...node }) => node as CustomNode),
   edges: edges.map(({ selected: _selected, ...edge }) => edge as CustomEdge),
-})
+});
 
 export const useCompromiseCanvasHandlers = ({
   reactFlowInstance,
@@ -55,28 +66,31 @@ export const useCompromiseCanvasHandlers = ({
 }: UseCompromiseCanvasHandlersProps) => {
   const handleSave = useCallback(() => {
     if (reactFlowInstance) {
-      const flow = reactFlowInstance.toObject()
-      const graph = withoutTransientSelection({ nodes: flow.nodes as CustomNode[], edges: flow.edges as CustomEdge[] })
+      const flow = reactFlowInstance.toObject();
+      const graph = withoutTransientSelection({
+        nodes: flow.nodes as CustomNode[],
+        edges: flow.edges as CustomEdge[],
+      });
       const saveData = {
         ...flow,
         ...graph,
         canvasTitle: canvasTitle,
         incidentLog: incidentLog,
-      }
-      localStorage.setItem("compromise-canvas-flow", JSON.stringify(saveData))
+      };
+      localStorage.setItem('compromise-canvas-flow', JSON.stringify(saveData));
       toast({
-        title: "Saved Successfully",
-        description: "Compromise Canvas diagram saved to browser storage",
-        variant: "default",
-      })
+        title: 'Saved Successfully',
+        description: 'Compromise Canvas diagram saved to browser storage',
+        variant: 'default',
+      });
     }
-  }, [reactFlowInstance, canvasTitle, incidentLog])
+  }, [reactFlowInstance, canvasTitle, incidentLog]);
 
   const handleLoad = useCallback(() => {
-    const flowString = localStorage.getItem("compromise-canvas-flow")
+    const flowString = localStorage.getItem('compromise-canvas-flow');
     if (flowString) {
-      const flow = JSON.parse(flowString)
-        if (flow.nodes && flow.edges) {
+      const flow = JSON.parse(flowString);
+      if (flow.nodes && flow.edges) {
         // Ensure all nodes have display settings and compromised status
         const nodesWithDisplaySettings = flow.nodes.map((node: any) => ({
           ...node,
@@ -86,24 +100,27 @@ export const useCompromiseCanvasHandlers = ({
             isCompromised: node.data.isCompromised || false,
           },
           // Enforce z-index layering
-          zIndex: node.type === "labeledGroupNode" ? LAYER_Z_INDEX.GROUP : LAYER_Z_INDEX.NODE,
+          zIndex: node.type === 'labeledGroupNode' ? LAYER_Z_INDEX.GROUP : LAYER_Z_INDEX.NODE,
           selected: false,
           dragging: false,
-        }))
-        const newNodes = nodesWithDisplaySettings || []
-        const newEdges = (flow.edges || []).map((edge: CustomEdge) => ({ ...edge, selected: false }))
-        setNodes(newNodes)
-        setEdges(newEdges)
-        setSelectedElement(null)
+        }));
+        const newNodes = nodesWithDisplaySettings || [];
+        const newEdges = (flow.edges || []).map((edge: CustomEdge) => ({
+          ...edge,
+          selected: false,
+        }));
+        setNodes(newNodes);
+        setEdges(newEdges);
+        setSelectedElement(null);
         // Reset undo/redo history when loading
-        reset({ nodes: newNodes, edges: newEdges })
+        reset({ nodes: newNodes, edges: newEdges });
 
         // Load canvas title if available
         if (flow.canvasTitle) {
-          setCanvasTitle(flow.canvasTitle)
+          setCanvasTitle(flow.canvasTitle);
         }
         if (flow.incidentLog) {
-          setIncidentLog(flow.incidentLog)
+          setIncidentLog(flow.incidentLog);
         }
 
         // Auto-align after loading disabled - user can manually align
@@ -112,26 +129,29 @@ export const useCompromiseCanvasHandlers = ({
         // }, 100)
 
         toast({
-          title: "Loaded Successfully",
-          description: "Compromise Canvas diagram loaded from browser storage",
-          variant: "default",
-        })
+          title: 'Loaded Successfully',
+          description: 'Compromise Canvas diagram loaded from browser storage',
+          variant: 'default',
+        });
       }
     } else {
       toast({
-        title: "Load Failed",
-        description: "No saved Compromise Canvas diagram found in browser storage",
-        variant: "destructive",
-      })
+        title: 'Load Failed',
+        description: 'No saved Compromise Canvas diagram found in browser storage',
+        variant: 'destructive',
+      });
     }
-  }, [setNodes, setEdges, setSelectedElement, reset, setCanvasTitle, setIncidentLog, toast])
+  }, [setNodes, setEdges, setSelectedElement, reset, setCanvasTitle, setIncidentLog, toast]);
 
   const handleSaveAsJSON = useCallback(() => {
     if (reactFlowInstance) {
-      const flow = reactFlowInstance.toObject()
-      const graph = withoutTransientSelection({ nodes: flow.nodes as CustomNode[], edges: flow.edges as CustomEdge[] })
+      const flow = reactFlowInstance.toObject();
+      const graph = withoutTransientSelection({
+        nodes: flow.nodes as CustomNode[],
+        edges: flow.edges as CustomEdge[],
+      });
       const jsonData = {
-        version: "1.0",
+        version: '1.0',
         timestamp: new Date().toISOString(),
         canvasTitle: canvasTitle,
         incidentLog: incidentLog,
@@ -140,39 +160,39 @@ export const useCompromiseCanvasHandlers = ({
           edges: graph.edges,
           viewport: flow.viewport,
         },
-      }
+      };
 
-      const dataStr = JSON.stringify(jsonData, null, 2)
-      const dataBlob = new Blob([dataStr], { type: "application/json" })
-      const url = URL.createObjectURL(dataBlob)
+      const dataStr = JSON.stringify(jsonData, null, 2);
+      const dataBlob = new Blob([dataStr], { type: 'application/json' });
+      const url = URL.createObjectURL(dataBlob);
 
-      const link = document.createElement("a")
-      link.href = url
-      link.download = `compromise-canvas-diagram-${new Date().toISOString().split("T")[0]}.json`
-      document.body.appendChild(link)
-      link.click()
-      document.body.removeChild(link)
-      URL.revokeObjectURL(url)
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = `compromise-canvas-diagram-${new Date().toISOString().split('T')[0]}.json`;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      URL.revokeObjectURL(url);
 
-      alert("Diagram exported as JSON file!")
+      alert('Diagram exported as JSON file!');
     }
-  }, [reactFlowInstance, canvasTitle, incidentLog])
+  }, [reactFlowInstance, canvasTitle, incidentLog]);
 
   const handleImportJSON = useCallback(() => {
-    const input = document.createElement("input")
-    input.type = "file"
-    input.accept = ".json"
+    const input = document.createElement('input');
+    input.type = 'file';
+    input.accept = '.json';
     input.onchange = (event) => {
-      const file = (event.target as HTMLInputElement).files?.[0]
+      const file = (event.target as HTMLInputElement).files?.[0];
       if (file) {
-        const reader = new FileReader()
+        const reader = new FileReader();
         reader.onload = (e) => {
           try {
-            const jsonData = JSON.parse(e.target?.result as string)
+            const jsonData = JSON.parse(e.target?.result as string);
 
             // Validate JSON structure
             if (!jsonData.diagram || !jsonData.diagram.nodes || !jsonData.diagram.edges) {
-              throw new Error("Invalid diagram format")
+              throw new Error('Invalid diagram format');
             }
 
             // Ensure all nodes have display settings and compromised status
@@ -185,122 +205,144 @@ export const useCompromiseCanvasHandlers = ({
               },
               selected: false,
               dragging: false,
-            }))
-            const importedEdges = jsonData.diagram.edges.map((edge: CustomEdge) => ({ ...edge, selected: false }))
+            }));
+            const importedEdges = jsonData.diagram.edges.map((edge: CustomEdge) => ({
+              ...edge,
+              selected: false,
+            }));
 
             if (nodes.length > 0 || edges.length > 0) {
-              if (window.confirm("Importing will replace the current diagram. Continue?")) {
-                setNodes(nodesWithDisplaySettings)
-                setEdges(importedEdges)
-                setSelectedElement(null)
+              if (window.confirm('Importing will replace the current diagram. Continue?')) {
+                setNodes(nodesWithDisplaySettings);
+                setEdges(importedEdges);
+                setSelectedElement(null);
                 // Reset undo/redo history when importing
-                reset({ nodes: nodesWithDisplaySettings, edges: importedEdges })
+                reset({ nodes: nodesWithDisplaySettings, edges: importedEdges });
 
                 // Load canvas title if available
                 if (jsonData.canvasTitle) {
-                  setCanvasTitle(jsonData.canvasTitle)
+                  setCanvasTitle(jsonData.canvasTitle);
                 }
                 if (jsonData.incidentLog) {
-                  setIncidentLog(jsonData.incidentLog)
+                  setIncidentLog(jsonData.incidentLog);
                 }
 
                 // Apply viewport if available
                 if (jsonData.diagram.viewport && reactFlowInstance) {
                   setTimeout(() => {
-                    reactFlowInstance.setViewport(jsonData.diagram.viewport)
-                  }, 100)
+                    reactFlowInstance.setViewport(jsonData.diagram.viewport);
+                  }, 100);
                 }
 
-                alert("Diagram imported successfully!")
+                alert('Diagram imported successfully!');
               }
             } else {
-              setNodes(nodesWithDisplaySettings)
-              setEdges(importedEdges)
-              setSelectedElement(null)
+              setNodes(nodesWithDisplaySettings);
+              setEdges(importedEdges);
+              setSelectedElement(null);
               // Reset undo/redo history when importing
-              reset({ nodes: nodesWithDisplaySettings, edges: importedEdges })
+              reset({ nodes: nodesWithDisplaySettings, edges: importedEdges });
 
               // Load canvas title if available
               if (jsonData.canvasTitle) {
-                setCanvasTitle(jsonData.canvasTitle)
+                setCanvasTitle(jsonData.canvasTitle);
               }
               if (jsonData.incidentLog) {
-                setIncidentLog(jsonData.incidentLog)
+                setIncidentLog(jsonData.incidentLog);
               }
 
               // Apply viewport if available
               if (jsonData.diagram.viewport && reactFlowInstance) {
                 setTimeout(() => {
-                  reactFlowInstance.setViewport(jsonData.diagram.viewport)
-                }, 100)
+                  reactFlowInstance.setViewport(jsonData.diagram.viewport);
+                }, 100);
               }
 
-              alert("Diagram imported successfully!")
+              alert('Diagram imported successfully!');
             }
           } catch (error) {
-            console.error("Import error:", error)
+            console.error('Import error:', error);
             toast({
-              title: "Import Failed",
-              description: "Failed to import diagram. Please check the file format.",
-              variant: "destructive",
-            })
+              title: 'Import Failed',
+              description: 'Failed to import diagram. Please check the file format.',
+              variant: 'destructive',
+            });
           }
-        }
-        reader.readAsText(file)
+        };
+        reader.readAsText(file);
       }
-    }
-    input.click()
-  }, [nodes, edges, setNodes, setEdges, setSelectedElement, reset, setCanvasTitle, setIncidentLog, reactFlowInstance])
+    };
+    input.click();
+  }, [
+    nodes,
+    edges,
+    setNodes,
+    setEdges,
+    setSelectedElement,
+    reset,
+    setCanvasTitle,
+    setIncidentLog,
+    reactFlowInstance,
+  ]);
 
   const handleClear = useCallback(() => {
-    setNodes([])
-    setEdges([])
-    setSelectedElement(null)
-    setIncidentLog([])
+    setNodes([]);
+    setEdges([]);
+    setSelectedElement(null);
+    setIncidentLog([]);
     // Reset undo/redo history when clearing
-    reset({ nodes: [], edges: [] })
+    reset({ nodes: [], edges: [] });
     toast({
-      title: "Diagram Cleared",
-      description: "Canvas has been reset",
-      variant: "default",
-    })
-  }, [setNodes, setEdges, setIncidentLog, setSelectedElement, reset])
+      title: 'Diagram Cleared',
+      description: 'Canvas has been reset',
+      variant: 'default',
+    });
+  }, [setNodes, setEdges, setIncidentLog, setSelectedElement, reset]);
 
   const handleStartFromScratch = useCallback(() => {
     if (nodes.length > 0 || edges.length > 0) {
-      setNodes([])
-      setEdges([])
-      setSelectedElement(null)
-      setIncidentLog([])
-      setShowTemplatePanel(false)
+      setNodes([]);
+      setEdges([]);
+      setSelectedElement(null);
+      setIncidentLog([]);
+      setShowTemplatePanel(false);
       // Reset undo/redo history when starting from scratch
-      reset({ nodes: [], edges: [] })
+      reset({ nodes: [], edges: [] });
       toast({
-        title: "New Diagram",
-        description: "Started a fresh diagram from scratch",
-        variant: "default",
-      })
+        title: 'New Diagram',
+        description: 'Started a fresh diagram from scratch',
+        variant: 'default',
+      });
     } else {
       // Already empty, just close template panel if open
-      setShowTemplatePanel(false)
+      setShowTemplatePanel(false);
     }
-  }, [nodes, edges, setNodes, setEdges, setIncidentLog, setSelectedElement, setShowTemplatePanel, reset])
+  }, [
+    nodes,
+    edges,
+    setNodes,
+    setEdges,
+    setIncidentLog,
+    setSelectedElement,
+    setShowTemplatePanel,
+    reset,
+  ]);
 
   const handleZoomIn = useCallback(() => {
-    reactFlowInstance?.zoomIn()
-  }, [reactFlowInstance])
+    reactFlowInstance?.zoomIn();
+  }, [reactFlowInstance]);
 
   const handleZoomOut = useCallback(() => {
-    reactFlowInstance?.zoomOut()
-  }, [reactFlowInstance])
+    reactFlowInstance?.zoomOut();
+  }, [reactFlowInstance]);
 
   const handleFitView = useCallback(() => {
-    fitView(FIT_VIEW_OPTIONS)
-  }, [fitView])
+    fitView(FIT_VIEW_OPTIONS);
+  }, [fitView]);
 
   const handleToggleGrid = useCallback(() => {
-    setSnapToGrid((prev) => !prev)
-  }, [setSnapToGrid])
+    setSnapToGrid((prev) => !prev);
+  }, [setSnapToGrid]);
 
   const handleLoadTemplate = useCallback(
     (template: Template) => {
@@ -315,122 +357,128 @@ export const useCompromiseCanvasHandlers = ({
         },
         selected: false,
         dragging: false,
-      }))
-      const templateEdges = (template.edges as CustomEdge[]).map((edge) => ({ ...edge, selected: false }))
-      setNodes(nodesWithDisplaySettings)
-      setEdges(templateEdges)
-      setIncidentLog(template.incidentLog ?? [])
-      setSelectedElement(null)
-      setShowTemplatePanel(false) // Close template panel after loading
+      }));
+      const templateEdges = (template.edges as CustomEdge[]).map((edge) => ({
+        ...edge,
+        selected: false,
+      }));
+      setNodes(nodesWithDisplaySettings);
+      setEdges(templateEdges);
+      setIncidentLog(template.incidentLog ?? []);
+      setSelectedElement(null);
+      setShowTemplatePanel(false); // Close template panel after loading
       // Reset undo/redo history when loading template
-      reset({ nodes: nodesWithDisplaySettings, edges: templateEdges })
+      reset({ nodes: nodesWithDisplaySettings, edges: templateEdges });
 
       // setTimeout(() => {
       //   if (onAutoAlign) onAutoAlign()
       // }, 100) // Small delay to ensure nodes are rendered
 
       toast({
-        title: "Template Loaded",
+        title: 'Template Loaded',
         description: `Loaded template: ${template.name}`,
-        variant: "default",
-      })
+        variant: 'default',
+      });
     },
     [setNodes, setEdges, setIncidentLog, setSelectedElement, setShowTemplatePanel, reset],
-  )
+  );
 
-  const handleSaveAsTemplate = useCallback((name: string, description: string, category: string, tags: string[]) => {
-    // This function is called by the TemplatePanel component
-    // The actual template creation is handled there
-  }, [])
+  const handleSaveAsTemplate = useCallback(
+    (_name: string, _description: string, _category: string, _tags: string[]) => {
+      // This function is called by the TemplatePanel component
+      // The actual template creation is handled there
+    },
+    [],
+  );
 
   const handleToggleTemplatePanel = useCallback(() => {
-    setShowTemplatePanel((prev) => !prev)
-  }, [setShowTemplatePanel])
+    setShowTemplatePanel((prev) => !prev);
+  }, [setShowTemplatePanel]);
 
   const handleCloseTemplatePanel = useCallback(() => {
-    setShowTemplatePanel(false)
-  }, [setShowTemplatePanel])
+    setShowTemplatePanel(false);
+  }, [setShowTemplatePanel]);
 
   const handleToggleAnimations = useCallback(() => {
-    setAnimationsEnabled((prev) => !prev)
-  }, [setAnimationsEnabled])
+    setAnimationsEnabled((prev) => !prev);
+  }, [setAnimationsEnabled]);
 
   const handleToggleTimelinePanel = useCallback(() => {
-    setShowTimelinePanel((prev) => !prev)
-  }, [setShowTimelinePanel])
+    setShowTimelinePanel((prev) => !prev);
+  }, [setShowTimelinePanel]);
 
   const handleCloseTimelinePanel = useCallback(() => {
-    setShowTimelinePanel(false)
-  }, [setShowTimelinePanel])
+    setShowTimelinePanel(false);
+  }, [setShowTimelinePanel]);
 
   const handleShowDataHandling = useCallback(() => {
-    setShowDataHandlingModal(true)
-  }, [setShowDataHandlingModal])
+    setShowDataHandlingModal(true);
+  }, [setShowDataHandlingModal]);
 
   const handleCloseDataHandling = useCallback(() => {
-    setShowDataHandlingModal(false)
-  }, [setShowDataHandlingModal])
+    setShowDataHandlingModal(false);
+  }, [setShowDataHandlingModal]);
 
   const selectTimelineEdge = useCallback(
     (edgeId: string) => {
-      const edge = edges.find((e) => e.id === edgeId)
+      const edge = edges.find((e) => e.id === edgeId);
       if (edge) {
-        const selectedEdge = { ...edge, selected: true }
-        setNodes(nodes.map((node) => ({ ...node, selected: false })))
-        setEdges(edges.map((item) => ({ ...item, selected: item.id === edgeId })))
-        setSelectedElement(selectedEdge)
+        const selectedEdge = { ...edge, selected: true };
+        setNodes(nodes.map((node) => ({ ...node, selected: false })));
+        setEdges(edges.map((item) => ({ ...item, selected: item.id === edgeId })));
+        setSelectedElement(selectedEdge);
       }
     },
     [nodes, edges, setNodes, setEdges, setSelectedElement],
-  )
+  );
 
   const handleSelectEdge = useCallback(
     (edgeId: string, additive = false) => {
-      const edge = edges.find((e) => e.id === edgeId)
-      if (!edge) return
+      const edge = edges.find((e) => e.id === edgeId);
+      if (!edge) return;
 
       if (additive) {
-        const willSelect = !edge.selected
+        const willSelect = !edge.selected;
         const nextEdges = edges.map((item) =>
           item.id === edgeId ? { ...item, selected: willSelect } : item,
-        )
+        );
         const selection = [
           ...nodes.filter((node) => node.selected),
           ...nextEdges.filter((item) => item.selected),
-        ]
-        setEdges(nextEdges)
-        setSelectedElement(selection.length === 1 ? selection[0] : null)
-        return
+        ];
+        setEdges(nextEdges);
+        setSelectedElement(selection.length === 1 ? selection[0] : null);
+        return;
       }
 
-      const selectedEdge = { ...edge, selected: true }
-      setNodes(nodes.map((node) => ({ ...node, selected: false })))
-      setEdges(edges.map((item) => ({ ...item, selected: item.id === edgeId })))
-      setSelectedElement(selectedEdge)
+      const selectedEdge = { ...edge, selected: true };
+      setNodes(nodes.map((node) => ({ ...node, selected: false })));
+      setEdges(edges.map((item) => ({ ...item, selected: item.id === edgeId })));
+      setSelectedElement(selectedEdge);
     },
     [nodes, edges, setNodes, setEdges, setSelectedElement],
-  )
+  );
 
-  const handleHighlightEdge = selectTimelineEdge
+  const handleHighlightEdge = selectTimelineEdge;
 
   const handleAutoAlign = useCallback(() => {
-    if (nodes.length === 0) return
+    if (nodes.length === 0) return;
 
-    const newPositions = calculateAutoAlignedPositions(nodes, edges)
+    const newPositions = calculateAutoAlignedPositions(nodes, edges);
 
     // Apply positions with animation-friendly update
     updateNodes((nds) =>
       nds.map((node) => {
-        const newPos = newPositions.get(node.id)
+        const newPos = newPositions.get(node.id);
         if (newPos) {
           return {
             ...node,
             position: newPos,
-          }
+          };
         }
-        return node
+        return node;
       }),
-    )
+    );
 
     // Fit view with generous padding after a short delay
     setTimeout(() => {
@@ -439,11 +487,9 @@ export const useCompromiseCanvasHandlers = ({
         duration: 800,
         minZoom: 0.1,
         maxZoom: 1.5,
-      })
-    }, 150)
-  }, [nodes, edges, updateNodes, fitView])
-
-
+      });
+    }, 150);
+  }, [nodes, edges, updateNodes, fitView]);
 
   return {
     handleSave,
@@ -468,6 +514,5 @@ export const useCompromiseCanvasHandlers = ({
     handleHighlightEdge,
     handleSelectEdge,
     handleAutoAlign,
-
-  }
-}
+  };
+};

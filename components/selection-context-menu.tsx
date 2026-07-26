@@ -1,13 +1,7 @@
-"use client"
+'use client';
 
-import {
-  Check,
-  Copy,
-  LayoutPanelTop,
-  Search,
-  Skull,
-  Trash2,
-} from "lucide-react"
+import { Check, Copy, LayoutPanelTop, Search, Skull, Trash2 } from 'lucide-react';
+
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -19,18 +13,19 @@ import {
   DropdownMenuSubContent,
   DropdownMenuSubTrigger,
   DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu"
-import { INVESTIGATION_STATUSES } from "@/lib/types"
+} from '@/components/ui/dropdown-menu';
+import { INVESTIGATION_STATUSES } from '@/lib/types';
+
 import {
   SELECTION_LAYOUT_ACTIONS,
   STATUS_ICONS,
   type SelectionActionsProps,
-} from "./selection-actions"
+} from './selection-actions';
 
 interface SelectionContextMenuProps extends SelectionActionsProps {
-  open: boolean
-  point: { x: number; y: number } | null
-  onOpenChange: (open: boolean) => void
+  open: boolean;
+  point: { x: number; y: number } | null;
+  onOpenChange: (open: boolean) => void;
 }
 
 export default function SelectionContextMenu({
@@ -49,7 +44,7 @@ export default function SelectionContextMenu({
   onToggleCompromised,
   onSetInvestigationStatus,
 }: SelectionContextMenuProps) {
-  const total = selectedNodeCount + selectedEdgeCount
+  const total = selectedNodeCount + selectedEdgeCount;
 
   return (
     <DropdownMenu open={open} onOpenChange={onOpenChange} modal={false}>
@@ -68,17 +63,20 @@ export default function SelectionContextMenu({
         sideOffset={0}
         className="w-64 border-gray-700 bg-gray-800 text-gray-200"
       >
-        <DropdownMenuLabel className="text-xs text-gray-400">
-          {total} selected
-        </DropdownMenuLabel>
+        <DropdownMenuLabel className="text-xs text-gray-400">{total} selected</DropdownMenuLabel>
         <DropdownMenuSeparator className="bg-gray-700" />
         <DropdownMenuItem
           disabled={bulkStatusNodeCount === 0}
           onSelect={onToggleCompromised}
           className="gap-2 text-xs focus:bg-gray-700 focus:text-white"
         >
-          <Skull className={allBulkStatusNodesCompromised ? "text-red-400" : ""} aria-hidden="true" />
-          {allBulkStatusNodesCompromised ? "Unmark selected as compromised" : "Mark selected as compromised"}
+          <Skull
+            className={allBulkStatusNodesCompromised ? 'text-red-400' : ''}
+            aria-hidden="true"
+          />
+          {allBulkStatusNodesCompromised
+            ? 'Unmark selected as compromised'
+            : 'Mark selected as compromised'}
         </DropdownMenuItem>
         <DropdownMenuSub>
           <DropdownMenuSubTrigger
@@ -90,7 +88,7 @@ export default function SelectionContextMenu({
           </DropdownMenuSubTrigger>
           <DropdownMenuSubContent className="w-52 border-gray-700 bg-gray-800 text-gray-200">
             {INVESTIGATION_STATUSES.map((status) => {
-              const StatusIcon = STATUS_ICONS[status]
+              const StatusIcon = STATUS_ICONS[status];
               return (
                 <DropdownMenuItem
                   key={status}
@@ -101,9 +99,11 @@ export default function SelectionContextMenu({
                     <StatusIcon className="h-3.5 w-3.5" aria-hidden="true" />
                     {status}
                   </span>
-                  {bulkInvestigationStatus === status && <Check className="h-3.5 w-3.5 text-blue-400" />}
+                  {bulkInvestigationStatus === status && (
+                    <Check className="h-3.5 w-3.5 text-blue-400" />
+                  )}
                 </DropdownMenuItem>
-              )
+              );
             })}
           </DropdownMenuSubContent>
         </DropdownMenuSub>
@@ -149,5 +149,5 @@ export default function SelectionContextMenu({
         </DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>
-  )
+  );
 }

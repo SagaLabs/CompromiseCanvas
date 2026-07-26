@@ -1,26 +1,27 @@
-import { useCallback, useState } from 'react'
-import type { CustomNode, CustomEdge } from '@/lib/types'
+import { useCallback, useState } from 'react';
+
+import type { CustomNode, CustomEdge } from '@/lib/types';
 
 export interface FlowState {
-  nodes: CustomNode[]
-  edges: CustomEdge[]
+  nodes: CustomNode[];
+  edges: CustomEdge[];
 }
 
 export interface UndoRedoState {
-  past: FlowState[]
-  present: FlowState
-  future: FlowState[]
+  past: FlowState[];
+  present: FlowState;
+  future: FlowState[];
 }
 
 export function useUndoRedo(initialState: FlowState) {
   const [state, setState] = useState<UndoRedoState>({
     past: [],
     present: initialState,
-    future: []
-  })
+    future: [],
+  });
 
-  const canUndo = state.past.length > 0
-  const canRedo = state.future.length > 0
+  const canUndo = state.past.length > 0;
+  const canRedo = state.future.length > 0;
 
   const takeSnapshot = useCallback((newState: FlowState) => {
     setState((currentState) => {
@@ -29,62 +30,62 @@ export function useUndoRedo(initialState: FlowState) {
         JSON.stringify(currentState.present.nodes) === JSON.stringify(newState.nodes) &&
         JSON.stringify(currentState.present.edges) === JSON.stringify(newState.edges)
       ) {
-        return currentState
+        return currentState;
       }
 
       return {
         past: [...currentState.past, currentState.present].slice(-50), // Keep last 50 states
         present: newState,
-        future: [] // Clear future when new action is taken
-      }
-    })
-  }, [])
+        future: [], // Clear future when new action is taken
+      };
+    });
+  }, []);
 
   const undo = useCallback(() => {
-    if (!canUndo) return { nodes: state.present.nodes, edges: state.present.edges }
+    if (!canUndo) return { nodes: state.present.nodes, edges: state.present.edges };
 
     setState((currentState) => {
-      const previous = currentState.past[currentState.past.length - 1]
-      const newPast = currentState.past.slice(0, currentState.past.length - 1)
+      const previous = currentState.past[currentState.past.length - 1];
+      const newPast = currentState.past.slice(0, currentState.past.length - 1);
 
       return {
         past: newPast,
         present: previous,
-        future: [currentState.present, ...currentState.future]
-      }
-    })
+        future: [currentState.present, ...currentState.future],
+      };
+    });
 
     // Return the previous state
-    const previous = state.past[state.past.length - 1]
-    return { nodes: previous.nodes, edges: previous.edges }
-  }, [canUndo, state.past, state.present])
+    const previous = state.past[state.past.length - 1];
+    return { nodes: previous.nodes, edges: previous.edges };
+  }, [canUndo, state.past, state.present]);
 
   const redo = useCallback(() => {
-    if (!canRedo) return { nodes: state.present.nodes, edges: state.present.edges }
+    if (!canRedo) return { nodes: state.present.nodes, edges: state.present.edges };
 
     setState((currentState) => {
-      const next = currentState.future[0]
-      const newFuture = currentState.future.slice(1)
+      const next = currentState.future[0];
+      const newFuture = currentState.future.slice(1);
 
       return {
         past: [...currentState.past, currentState.present],
         present: next,
-        future: newFuture
-      }
-    })
+        future: newFuture,
+      };
+    });
 
     // Return the next state
-    const next = state.future[0]
-    return { nodes: next.nodes, edges: next.edges }
-  }, [canRedo, state.future, state.present])
+    const next = state.future[0];
+    return { nodes: next.nodes, edges: next.edges };
+  }, [canRedo, state.future, state.present]);
 
   const reset = useCallback((newState: FlowState) => {
     setState({
       past: [],
       present: newState,
-      future: []
-    })
-  }, [])
+      future: [],
+    });
+  }, []);
 
   return {
     takeSnapshot,
@@ -92,6 +93,6 @@ export function useUndoRedo(initialState: FlowState) {
     redo,
     canUndo,
     canRedo,
-    reset
-  }
+    reset,
+  };
 }

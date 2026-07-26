@@ -1,52 +1,52 @@
-"use client"
+'use client';
 
-import { useState, useRef, useEffect } from "react"
-import { Edit3, Save, X } from "lucide-react"
-import { Button } from "@/components/ui/button"
+import { Edit3, Save, X } from 'lucide-react';
+import { useState, useRef, useEffect } from 'react';
+
+import { Button } from '@/components/ui/button';
 
 interface CanvasTitleProps {
-  title: string
-  onTitleChange: (title: string) => void
+  title: string;
+  onTitleChange: (title: string) => void;
 }
 
 export default function CanvasTitle({ title, onTitleChange }: CanvasTitleProps) {
-  const [isEditing, setIsEditing] = useState(false)
-  const [editTitle, setEditTitle] = useState(title)
-  const inputRef = useRef<HTMLInputElement>(null)
+  const [isEditing, setIsEditing] = useState(false);
+  const [editTitle, setEditTitle] = useState(title);
+  const inputRef = useRef<HTMLInputElement>(null);
 
-  
   useEffect(() => {
-    setEditTitle(title)
-  }, [title])
+    setEditTitle(title);
+  }, [title]);
 
   useEffect(() => {
     if (isEditing && inputRef.current) {
-      inputRef.current.focus()
-      inputRef.current.select()
+      inputRef.current.focus();
+      inputRef.current.select();
     }
-  }, [isEditing])
+  }, [isEditing]);
 
   const handleSave = () => {
-    onTitleChange(editTitle.trim())
-    setIsEditing(false)
-  }
+    onTitleChange(editTitle.trim());
+    setIsEditing(false);
+  };
 
   const handleCancel = () => {
-    setEditTitle(title)
-    setIsEditing(false)
-  }
+    setEditTitle(title);
+    setIsEditing(false);
+  };
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
     if (e.key === 'Enter') {
-      handleSave()
+      handleSave();
     } else if (e.key === 'Escape') {
-      handleCancel()
+      handleCancel();
     }
-  }
+  };
 
   if (isEditing) {
     return (
-      <div className="flex items-center gap-2 bg-white/10 backdrop-blur-sm rounded-lg px-3 py-2 border border-gray-600">
+      <div className="flex items-center gap-2 rounded-lg border border-gray-600 bg-white/10 px-3 py-2 backdrop-blur-sm">
         <input
           ref={inputRef}
           type="text"
@@ -56,7 +56,7 @@ export default function CanvasTitle({ title, onTitleChange }: CanvasTitleProps) 
           aria-label="Canvas title"
           name="canvasTitle"
           autoComplete="off"
-          className="bg-transparent text-white text-lg font-semibold border-none min-w-[200px] max-w-[400px] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-400/60 focus-visible:ring-offset-2 focus-visible:ring-offset-gray-900"
+          className="min-w-[200px] max-w-[400px] border-none bg-transparent text-lg font-semibold text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-400/60 focus-visible:ring-offset-2 focus-visible:ring-offset-gray-900"
           placeholder="Enter operation title…"
         />
         <div className="flex items-center gap-1">
@@ -80,7 +80,7 @@ export default function CanvasTitle({ title, onTitleChange }: CanvasTitleProps) 
           </Button>
         </div>
       </div>
-    )
+    );
   }
 
   if (!title || title.trim() === '') {
@@ -89,26 +89,26 @@ export default function CanvasTitle({ title, onTitleChange }: CanvasTitleProps) 
         variant="ghost"
         size="sm"
         onClick={() => setIsEditing(true)}
-        className="text-gray-400 hover:text-white hover:bg-white/10"
+        className="text-gray-400 hover:bg-white/10 hover:text-white"
       >
-        <Edit3 className="h-4 w-4 mr-2" aria-hidden="true" />
+        <Edit3 className="mr-2 h-4 w-4" aria-hidden="true" />
         Add Title
       </Button>
-    )
+    );
   }
 
   return (
-    <div className="flex items-center gap-2 group">
+    <div className="group flex items-center gap-2">
       <h1 className="text-xl font-bold text-white">{title}</h1>
       <Button
         variant="ghost"
         size="icon"
         onClick={() => setIsEditing(true)}
-        className="h-6 w-6 opacity-0 group-hover:opacity-100 transition-opacity text-gray-400 hover:text-white"
+        className="h-6 w-6 text-gray-400 opacity-0 transition-opacity hover:text-white group-hover:opacity-100"
         aria-label="Edit title"
       >
         <Edit3 className="h-3 w-3" aria-hidden="true" />
       </Button>
     </div>
-  )
-} 
+  );
+}

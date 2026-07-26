@@ -1,4 +1,4 @@
-import type { DisplaySettings, EdgeDisplaySettings, CustomNode, CustomEdge } from "@/lib/types"
+import type { DisplaySettings, EdgeDisplaySettings, CustomNode, CustomEdge } from '@/lib/types';
 
 export const defaultDisplaySettings: DisplaySettings = {
   showHostname: true,
@@ -56,7 +56,7 @@ export const defaultDisplaySettings: DisplaySettings = {
   showCompromised: false,
   // Investigation status
   showInvestigationStatus: false,
-}
+};
 
 export const defaultEdgeDisplaySettings: EdgeDisplaySettings = {
   showLabel: true,
@@ -67,19 +67,18 @@ export const defaultEdgeDisplaySettings: EdgeDisplaySettings = {
   showDescription: false,
   showC2Channel: true,
   showC2Framework: true,
-}
+};
 
 // Start with empty canvas - no initial nodes or edges
-export const initialNodes: CustomNode[] = []
-export const initialEdges: CustomEdge[] = []
-
+export const initialNodes: CustomNode[] = [];
+export const initialEdges: CustomEdge[] = [];
 
 export const LAYER_Z_INDEX = {
   GROUP: -10,
   EDGE: 0,
   NODE: 10,
-  SELECTED: 20
-}
+  SELECTED: 20,
+};
 
 /**
  * Per-side fitView padding so nodes are never tucked behind the fixed side panels.
@@ -87,8 +86,8 @@ export const LAYER_Z_INDEX = {
  * Values add a small margin on top of each panel width.
  */
 export const FIT_VIEW_OPTIONS = {
-  padding: { top: "10%", right: "340px", bottom: "10%", left: "280px" },
-} as const
+  padding: { top: '10%', right: '340px', bottom: '10%', left: '280px' },
+} as const;
 
-let id = 0
-export const getId = () => `dndnode_${id++}`
+let id = 0;
+export const getId = () => `dndnode_${id++}`;

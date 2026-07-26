@@ -1,35 +1,35 @@
 {
   "name": "compromise-canvas",
   "version": "0.1.0",
-  "description": "Interactive visual editor for building cyber attack paths and incident response timelines",
-  "author": "Christian Henriksen <contact@sagalabs.dk> (https://github.com/Guzzy711)",
-  "license": "GPL-3.0",
   "private": true,
-  "engines": {
-    "node": ">=22.13"
-  },
-  "repository": {
-    "type": "git",
-    "url": "https://github.com/SagaLabs/CompromiseCanvas.git"
-  },
-  "packageManager": "pnpm@11.17.0",
-  "homepage": "https://github.com/SagaLabs/CompromiseCanvas",
+  "description": "Interactive visual editor for building cyber attack paths and incident response timelines",
   "keywords": [
+    "attack-path",
     "cybersecurity",
     "incident-response",
-    "attack-path",
     "mitre-attack",
     "security",
     "visualization"
   ],
+  "homepage": "https://github.com/SagaLabs/CompromiseCanvas",
+  "license": "GPL-3.0",
+  "author": "Christian Henriksen <contact@sagalabs.dk> (https://github.com/Guzzy711)",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/SagaLabs/CompromiseCanvas.git"
+  },
   "scripts": {
     "build": "next build",
     "dev": "next dev",
-    "lint": "next lint",
+    "lint": "oxlint",
+    "lint:fix": "oxlint --fix",
+    "fmt": "oxfmt",
+    "fmt:check": "oxfmt --check",
     "test:mitre": "node --test tests/mitre-techniques.test.cjs",
     "test:selection": "node --test tests/selection-layout.test.cjs",
     "update:mitre": "node scripts/update-mitre-techniques.mjs",
-    "start": "next start"
+    "start": "next start",
+    "prepare": "husky"
   },
   "dependencies": {
     "@hookform/resolvers": "^3.9.1",
@@ -92,10 +92,19 @@
     "@types/node": "^22",
     "@types/react": "^19",
     "@types/react-dom": "^19",
-    "eslint": "^9.39.2",
-    "eslint-config-next": "^16.1.2",
+    "husky": "^9.1.7",
+    "lint-staged": "^16.2.7",
+    "oxfmt": "^0.60.0",
+    "oxlint": "^1.75.0",
     "postcss": "^8.5.22",
     "tailwindcss": "^3.4.17",
     "typescript": "^5"
-  }
+  },
+  "lint-staged": {
+    "*.{css,html,js,json,jsx,md,mdx,mjs,cjs,ts,tsx,yaml,yml}": "oxfmt --no-error-on-unmatched-pattern"
+  },
+  "engines": {
+    "node": ">=22.13"
+  },
+  "packageManager": "pnpm@11.17.0"
 }

@@ -1,8 +1,9 @@
-"use client"
+'use client';
 
-import { Trash2, Tag, Check, Lock, LockOpen } from "lucide-react"
-import { EdgeToolbar as XYEdgeToolbar } from "@xyflow/react"
-import { Button } from "@/components/ui/button"
+import { EdgeToolbar as XYEdgeToolbar } from '@xyflow/react';
+import { Trash2, Tag, Check, Lock, LockOpen } from 'lucide-react';
+
+import { Button } from '@/components/ui/button';
 import {
   DropdownMenu,
   DropdownMenuTrigger,
@@ -10,23 +11,23 @@ import {
   DropdownMenuItem,
   DropdownMenuLabel,
   DropdownMenuSeparator,
-} from "@/components/ui/dropdown-menu"
-import { EDGE_ACTION_TYPES, type EdgeActionType } from "@/lib/types"
-import { cn } from "@/lib/utils"
+} from '@/components/ui/dropdown-menu';
+import { EDGE_ACTION_TYPES, type EdgeActionType } from '@/lib/types';
+import { cn } from '@/lib/utils';
 
 interface EdgeToolbarProps {
-  id: string
-  labelX: number
-  labelY: number
-  isVisible: boolean
-  currentActionType?: string
-  unlocked?: boolean
-  onSetActionType: (actionType: EdgeActionType) => void
-  onToggleUnlocked: () => void
-  onDelete: () => void
-  onMouseEnter?: () => void
-  onMouseLeave?: () => void
-  onMenuOpenChange?: (open: boolean) => void
+  id: string;
+  labelX: number;
+  labelY: number;
+  isVisible: boolean;
+  currentActionType?: string;
+  unlocked?: boolean;
+  onSetActionType: (actionType: EdgeActionType) => void;
+  onToggleUnlocked: () => void;
+  onDelete: () => void;
+  onMouseEnter?: () => void;
+  onMouseLeave?: () => void;
+  onMenuOpenChange?: (open: boolean) => void;
 }
 
 /**
@@ -56,8 +57,8 @@ export default function EdgeToolbar({
       isVisible={isVisible}
       alignY="bottom"
       className={cn(
-        "nodrag nopan flex items-center gap-1 rounded-lg",
-        "border border-gray-700 bg-gray-800 p-1 shadow-lg",
+        'nodrag nopan flex items-center gap-1 rounded-lg',
+        'border border-gray-700 bg-gray-800 p-1 shadow-lg',
       )}
       onMouseEnter={onMouseEnter}
       onMouseLeave={onMouseLeave}
@@ -67,11 +68,11 @@ export default function EdgeToolbar({
         size="icon"
         variant="ghost"
         className={cn(
-          "h-7 w-7 hover:bg-gray-700",
-          unlocked ? "text-amber-400 hover:text-amber-300" : "text-gray-300 hover:text-white",
+          'h-7 w-7 hover:bg-gray-700',
+          unlocked ? 'text-amber-400 hover:text-amber-300' : 'text-gray-300 hover:text-white',
         )}
-        title={unlocked ? "Lock edge (stop moving)" : "Unlock edge to move it"}
-        aria-label={unlocked ? "Lock edge" : "Unlock edge to move it"}
+        title={unlocked ? 'Lock edge (stop moving)' : 'Unlock edge to move it'}
+        aria-label={unlocked ? 'Lock edge' : 'Unlock edge to move it'}
         aria-pressed={unlocked}
         onClick={() => onToggleUnlocked()}
       >
@@ -120,5 +121,5 @@ export default function EdgeToolbar({
         <Trash2 className="h-4 w-4" />
       </Button>
     </XYEdgeToolbar>
-  )
+  );
 }
