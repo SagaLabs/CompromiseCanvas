@@ -23,11 +23,13 @@ import { replaceEdgeActionTypeAtIndex } from "@/lib/edge-action-types"
 interface EdgeActionTypePickerProps {
   actionTypes: EdgeActionType[]
   onChange: (actionTypes: EdgeActionType[]) => void
+  onRemoveLast: () => void
 }
 
 export function EdgeActionTypePicker({
   actionTypes,
   onChange,
+  onRemoveLast,
 }: EdgeActionTypePickerProps) {
   const availableActionTypes = EDGE_ACTION_TYPES.filter(
     (actionType) => !actionTypes.includes(actionType),
@@ -74,24 +76,31 @@ export function EdgeActionTypePicker({
                 ))}
               </SelectContent>
             </Select>
-            {actionTypes.length > 1 && (
-              <Button
-                type="button"
-                variant="ghost"
-                size="sm"
-                aria-label={`Remove ${actionType}`}
-                className="h-9 w-9 shrink-0 p-0 text-gray-500 hover:bg-gray-700 hover:text-white"
-                onClick={() =>
-                  onChange(
-                    actionTypes.filter(
-                      (_, actionTypeIndex) => actionTypeIndex !== index,
-                    ),
-                  )
+            <Button
+              type="button"
+              variant="ghost"
+              size="sm"
+              aria-label={
+                actionTypes.length === 1
+                  ? `Remove ${actionType} and delete self-connection`
+                  : `Remove ${actionType}`
+              }
+              className="h-9 w-9 shrink-0 p-0 text-gray-500 hover:bg-gray-700 hover:text-white"
+              onClick={() => {
+                if (actionTypes.length === 1) {
+                  onRemoveLast()
+                  return
                 }
-              >
-                <X className="h-3.5 w-3.5" aria-hidden="true" />
-              </Button>
-            )}
+
+                onChange(
+                  actionTypes.filter(
+                    (_, actionTypeIndex) => actionTypeIndex !== index,
+                  ),
+                )
+              }}
+            >
+              <X className="h-3.5 w-3.5" aria-hidden="true" />
+            </Button>
           </div>
         ))}
       </div>

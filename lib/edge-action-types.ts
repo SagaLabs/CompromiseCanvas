@@ -1,6 +1,7 @@
 import {
   EDGE_ACTION_TYPES,
   type EdgeActionType,
+  type CustomEdge,
   type EdgeData,
 } from "@/lib/types"
 
@@ -91,4 +92,28 @@ export function replaceEdgeActionTypeAtIndex(
   return actionTypes.map((actionType, actionTypeIndex) =>
     actionTypeIndex === index ? nextActionType : actionType,
   )
+}
+
+export function withoutTransientEdgeViewState(
+  edge: CustomEdge,
+): CustomEdge {
+  if (
+    !edge.data ||
+    !Object.prototype.hasOwnProperty.call(
+      edge.data,
+      "actionTypesExpanded",
+    )
+  ) {
+    return edge
+  }
+
+  const {
+    actionTypesExpanded: _legacyExpandedState,
+    ...persistentData
+  } = edge.data
+
+  return {
+    ...edge,
+    data: persistentData as EdgeData,
+  }
 }

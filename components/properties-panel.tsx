@@ -92,6 +92,9 @@ export default function PropertiesPanel({
     "source" in selectedElement &&
     selectedElement.source === selectedElement.target
   const edgeHasCommandAndControl = edgeActionTypes.includes("Command & Control")
+  const edgeHasNonCommandAndControl = edgeActionTypes.some(
+    (actionType) => actionType !== "Command & Control",
+  )
   const toLocalInputValue = (isoString?: string) => {
     if (!isoString) return ""
     const date = new Date(isoString)
@@ -2387,10 +2390,19 @@ export default function PropertiesPanel({
               {isSelfConnection ? "Action Types" : "Action Type"}
             </Label>
             {isSelfConnection ? (
-              <EdgeActionTypePicker
-                actionTypes={edgeActionTypes}
-                onChange={handleEdgeActionTypesChange}
-              />
+              <>
+                <EdgeActionTypePicker
+                  actionTypes={edgeActionTypes}
+                  onChange={handleEdgeActionTypesChange}
+                  onRemoveLast={onDelete}
+                />
+                {edgeActionTypes.length > 1 && (
+                  <p className="mt-2 text-xs leading-4 text-gray-400">
+                    These actions share this connection&apos;s timestamp,
+                    metadata, MITRE mappings, and description.
+                  </p>
+                )}
+              </>
             ) : (
               <Select
                 value={edgeData.actionType}
@@ -2412,8 +2424,8 @@ export default function PropertiesPanel({
             )}
           </div>
 
-          {/* Conditional fields based on action type */}
-          {edgeHasCommandAndControl ? (
+          {/* A mixed self-connection needs both its C2 and non-C2 metadata. */}
+          {edgeHasCommandAndControl && (
             <>
               <div>
                 <Label htmlFor="c2-channel" className="text-sm">
@@ -2468,7 +2480,9 @@ export default function PropertiesPanel({
                 </Select>
               </div>
             </>
-          ) : (
+          )}
+
+          {edgeHasNonCommandAndControl && (
             <>
               <div>
                 <Label htmlFor="tool-used" className="text-sm">
@@ -2580,26 +2594,30 @@ export default function PropertiesPanel({
                   onCheckedChange={(checked) => handleEdgeDisplaySettingChange("showLabel", checked)}
                 />
               </div>
-              <div className="flex items-center justify-between">
-                <Label htmlFor="show-tool" className="text-xs text-gray-400">
-                  Show Tool
-                </Label>
-                <Switch
-                  id="show-tool"
-                  checked={edgeData.displaySettings?.showTool ?? true}
-                  onCheckedChange={(checked) => handleEdgeDisplaySettingChange("showTool", checked)}
-                />
-              </div>
-              <div className="flex items-center justify-between">
-                <Label htmlFor="show-user" className="text-xs text-gray-400">
-                  Show User
-                </Label>
-                <Switch
-                  id="show-user"
-                  checked={edgeData.displaySettings?.showUser ?? true}
-                  onCheckedChange={(checked) => handleEdgeDisplaySettingChange("showUser", checked)}
-                />
-              </div>
+              {edgeHasNonCommandAndControl && (
+                <>
+                  <div className="flex items-center justify-between">
+                    <Label htmlFor="show-tool" className="text-xs text-gray-400">
+                      Show Tool
+                    </Label>
+                    <Switch
+                      id="show-tool"
+                      checked={edgeData.displaySettings?.showTool ?? true}
+                      onCheckedChange={(checked) => handleEdgeDisplaySettingChange("showTool", checked)}
+                    />
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <Label htmlFor="show-user" className="text-xs text-gray-400">
+                      Show User
+                    </Label>
+                    <Switch
+                      id="show-user"
+                      checked={edgeData.displaySettings?.showUser ?? true}
+                      onCheckedChange={(checked) => handleEdgeDisplaySettingChange("showUser", checked)}
+                    />
+                  </div>
+                </>
+              )}
               <div className="flex items-center justify-between">
                 <Label htmlFor="show-timestamp" className="text-xs text-gray-400">
                   Show Timestamp

@@ -9,6 +9,7 @@ import type { NodeData, EdgeActionType } from "@/lib/types"
 export const createEdgeTypes = (
   animationsEnabled: boolean,
   selectedElement: Node | Edge | null,
+  expandedSelfConnectionIds: ReadonlySet<string>,
   onDeleteEdge: (id: string) => void,
   onSetEdgeActionTypes: (id: string, actionTypes: EdgeActionType[]) => void,
   onSetEdgeActionTypesExpanded: (id: string, expanded: boolean) => void,
@@ -21,6 +22,7 @@ export const createEdgeTypes = (
       {...props}
       animationsEnabled={animationsEnabled}
       selected={props.selected || (selectedElement?.id === props.id && selectedElement?.type === "customEdge")}
+      actionTypesExpanded={expandedSelfConnectionIds.has(props.id)}
       onDeleteEdge={onDeleteEdge}
       onSetEdgeActionTypes={onSetEdgeActionTypes}
       onSetEdgeActionTypesExpanded={onSetEdgeActionTypesExpanded}

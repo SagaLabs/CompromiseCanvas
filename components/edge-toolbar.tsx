@@ -1,5 +1,6 @@
 "use client"
 
+import { Fragment } from "react"
 import { Trash2, Tag, Check, Lock, LockOpen, Plus, X } from "lucide-react"
 import { EdgeToolbar as XYEdgeToolbar } from "@xyflow/react"
 import { Button } from "@/components/ui/button"
@@ -7,6 +8,7 @@ import {
   DropdownMenu,
   DropdownMenuTrigger,
   DropdownMenuContent,
+  DropdownMenuGroup,
   DropdownMenuItem,
   DropdownMenuLabel,
   DropdownMenuSeparator,
@@ -17,6 +19,11 @@ import {
 import { EDGE_ACTION_TYPES, type EdgeActionType } from "@/lib/types"
 import { replaceEdgeActionTypeAtIndex } from "@/lib/edge-action-types"
 import { cn } from "@/lib/utils"
+
+const ACTION_MENU_MAX_HEIGHT =
+  "min(24rem, var(--radix-dropdown-menu-content-available-height))"
+const ACTION_SUBMENU_MAX_HEIGHT =
+  "min(18rem, var(--radix-dropdown-menu-content-available-height))"
 
 interface EdgeToolbarProps {
   id: string
@@ -107,20 +114,27 @@ export default function EdgeToolbar({
         </DropdownMenuTrigger>
         <DropdownMenuContent
           align="start"
-          className="w-56 border-gray-700 bg-gray-800 text-gray-200"
+          collisionPadding={8}
+          className="w-56 overflow-y-auto overscroll-contain border-gray-700 bg-gray-800 text-gray-200"
+          style={{ maxHeight: ACTION_MENU_MAX_HEIGHT }}
         >
           <DropdownMenuLabel className="text-xs text-gray-400">
-            {allowsMultipleActionTypes ? "Action types" : "Action type"}
+            <span>
+              {allowsMultipleActionTypes ? "Action types" : "Action type"}
+            </span>
+            {allowsMultipleActionTypes && (
+              <span className="mt-1 block text-[11px] font-normal leading-4 text-gray-400">
+                Multiple actions share this connection&apos;s timestamp,
+                metadata, MITRE mappings, and description.
+              </span>
+            )}
           </DropdownMenuLabel>
           <DropdownMenuSeparator className="bg-gray-700" />
           {allowsMultipleActionTypes ? (
             <>
-              <div className="space-y-1 px-1">
+              <DropdownMenuGroup className="grid grid-cols-[minmax(0,1fr)_1.75rem] gap-1 px-1">
                 {currentActionTypes.map((actionType, index) => (
-                  <div
-                    key={actionType}
-                    className="flex items-center gap-1"
-                  >
+                  <Fragment key={actionType}>
                     <DropdownMenuSub>
                       <DropdownMenuSubTrigger
                         aria-label={`Change ${actionType}`}
@@ -128,7 +142,11 @@ export default function EdgeToolbar({
                       >
                         <span className="truncate">{actionType}</span>
                       </DropdownMenuSubTrigger>
-                      <DropdownMenuSubContent className="max-h-72 w-56 overflow-y-auto border-gray-700 bg-gray-800 text-gray-200">
+                      <DropdownMenuSubContent
+                        collisionPadding={8}
+                        className="w-56 overflow-y-auto overscroll-contain border-gray-700 bg-gray-800 text-gray-200"
+                        style={{ maxHeight: ACTION_SUBMENU_MAX_HEIGHT }}
+                      >
                         {EDGE_ACTION_TYPES.map((candidate) => (
                           <DropdownMenuItem
                             key={candidate}
@@ -155,29 +173,39 @@ export default function EdgeToolbar({
                         ))}
                       </DropdownMenuSubContent>
                     </DropdownMenuSub>
-                    {currentActionTypes.length > 1 && (
-                      <button
-                        type="button"
-                        aria-label={`Remove ${actionType}`}
-                        title={`Remove ${actionType}`}
-                        className="flex h-7 w-7 shrink-0 items-center justify-center rounded-sm text-gray-500 hover:bg-gray-700 hover:text-white"
-                        onClick={(event) => {
-                          event.preventDefault()
-                          event.stopPropagation()
-                          onSetActionTypes(
-                            currentActionTypes.filter(
-                              (_, actionTypeIndex) =>
-                                actionTypeIndex !== index,
-                            ),
-                          )
-                        }}
-                      >
-                        <X className="h-3.5 w-3.5" aria-hidden="true" />
-                      </button>
-                    )}
-                  </div>
+                    <DropdownMenuItem
+                      aria-label={
+                        currentActionTypes.length === 1
+                          ? `Remove ${actionType} and delete self-connection`
+                          : `Remove ${actionType}`
+                      }
+                      title={
+                        currentActionTypes.length === 1
+                          ? "Remove action and delete self-connection"
+                          : `Remove ${actionType}`
+                      }
+                      className="h-7 w-7 shrink-0 justify-center p-0 text-gray-500 focus:bg-gray-700 focus:text-white"
+                      onSelect={(event) => {
+                        event.preventDefault()
+
+                        if (currentActionTypes.length === 1) {
+                          onDelete()
+                          return
+                        }
+
+                        onSetActionTypes(
+                          currentActionTypes.filter(
+                            (_, actionTypeIndex) =>
+                              actionTypeIndex !== index,
+                          ),
+                        )
+                      }}
+                    >
+                      <X className="h-3.5 w-3.5" aria-hidden="true" />
+                    </DropdownMenuItem>
+                  </Fragment>
                 ))}
-              </div>
+              </DropdownMenuGroup>
               <DropdownMenuSeparator className="bg-gray-700" />
               <DropdownMenuSub>
                 <DropdownMenuSubTrigger
@@ -187,7 +215,11 @@ export default function EdgeToolbar({
                   <Plus className="h-3.5 w-3.5" aria-hidden="true" />
                   Add action type
                 </DropdownMenuSubTrigger>
-                <DropdownMenuSubContent className="max-h-72 w-56 overflow-y-auto border-gray-700 bg-gray-800 text-gray-200">
+                <DropdownMenuSubContent
+                  collisionPadding={8}
+                  className="w-56 overflow-y-auto overscroll-contain border-gray-700 bg-gray-800 text-gray-200"
+                  style={{ maxHeight: ACTION_SUBMENU_MAX_HEIGHT }}
+                >
                   {availableActionTypes.map((actionType) => (
                     <DropdownMenuItem
                       key={actionType}

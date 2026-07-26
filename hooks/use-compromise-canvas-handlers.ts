@@ -4,6 +4,7 @@ import type { CustomNode, CustomEdge } from "@/lib/types"
 import type { Template } from "@/components/template-panel"
 import { defaultDisplaySettings, LAYER_Z_INDEX, FIT_VIEW_OPTIONS } from "@/lib/utils/compromise-canvas-constants"
 import { calculateAutoAlignedPositions } from "@/lib/utils/compromise-canvas-utils"
+import { withoutTransientEdgeViewState } from "@/lib/edge-action-types"
 
 interface UseCompromiseCanvasHandlersProps {
   reactFlowInstance: ReactFlowInstance | null
@@ -29,7 +30,9 @@ interface UseCompromiseCanvasHandlersProps {
 
 const withoutTransientSelection = ({ nodes, edges }: { nodes: CustomNode[]; edges: CustomEdge[] }) => ({
   nodes: nodes.map(({ selected: _selected, dragging: _dragging, ...node }) => node as CustomNode),
-  edges: edges.map(({ selected: _selected, ...edge }) => edge as CustomEdge),
+  edges: edges.map(({ selected: _selected, ...edge }) =>
+    withoutTransientEdgeViewState(edge as CustomEdge),
+  ),
 })
 
 export const useCompromiseCanvasHandlers = ({
@@ -91,7 +94,9 @@ export const useCompromiseCanvasHandlers = ({
           dragging: false,
         }))
         const newNodes = nodesWithDisplaySettings || []
-        const newEdges = (flow.edges || []).map((edge: CustomEdge) => ({ ...edge, selected: false }))
+        const newEdges = (flow.edges || []).map((edge: CustomEdge) =>
+          withoutTransientEdgeViewState({ ...edge, selected: false }),
+        )
         setNodes(newNodes)
         setEdges(newEdges)
         setSelectedElement(null)
@@ -186,7 +191,13 @@ export const useCompromiseCanvasHandlers = ({
               selected: false,
               dragging: false,
             }))
-            const importedEdges = jsonData.diagram.edges.map((edge: CustomEdge) => ({ ...edge, selected: false }))
+            const importedEdges = jsonData.diagram.edges.map(
+              (edge: CustomEdge) =>
+                withoutTransientEdgeViewState({
+                  ...edge,
+                  selected: false,
+                }),
+            )
 
             if (nodes.length > 0 || edges.length > 0) {
               if (window.confirm("Importing will replace the current diagram. Continue?")) {
@@ -316,7 +327,13 @@ export const useCompromiseCanvasHandlers = ({
         selected: false,
         dragging: false,
       }))
-      const templateEdges = (template.edges as CustomEdge[]).map((edge) => ({ ...edge, selected: false }))
+      const templateEdges = (template.edges as CustomEdge[]).map(
+        (edge) =>
+          withoutTransientEdgeViewState({
+            ...edge,
+            selected: false,
+          }),
+      )
       setNodes(nodesWithDisplaySettings)
       setEdges(templateEdges)
       setIncidentLog(template.incidentLog ?? [])

@@ -316,9 +316,10 @@ export interface MitreTechniqueReference {
 export interface EdgeData extends Record<string, unknown> {
   label?: string
   actionType: EdgeActionType
-  // Self-connections can describe more than one action without adding
-  // overlapping edges. `actionType` remains the primary value so existing
-  // canvases and consumers stay backward compatible.
+  // Self-connections can classify one shared event as more than one action
+  // without adding overlapping edges. Every action in this array shares the
+  // connection's timestamp, evidence, MITRE mappings, and description.
+  // `actionType` remains the primary value for backward compatibility.
   actionTypes?: EdgeActionType[]
   toolUsed: string // For non-C2 edges, this is "Tool Used"
   userUsed: string // For non-C2 edges, this is "User Used"
@@ -336,9 +337,6 @@ export interface EdgeData extends Record<string, unknown> {
   unlocked?: boolean
   labelOffsetX?: number
   labelOffsetY?: number
-  // Presentation state for compact multi-action self-connections. When set,
-  // the complete action list stays visible without requiring hover or selection.
-  actionTypesExpanded?: boolean
   // Display settings
   displaySettings: EdgeDisplaySettings
 }
