@@ -35,8 +35,11 @@ import { useCompromiseCanvasHandlers } from "@/hooks/use-compromise-canvas-handl
 import { useReactFlowCallbacks } from "@/hooks/use-reactflow-callbacks"
 import { Button } from "@/components/ui/button"
 import { CanvasActionsProvider } from "./canvas-actions-context"
+import { CanvasPresentationProvider } from "./canvas-presentation-context"
 import SelectionContextMenu from "./selection-context-menu"
 import SelectionToolbar from "./selection-toolbar"
+import PresentationControls from "./presentation-controls"
+import { useCanvasPresentation } from "@/hooks/use-canvas-presentation"
 
 const nodeTypes = {
   customNode: CustomNode,
@@ -55,6 +58,29 @@ export default function CompromiseCanvas() {
   const [selectionContextMenuPoint, setSelectionContextMenuPoint] = useState<{ x: number; y: number } | null>(null)
   const [expandedSelfConnectionIds, setExpandedSelfConnectionIds] =
     useState<Set<string>>(() => new Set())
+  const {
+    presentationMode,
+    autosavePaused: presentationAutosavePaused,
+    showAllDetails: showAllPresentationDetails,
+    playbackActive: presentationPlaybackActive,
+    playbackTimeline: presentationPlaybackTimeline,
+    playbackIndex: presentationPlaybackIndex,
+    inspectedPlaybackEdgeId: inspectedPresentationPlaybackEdgeId,
+    expandedNodeIds: expandedPresentationNodeIds,
+    expandedEdgeIds: expandedPresentationEdgeIds,
+    playbackFrame: presentationPlaybackFrame,
+    inspectedPlaybackNodeIds: inspectedPresentationPlaybackNodeIds,
+    expandedLayout: expandedPresentationLayout,
+    enterPresentation,
+    exitPresentation: handleExitPresentation,
+    toggleAllDetails: toggleAllPresentationDetails,
+    toggleNodeDetails: togglePresentationNodeDetails,
+    toggleEdgeDetails: togglePresentationEdgeDetails,
+    togglePlayback: handleTogglePresentationPlayback,
+    setPlaybackIndex: setPresentationPlaybackIndex,
+    focusCurrentPlaybackStep: handleFocusCurrentPlaybackStep,
+    inspectPlaybackIssue: handleInspectPresentationPlaybackIssue,
+  } = useCanvasPresentation()
 
   // Use centralized state management hook
   const {
@@ -78,6 +104,7 @@ export default function CompromiseCanvas() {
     autosaveEnabled,
     autosaveStatus,
     lastAutosavedAt,
+    flushAutosave,
     incidentLog,
     setNodes,
     setEdges,
@@ -111,7 +138,7 @@ export default function CompromiseCanvas() {
     toast,
     showIncidentLogPanel,
     setShowIncidentLogPanel,
-  } = useCompromiseCanvasState()
+  } = useCompromiseCanvasState({ autosavePaused: presentationAutosavePaused })
 
   // Use ReactFlow callbacks hook
   const {
@@ -145,13 +172,60 @@ export default function CompromiseCanvas() {
 
   const selectedElementCount = selectedNodeCount + selectedEdgeCount
   const multiSelectionActive = selectedElementCount > 1
+  const handleEnterPresentation = useCallback(() => {
+    enterPresentation({
+      reactFlowInstance,
+      nodes,
+      edges,
+      flushAutosave,
+      onBeforeEnter: () => setSelectionContextMenuPoint(null),
+    })
+  }, [
+    edges,
+    enterPresentation,
+    flushAutosave,
+    nodes,
+    reactFlowInstance,
+  ])
   const renderedNodes = useMemo(
-    () => nodes.map((node) => ({
-      ...node,
-      className: [node.className, "nokey"].filter(Boolean).join(" "),
-      connectable: node.type !== "labeledGroupNode",
-    })),
-    [nodes],
+    () => nodes.map((node) => {
+      const presentationPosition =
+        presentationMode
+          ? expandedPresentationLayout?.positions[node.id]
+          : undefined
+      const presentationGroupSize =
+        presentationMode && node.type === "labeledGroupNode"
+          ? expandedPresentationLayout?.groupSizes[node.id]
+          : undefined
+
+      return {
+        ...node,
+        position: presentationPosition ?? node.position,
+        width: presentationGroupSize?.width ?? node.width,
+        height: presentationGroupSize?.height ?? node.height,
+        style: presentationGroupSize
+          ? {
+              ...node.style,
+              width: presentationGroupSize.width,
+              height: presentationGroupSize.height,
+            }
+          : node.style,
+        selected: presentationMode ? false : node.selected,
+        className: [
+          node.className,
+          "nokey",
+          presentationMode && "presentation-layout-transition",
+        ].filter(Boolean).join(" "),
+        connectable: node.type !== "labeledGroupNode",
+      }
+    }),
+    [expandedPresentationLayout, nodes, presentationMode],
+  )
+  const renderedEdges = useMemo(
+    () => presentationMode
+      ? edges.map((edge) => ({ ...edge, selected: false }))
+      : edges,
+    [edges, presentationMode],
   )
 
   const handleNodeContextMenu = useCallback(
@@ -214,6 +288,22 @@ export default function CompromiseCanvas() {
       reset(state)
     },
     [reset],
+  )
+
+  const handlePresentationNodeClick = useCallback(
+    (event: React.MouseEvent, node: CanvasNode) => {
+      event.stopPropagation()
+      if (node.type === "customNode") togglePresentationNodeDetails(node.id)
+    },
+    [togglePresentationNodeDetails],
+  )
+
+  const handlePresentationEdgeClick = useCallback(
+    (event: React.MouseEvent, edge: CanvasEdge) => {
+      event.stopPropagation()
+      togglePresentationEdgeDetails(edge.id)
+    },
+    [togglePresentationEdgeDetails],
   )
 
   // Use handlers hook
@@ -333,7 +423,7 @@ export default function CompromiseCanvas() {
     () =>
       createEdgeTypes(
         animationsEnabled,
-        selectedElement,
+        presentationMode ? null : selectedElement,
         expandedSelfConnectionIds,
         deleteEdgeById,
         handleSetEdgeActionTypes,
@@ -344,6 +434,7 @@ export default function CompromiseCanvas() {
       ),
     [
       animationsEnabled,
+      presentationMode,
       selectedElement,
       expandedSelfConnectionIds,
       deleteEdgeById,
@@ -366,8 +457,9 @@ export default function CompromiseCanvas() {
 
   // Keyboard event listener for Delete/Backspace and Undo/Redo
   useEffect(() => {
+    if (presentationMode) return
     return setupKeyboardHandlers(handleDeleteSelected)
-  }, [setupKeyboardHandlers, handleDeleteSelected])
+  }, [presentationMode, setupKeyboardHandlers, handleDeleteSelected])
 
   // Show mobile warning if on mobile and not dismissed
   if (isMobile && showMobileWarning && !dismissedMobileWarning) {
@@ -383,63 +475,96 @@ export default function CompromiseCanvas() {
 
   return (
     <div className="ip-app flex h-screen w-screen flex-col">
-      <HeaderControls
-        onSave={handleSave}
-        onLoad={handleLoad}
-        onSaveAsJSON={handleSaveAsJSON}
-        onImportJSON={handleImportJSON}
+      {!presentationMode && (
+        <HeaderControls
+          onSave={handleSave}
+          onLoad={handleLoad}
+          onSaveAsJSON={handleSaveAsJSON}
+          onImportJSON={handleImportJSON}
 
-        onFitView={handleFitView}
-        onToggleTemplates={handleToggleTemplatePanel}
-        onToggleTimeline={handleToggleTimelinePanel}
-        onToggleIncidentLog={() => setShowIncidentLogPanel(!showIncidentLogPanel)}
-        onStartFromScratch={handleStartFromScratch}
-        onAutoAlign={handleAutoAlign}
-        onClear={handleClear}
-        onToggleAnimations={handleToggleAnimations}
-        onUndo={handleUndo}
-        onRedo={handleRedo}
-        onCopy={handleCopy}
-        onPaste={() => handlePaste()}
-        onShowDataHandling={handleShowDataHandling}
-        showTemplates={showTemplatePanel}
-        showTimeline={showTimelinePanel}
-        showIncidentLog={showIncidentLogPanel}
-        hasSelection={nodes.length > 0}
-        isExporting={isExporting}
-        animationsEnabled={animationsEnabled}
-        canUndo={canUndo}
-        canRedo={canRedo}
-        canCopy={nodes.some((n) => n.selected) || edges.some((e) => e.selected) || selectedElement !== null}
-        canPaste={hasClipboardData()}
-        autosaveEnabled={autosaveEnabled}
-        autosaveStatus={autosaveStatus}
-        lastAutosavedAt={lastAutosavedAt}
-        onToggleAutosave={handleToggleAutosave}
-      />
+          onFitView={handleFitView}
+          onToggleTemplates={handleToggleTemplatePanel}
+          onToggleTimeline={handleToggleTimelinePanel}
+          onToggleIncidentLog={() => setShowIncidentLogPanel(!showIncidentLogPanel)}
+          onStartFromScratch={handleStartFromScratch}
+          onAutoAlign={handleAutoAlign}
+          onClear={handleClear}
+          onToggleAnimations={handleToggleAnimations}
+          onUndo={handleUndo}
+          onRedo={handleRedo}
+          onCopy={handleCopy}
+          onPaste={() => handlePaste()}
+          onShowDataHandling={handleShowDataHandling}
+          showTemplates={showTemplatePanel}
+          showTimeline={showTimelinePanel}
+          showIncidentLog={showIncidentLogPanel}
+          hasSelection={nodes.length > 0}
+          isExporting={isExporting}
+          animationsEnabled={animationsEnabled}
+          canUndo={canUndo}
+          canRedo={canRedo}
+          canCopy={nodes.some((n) => n.selected) || edges.some((e) => e.selected) || selectedElement !== null}
+          canPaste={hasClipboardData()}
+          autosaveEnabled={autosaveEnabled}
+          autosaveStatus={autosaveStatus}
+          lastAutosavedAt={lastAutosavedAt}
+          onToggleAutosave={handleToggleAutosave}
+          onEnterPresentation={handleEnterPresentation}
+          canPresent={
+            !presentationAutosavePaused &&
+            (nodes.length > 0 || edges.length > 0)
+          }
+        />
+      )}
       <div className="flex flex-1 overflow-hidden">
-        {showTemplatePanel ? (
-          <TemplatePanel
-            onLoadTemplate={handleLoadTemplate}
-            onSaveAsTemplate={handleSaveAsTemplate}
-            currentNodes={nodes}
-            currentEdges={edges}
-            onClose={handleCloseTemplatePanel}
-          />
-        ) : (
-          <AssetLibrary />
+        {!presentationMode && (
+          showTemplatePanel ? (
+            <TemplatePanel
+              onLoadTemplate={handleLoadTemplate}
+              onSaveAsTemplate={handleSaveAsTemplate}
+              currentNodes={nodes}
+              currentEdges={edges}
+              onClose={handleCloseTemplatePanel}
+            />
+          ) : (
+            <AssetLibrary />
+          )
         )}
         <div className="flex-1 relative" ref={reactFlowWrapper}>
-          <CanvasActionsProvider updateNode={updateNode} multiSelectionActive={multiSelectionActive}>
-            <ReactFlow
+          <CanvasPresentationProvider
+            presentationMode={presentationMode}
+            showAllDetails={showAllPresentationDetails}
+            expandedNodeIds={expandedPresentationNodeIds}
+            expandedEdgeIds={expandedPresentationEdgeIds}
+            playbackActive={presentationMode && presentationPlaybackActive}
+            currentPlaybackEdgeId={
+              presentationPlaybackFrame.currentEvent?.edgeId ?? null
+            }
+            inspectedPlaybackEdgeId={
+              inspectedPresentationPlaybackEdgeId
+            }
+            reachedPlaybackNodeIds={presentationPlaybackFrame.reachedNodeIds}
+            reachedPlaybackEdgeIds={presentationPlaybackFrame.reachedEdgeIds}
+            currentPlaybackNodeIds={presentationPlaybackFrame.currentNodeIds}
+            inspectedPlaybackNodeIds={
+              inspectedPresentationPlaybackNodeIds
+            }
+            toggleNodeDetails={togglePresentationNodeDetails}
+            toggleEdgeDetails={togglePresentationEdgeDetails}
+          >
+            <CanvasActionsProvider
+              updateNode={updateNode}
+              multiSelectionActive={presentationMode ? false : multiSelectionActive}
+            >
+              <ReactFlow
               nodes={renderedNodes}
-              edges={edges}
-              onNodesChange={onNodesChange}
-              onEdgesChange={setEdgesChange}
-              onConnect={onConnect}
+              edges={renderedEdges}
+              onNodesChange={presentationMode ? undefined : onNodesChange}
+              onEdgesChange={presentationMode ? undefined : setEdgesChange}
+              onConnect={presentationMode ? undefined : onConnect}
               onInit={setReactFlowInstance}
-              onDrop={onDrop}
-              onDragOver={onDragOver}
+              onDrop={presentationMode ? undefined : onDrop}
+              onDragOver={presentationMode ? undefined : onDragOver}
               nodeTypes={nodeTypes}
               edgeTypes={edgeTypes}
               defaultEdgeOptions={{
@@ -454,19 +579,21 @@ export default function CompromiseCanvas() {
               nodeClickDistance={5}
               snapToGrid={snapToGrid}
               snapGrid={[15, 15]}
-              onNodeClick={onNodeClick}
-              onNodeContextMenu={handleNodeContextMenu}
-              onEdgeClick={onEdgeClick}
-              onEdgeContextMenu={handleEdgeContextMenu}
-              onPaneClick={onPaneClick}
-              onPaneContextMenu={onPaneContextMenu}
-              onSelectionChange={onSelectionChange}
-              onPointerDownCapture={handleSelectionPointerDownCapture}
+              onNodeClick={presentationMode ? handlePresentationNodeClick : onNodeClick}
+              onNodeContextMenu={presentationMode ? undefined : handleNodeContextMenu}
+              onEdgeClick={presentationMode ? handlePresentationEdgeClick : onEdgeClick}
+              onEdgeContextMenu={presentationMode ? undefined : handleEdgeContextMenu}
+              onPaneClick={presentationMode ? undefined : onPaneClick}
+              onPaneContextMenu={presentationMode ? undefined : onPaneContextMenu}
+              onSelectionChange={presentationMode ? undefined : onSelectionChange}
+              onPointerDownCapture={presentationMode ? undefined : handleSelectionPointerDownCapture}
               className="ip-canvas"
               // Performance optimizations for smooth dragging
-              nodesDraggable={true}
-              nodesConnectable={true}
-              elementsSelectable={true}
+              nodesDraggable={!presentationMode}
+              nodesConnectable={!presentationMode}
+              nodesFocusable={!presentationMode}
+              edgesFocusable={!presentationMode}
+              elementsSelectable={!presentationMode}
               selectNodesOnDrag={false}
               // Preserve the existing canvas controls: plain drag pans and
               // Shift-drag on empty canvas starts the selection marquee.
@@ -483,7 +610,7 @@ export default function CompromiseCanvas() {
               connectionLineStyle={{ strokeWidth: 2, stroke: "#8B5CF6" }}
               deleteKeyCode={null}
             >
-              {multiSelectionActive && (
+              {!presentationMode && multiSelectionActive && (
                 <Panel position="top-right" className="z-30 m-3">
                   <SelectionToolbar
                     selectedNodeCount={selectedNodeCount}
@@ -500,63 +627,97 @@ export default function CompromiseCanvas() {
                   />
                 </Panel>
               )}
-              <Controls />
+              {!presentationMode && <Controls />}
               <Background variant={"dots" as any} gap={12} size={1} color="#4B5563" />
-              <Panel position="top-left" className="z-10 p-2 text-sm text-gray-400">
-                <CanvasTitle title={canvasTitle} onTitleChange={setCanvasTitle} />
-                <div className="mt-2">
-                  {nodes.length === 0 && edges.length === 0
-                    ? "Start by dragging assets from the left panel or open a template."
-                    : "Drag to pan. Hold Shift and drag to select."}
-                </div>
-              </Panel>
-              <Panel position="bottom-right" className="p-2 text-xs text-gray-500">
-                Created by SagaLabs - Train as you fight
-                <br />
-                <span className="text-xs opacity-70">Developed with AI assistance</span>
-              </Panel>
-            </ReactFlow>
-            <SelectionContextMenu
-              open={selectionContextMenuPoint !== null}
-              point={selectionContextMenuPoint}
-              onOpenChange={handleSelectionContextMenuOpenChange}
+              {!presentationMode && (
+                <>
+                  <Panel position="top-left" className="z-10 p-2 text-sm text-gray-400">
+                    <CanvasTitle title={canvasTitle} onTitleChange={setCanvasTitle} />
+                    <div className="mt-2">
+                      {nodes.length === 0 && edges.length === 0
+                        ? "Start by dragging assets from the left panel or open a template."
+                        : "Drag to pan. Hold Shift and drag to select."}
+                    </div>
+                  </Panel>
+                  <Panel position="bottom-right" className="p-2 text-xs text-gray-500">
+                    Created by SagaLabs - Train as you fight
+                    <br />
+                    <span className="text-xs opacity-70">Developed with AI assistance</span>
+                  </Panel>
+                </>
+              )}
+              </ReactFlow>
+              {!presentationMode && (
+                <SelectionContextMenu
+                  open={selectionContextMenuPoint !== null}
+                  point={selectionContextMenuPoint}
+                  onOpenChange={handleSelectionContextMenuOpenChange}
+                  selectedNodeCount={selectedNodeCount}
+                  selectedEdgeCount={selectedEdgeCount}
+                  arrangeableNodeCount={arrangeableNodeCount}
+                  bulkStatusNodeCount={bulkStatusNodeCount}
+                  allBulkStatusNodesCompromised={allBulkStatusNodesCompromised}
+                  bulkInvestigationStatus={bulkInvestigationStatus}
+                  onCopy={copySelection}
+                  onDelete={handleDeleteSelected}
+                  onLayout={handleSelectionLayout}
+                  onToggleCompromised={handleToggleSelectedCompromised}
+                  onSetInvestigationStatus={handleSetSelectedInvestigationStatus}
+                />
+              )}
+            </CanvasActionsProvider>
+          </CanvasPresentationProvider>
+          {presentationMode && (
+            <PresentationControls
+              showAllDetails={showAllPresentationDetails}
+              playbackActive={presentationPlaybackActive}
+              playbackEvents={presentationPlaybackTimeline.events}
+              playbackCoverage={presentationPlaybackTimeline.coverage}
+              playbackIssues={presentationPlaybackTimeline.issues}
+              playbackIndex={presentationPlaybackIndex}
+              inspectedPlaybackEdgeId={
+                inspectedPresentationPlaybackEdgeId
+              }
+              onToggleAllDetails={toggleAllPresentationDetails}
+              onTogglePlayback={handleTogglePresentationPlayback}
+              onPlaybackIndexChange={setPresentationPlaybackIndex}
+              onFocusCurrentPlaybackStep={
+                handleFocusCurrentPlaybackStep
+              }
+              onInspectPlaybackIssue={
+                handleInspectPresentationPlaybackIssue
+              }
+              onExit={handleExitPresentation}
+            />
+          )}
+        </div>
+        {!presentationMode && (
+          <>
+            <div className="pointer-events-none absolute bottom-4 left-1/2 z-20 -translate-x-1/2">
+              <Button
+                type="button"
+                size="sm"
+                className="pointer-events-auto rounded-full border border-blue-500/40 bg-gray-900/80 px-4 py-2 text-blue-300 shadow-lg backdrop-blur hover:bg-blue-600 hover:text-white"
+                onClick={handleToggleTimelinePanel}
+              >
+                Open Timeline
+              </Button>
+            </div>
+            <PropertiesPanel
+              selectedElement={selectedElement}
               selectedNodeCount={selectedNodeCount}
               selectedEdgeCount={selectedEdgeCount}
-              arrangeableNodeCount={arrangeableNodeCount}
-              bulkStatusNodeCount={bulkStatusNodeCount}
-              allBulkStatusNodesCompromised={allBulkStatusNodesCompromised}
-              bulkInvestigationStatus={bulkInvestigationStatus}
-              onCopy={copySelection}
+              updateNode={updateNode}
+              updateEdge={updateEdge}
               onDelete={handleDeleteSelected}
-              onLayout={handleSelectionLayout}
-              onToggleCompromised={handleToggleSelectedCompromised}
-              onSetInvestigationStatus={handleSetSelectedInvestigationStatus}
             />
-          </CanvasActionsProvider>
-        </div>
-        <div className="pointer-events-none absolute bottom-4 left-1/2 z-20 -translate-x-1/2">
-          <Button
-            type="button"
-            size="sm"
-            className="pointer-events-auto rounded-full border border-blue-500/40 bg-gray-900/80 px-4 py-2 text-blue-300 shadow-lg backdrop-blur hover:bg-blue-600 hover:text-white"
-            onClick={handleToggleTimelinePanel}
-          >
-            Open Timeline
-          </Button>
-        </div>
-        <PropertiesPanel
-          selectedElement={selectedElement}
-          selectedNodeCount={selectedNodeCount}
-          selectedEdgeCount={selectedEdgeCount}
-          updateNode={updateNode}
-          updateEdge={updateEdge}
-          onDelete={handleDeleteSelected}
-        />
+          </>
+        )}
       </div>
 
       {/* Timeline Modal */}
       <TimelineModal
-        isOpen={showTimelinePanel}
+        isOpen={!presentationMode && showTimelinePanel}
         onClose={handleCloseTimelinePanel}
         edges={edges}
         nodes={nodes}
@@ -567,14 +728,17 @@ export default function CompromiseCanvas() {
       />
 
       <IncidentLogPanel
-        isOpen={showIncidentLogPanel}
+        isOpen={!presentationMode && showIncidentLogPanel}
         onClose={() => setShowIncidentLogPanel(false)}
         incidentLog={incidentLog}
         setIncidentLog={setIncidentLog}
       />
 
       {/* Data Handling Modal */}
-      <DataHandlingModal isOpen={showDataHandlingModal} onClose={handleCloseDataHandling} />
+      <DataHandlingModal
+        isOpen={!presentationMode && showDataHandlingModal}
+        onClose={handleCloseDataHandling}
+      />
     </div>
   )
 }

@@ -6,6 +6,7 @@ import { Handle, Position, type Node, type NodeProps, NodeResizer } from "@xyflo
 import { cn } from "@/lib/utils"
 import type { NodeData } from "@/lib/types"
 import { useCanvasActions } from "./canvas-actions-context"
+import { useCanvasPresentation } from "./canvas-presentation-context"
 
 const GroupNode = memo(function GroupNode({ data, selected }: NodeProps<Node<NodeData>>) {
   const label = data.label || "Asset Group"
@@ -13,6 +14,7 @@ const GroupNode = memo(function GroupNode({ data, selected }: NodeProps<Node<Nod
   const transparency = data.transparency !== undefined ? data.transparency : 0.2
   const [isHovered, setIsHovered] = useState(false)
   const { multiSelectionActive } = useCanvasActions()
+  const { presentationMode } = useCanvasPresentation()
 
   // Map colors to specific Tailwind values for border/text
   const colorMap = {
@@ -32,7 +34,7 @@ const GroupNode = memo(function GroupNode({ data, selected }: NodeProps<Node<Nod
           "relative rounded-lg border-2 border-dashed p-6 mix-blend-multiply transition-colors duration-200",
           "backdrop-blur-sm shadow-lg h-full w-full",
           styles.border,
-          selected && multiSelectionActive && "ip-multi-selected",
+          !presentationMode && selected && multiSelectionActive && "ip-multi-selected",
         )}
         style={{
           backgroundColor: styles.bg.replace("bg-", "rgba(") // This is tricky with Tailwind classes, let's use rgba directly mapping or style
@@ -86,7 +88,7 @@ const GroupNode = memo(function GroupNode({ data, selected }: NodeProps<Node<Nod
         />
       </div>
       <NodeResizer
-        isVisible={!multiSelectionActive && (selected || isHovered)}
+        isVisible={!presentationMode && !multiSelectionActive && (selected || isHovered)}
         minWidth={300}
         minHeight={200}
         lineClassName={styles.border}

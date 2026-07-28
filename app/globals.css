@@ -586,6 +586,10 @@
   z-index: 10 !important;
 }
 
+.react-flow__node.presentation-layout-transition {
+  transition: transform 300ms ease;
+}
+
 .react-flow__edgelabel-renderer {
   z-index: 15 !important;
 }
@@ -632,7 +636,9 @@
 @media (prefers-reduced-motion: reduce) {
   .animate-border-pulse,
   .animate-edge-pulse,
+  .react-flow__node.presentation-layout-transition,
   .react-flow__edge-path {
     animation: none !important;
+    transition: none !important;
   }
 }

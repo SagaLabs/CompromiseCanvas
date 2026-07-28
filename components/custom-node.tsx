@@ -2,6 +2,7 @@ import { memo, useMemo, useState, useCallback, useRef, useEffect } from "react"
 import { Handle, Position, NodeResizer, type Node, type NodeProps, useReactFlow } from "@xyflow/react"
 import NodeToolbar from "./node-toolbar"
 import { useCanvasActions } from "./canvas-actions-context"
+import { useCanvasPresentation } from "./canvas-presentation-context"
 import {
   Server,
   Database,
@@ -42,6 +43,7 @@ import {
 } from "lucide-react"
 import type { NodeData, Criticality, InvestigationStatus } from "@/lib/types"
 import { cn } from "@/lib/utils"
+import { presentationNodeDisplaySettings } from "@/lib/presentation-details"
 
 const assetIcons = {
   "web-server": Server,
@@ -96,9 +98,42 @@ const actionIcons = {
   Other: Info,
 }
 
-const CustomNode = memo(function CustomNode({ data, isConnectable, selected, id }: NodeProps<Node<NodeData>>) {
+const CustomNode = memo(function CustomNode({ data: nodeData, isConnectable, selected, id }: NodeProps<Node<NodeData>>) {
   const { setNodes } = useReactFlow()
   const { updateNode, multiSelectionActive } = useCanvasActions()
+  const {
+    presentationMode,
+    showAllDetails,
+    expandedNodeIds,
+    playbackActive,
+    reachedPlaybackNodeIds,
+    currentPlaybackNodeIds,
+    inspectedPlaybackNodeIds,
+    toggleNodeDetails,
+  } = useCanvasPresentation()
+  const presentationDetailsExpanded =
+    presentationMode && (showAllDetails || expandedNodeIds.has(id))
+  const playbackState = !playbackActive
+    ? "inactive"
+    : inspectedPlaybackNodeIds.has(id)
+      ? "missing"
+      : currentPlaybackNodeIds.has(id)
+      ? "current"
+      : reachedPlaybackNodeIds.has(id)
+        ? "reached"
+        : "future"
+  const data = useMemo(
+    () => presentationDetailsExpanded
+      ? {
+          ...nodeData,
+          displaySettings: {
+            ...nodeData.displaySettings,
+            ...presentationNodeDisplaySettings,
+          },
+        }
+      : nodeData,
+    [nodeData, presentationDetailsExpanded],
+  )
   const Icon = assetIcons[data.type] || ServerCog // Default icon
   const CriticalityColorClass = criticalityColors[data.criticality] || "bg-gray-500"
 
@@ -138,10 +173,10 @@ const CustomNode = memo(function CustomNode({ data, isConnectable, selected, id 
   // Memoize style object to prevent recreation on every render
   const nodeStyle = useMemo(() => ({
     width: data.width || 'auto',
-    height: data.height || 'auto',
+    height: presentationDetailsExpanded ? 'auto' : data.height || 'auto',
     minWidth: '200px',
     minHeight: '120px',
-  }), [data.width, data.height])
+  }), [data.width, data.height, presentationDetailsExpanded])
 
   const renderNodeInfo = () => {
     if (data.type === "identity" && data.identityData) {
@@ -399,15 +434,36 @@ const CustomNode = memo(function CustomNode({ data, isConnectable, selected, id 
         "relative flex flex-col items-center justify-center rounded-lg border px-4 py-3 shadow-md",
         nodeClassName,
         "text-white",
-        selected && (multiSelectionActive
+        playbackActive && "transition-[opacity,filter,box-shadow] duration-300",
+        playbackState === "future" && "brightness-[0.35] saturate-50",
+        playbackState === "current" &&
+          "ring-4 ring-pink-400/70 ring-offset-2 ring-offset-gray-950 shadow-[0_0_28px_rgba(236,72,153,0.35)]",
+        playbackState === "missing" &&
+          "ring-4 ring-amber-300/80 ring-offset-2 ring-offset-gray-950 shadow-[0_0_28px_rgba(251,191,36,0.4)]",
+        !presentationMode && selected && (multiSelectionActive
           ? "ip-multi-selected border-2 border-blue-400"
           : "animate-border-pulse border-4 border-blue-400")
       )}
       style={nodeStyle}
+      data-presentation-expanded={presentationDetailsExpanded ? "true" : undefined}
+      data-presentation-playback-state={
+        playbackActive ? playbackState : undefined
+      }
+      role={presentationMode ? "button" : undefined}
+      tabIndex={presentationMode ? 0 : undefined}
+      aria-expanded={presentationMode ? presentationDetailsExpanded : undefined}
+      aria-label={presentationMode ? `${data.label} details` : undefined}
+      onKeyDown={presentationMode
+        ? (event) => {
+            if (event.key !== "Enter" && event.key !== " ") return
+            event.preventDefault()
+            toggleNodeDetails(id)
+          }
+        : undefined}
       onMouseEnter={showToolbar}
       onMouseLeave={hideToolbar}
     >
-      {data.type !== "attacker" && !multiSelectionActive && (
+      {!presentationMode && data.type !== "attacker" && !multiSelectionActive && (
         <NodeToolbar
           nodeId={id}
           isVisible={isHovered || selected || menuOpen}
@@ -421,7 +477,7 @@ const CustomNode = memo(function CustomNode({ data, isConnectable, selected, id 
         />
       )}
       <NodeResizer
-        isVisible={!multiSelectionActive && (selected || isHovered)}
+        isVisible={!presentationMode && !multiSelectionActive && (selected || isHovered)}
         minWidth={200}
         minHeight={120}
         lineClassName="border-blue-400 border-2"
@@ -444,7 +500,12 @@ const CustomNode = memo(function CustomNode({ data, isConnectable, selected, id 
           )
         }}
       />
-      <Handle type="target" position={Position.Left} isConnectable={isConnectable} className="!bg-red-500" />
+      <Handle
+        type="target"
+        position={Position.Left}
+        isConnectable={isConnectable && !presentationMode}
+        className={presentationMode ? "!pointer-events-none !opacity-0" : "!bg-red-500"}
+      />
 
       {/* Compromised indicator */}
       {data.isCompromised && (
@@ -538,7 +599,12 @@ const CustomNode = memo(function CustomNode({ data, isConnectable, selected, id 
           </ul>
         </div>
       )}
-      <Handle type="source" position={Position.Right} isConnectable={isConnectable} className="!bg-red-500" />
+      <Handle
+        type="source"
+        position={Position.Right}
+        isConnectable={isConnectable && !presentationMode}
+        className={presentationMode ? "!pointer-events-none !opacity-0" : "!bg-red-500"}
+      />
     </div>
   )
 })

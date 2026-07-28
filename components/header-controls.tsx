@@ -26,6 +26,7 @@ import {
   Copy,
   Clipboard,
   Info,
+  Presentation,
 } from "lucide-react"
 import ThemePicker from "./theme-picker"
 import { DownloadImageMenuItems } from "./download-button"
@@ -65,6 +66,8 @@ interface HeaderControlsProps {
   autosaveStatus: AutosaveStatus
   lastAutosavedAt: string | null
   onToggleAutosave: (enabled: boolean) => void
+  onEnterPresentation: () => void
+  canPresent: boolean
 }
 
 export default function HeaderControls({
@@ -99,6 +102,8 @@ export default function HeaderControls({
   autosaveStatus,
   lastAutosavedAt,
   onToggleAutosave,
+  onEnterPresentation,
+  canPresent,
 }: HeaderControlsProps) {
   const autosaveLabel = !autosaveEnabled
     ? "Autosave off"
@@ -331,6 +336,18 @@ export default function HeaderControls({
         >
           <Maximize className="h-5 w-5" aria-hidden="true" />
           <span className="sr-only">Fit View</span>
+        </Button>
+        <Button
+          variant="ghost"
+          size="icon"
+          onClick={onEnterPresentation}
+          disabled={!canPresent}
+          className={`${canPresent ? "text-gray-300 hover:bg-gray-700" : "cursor-not-allowed text-gray-500"}`}
+          title="Enter presentation mode"
+          aria-label="Enter presentation mode"
+        >
+          <Presentation className="h-5 w-5" aria-hidden="true" />
+          <span className="sr-only">Enter presentation mode</span>
         </Button>
         <Button
           variant="ghost"

@@ -27,6 +27,7 @@
     "dev": "next dev",
     "lint": "next lint",
     "test:mitre": "node --test tests/mitre-techniques.test.cjs",
+    "test:presentation": "node --test tests/presentation-playback.test.mjs tests/presentation-layout.test.cjs",
     "test:selection": "node --test tests/selection-layout.test.cjs",
     "update:mitre": "node scripts/update-mitre-techniques.mjs",
     "start": "next start"
