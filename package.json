@@ -18,6 +18,9 @@
     "visualization"
   ],
   "private": false,
+  "engines": {
+    "node": "22.x"
+  },
   "scripts": {
     "build": "next build",
     "dev": "next dev",
