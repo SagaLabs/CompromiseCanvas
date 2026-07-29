@@ -579,7 +579,7 @@
 }
 
 .react-flow__node-labeledGroupNode {
-  z-index: 0 !important;
+  z-index: -10 !important;
 }
 
 .react-flow__node-customNode {

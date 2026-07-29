@@ -47,7 +47,16 @@ export const useReactFlowCallbacks = ({
   handlePaste,
 }: UseReactFlowCallbacksProps) => {
   const onConnect = useCallback(
-    (params: Connection) =>
+    (params: Connection) => {
+      const sourceNode = nodes.find((node) => node.id === params.source)
+      const targetNode = nodes.find((node) => node.id === params.target)
+      if (
+        sourceNode?.type === "labeledGroupNode" ||
+        targetNode?.type === "labeledGroupNode"
+      ) {
+        return
+      }
+
       updateEdges((eds) =>
         addEdge(
           {
@@ -66,8 +75,9 @@ export const useReactFlowCallbacks = ({
           },
           eds,
         ),
-      ),
-    [updateEdges],
+      )
+    },
+    [nodes, updateEdges],
   )
 
   const onDragOver = useCallback((event: React.DragEvent) => {
