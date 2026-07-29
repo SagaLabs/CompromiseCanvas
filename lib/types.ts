@@ -316,6 +316,11 @@ export interface MitreTechniqueReference {
 export interface EdgeData extends Record<string, unknown> {
   label?: string
   actionType: EdgeActionType
+  // Self-connections can classify one shared event as more than one action
+  // without adding overlapping edges. Every action in this array shares the
+  // connection's timestamp, evidence, MITRE mappings, and description.
+  // `actionType` remains the primary value for backward compatibility.
+  actionTypes?: EdgeActionType[]
   toolUsed: string // For non-C2 edges, this is "Tool Used"
   userUsed: string // For non-C2 edges, this is "User Used"
   timestamp: string // ISO8601 format (e.g., 'YYYY-MM-DDTHH:MM:SSZ')

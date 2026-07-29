@@ -7,6 +7,7 @@ import { FileText } from 'lucide-react';
 import { Button } from "@/components/ui/button";
 import type { NodeData, EdgeData, IncidentLogEntry } from "@/lib/types";
 import { getMitreTechniqueLabel, normalizeMitreTechniqueReferences } from "@/lib/mitre-attack";
+import { getEdgeActionTypes } from "@/lib/edge-action-types";
 
 interface ExportReportButtonProps {
   label?: string
@@ -124,7 +125,7 @@ export default function ExportReportButton({
           parsedDate,
           source: sourceNode?.data.label || e.source,
           target: targetNode?.data.label || e.target,
-          action: d.actionType,
+          action: getEdgeActionTypes(d).join("\n"),
           mitre: normalizeMitreTechniqueReferences(
             d.mitreAttackTechniques,
             d.mitreAttackId,
@@ -221,7 +222,7 @@ export default function ExportReportButton({
       return [
         sourceNode?.data.label || e.source,
         targetNode?.data.label || e.target,
-        d.actionType,
+        getEdgeActionTypes(d).join("\n"),
         mitreTechniques.map(technique => getMitreTechniqueLabel(technique.id, technique.name)).join("\n") || '-',
         d.toolUsed || '-',
         d.description || ''

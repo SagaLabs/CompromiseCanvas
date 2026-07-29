@@ -21,6 +21,7 @@ import {
   getMitreTechniqueUrl,
   normalizeMitreTechniqueReferences,
 } from "@/lib/mitre-attack"
+import { getEdgeActionTypes } from "@/lib/edge-action-types"
 
 interface TimelineEvent {
   id: string
@@ -28,6 +29,7 @@ interface TimelineEvent {
   parsedDate: Date
   kind: "edge" | "incident"
   actionType?: EdgeActionType
+  actionTypes?: EdgeActionType[]
   toolUsed?: string
   userUsed?: string
   mitreAttackId?: string
@@ -73,7 +75,7 @@ const actionTypeTone: Record<EdgeActionType, string> = {
   "Data Manipulation": "text-purple-400 border-purple-400/40 bg-purple-500/10",
   "Service Abuse": "text-orange-400 border-orange-400/40 bg-orange-500/10",
   "Network Scanning": "text-cyan-400 border-cyan-400/40 bg-cyan-500/10",
-  "Vulnerability Exploitation": "text-red-400 border-red-400/40 bg-red-500/10",
+  "Vulnerability Exploitation": "text-orange-400 border-orange-400/40 bg-orange-500/10",
   "Social Engineering": "text-orange-400 border-orange-400/40 bg-orange-500/10",
   "Physical Access": "text-orange-400 border-orange-400/40 bg-orange-500/10",
   "Supply Chain Attack": "text-gray-300 border-gray-400/40 bg-gray-500/10",
@@ -156,6 +158,7 @@ export default function TimelineModal({
             parsedDate,
             kind: "edge",
             actionType: edge.data.actionType,
+            actionTypes: getEdgeActionTypes(edge.data),
             toolUsed: edge.data.toolUsed,
             userUsed: edge.data.userUsed,
             mitreAttackId: edge.data.mitreAttackId,
@@ -197,8 +200,8 @@ export default function TimelineModal({
   const availableActionTypes = useMemo(() => {
     const types = new Set<EdgeActionType>()
     timelineEvents.forEach((event) => {
-      if (event.kind === "edge" && event.actionType) {
-        types.add(event.actionType)
+      if (event.kind === "edge") {
+        event.actionTypes?.forEach((actionType) => types.add(actionType))
       }
     })
     return Array.from(types).sort()
@@ -212,8 +215,10 @@ export default function TimelineModal({
       if (
         event.kind === "edge" &&
         selectedActionTypes.length > 0 &&
-        event.actionType &&
-        !selectedActionTypes.includes(event.actionType)
+        event.actionTypes &&
+        !event.actionTypes.some((actionType) =>
+          selectedActionTypes.includes(actionType),
+        )
       ) {
         return false
       }
@@ -224,7 +229,7 @@ export default function TimelineModal({
       const targetLabel = event.targetId ? nodeLabels[event.targetId] || event.targetId : ""
 
       const haystack = [
-        event.actionType || "",
+        event.actionTypes?.join(" ") || event.actionType || "",
         event.toolUsed || "",
         event.userUsed || "",
         event.mitreAttackId || "",
@@ -363,9 +368,15 @@ export default function TimelineModal({
                 {filteredEvents.map((event, index) => {
                   const sourceLabel = event.sourceId ? nodeLabels[event.sourceId] || event.sourceId : ""
                   const targetLabel = event.targetId ? nodeLabels[event.targetId] || event.targetId : ""
+                  const eventActionTypes =
+                    event.actionTypes?.length
+                      ? event.actionTypes
+                      : event.actionType
+                        ? [event.actionType]
+                        : []
                   const tone =
-                    event.kind === "edge" && event.actionType
-                      ? actionTypeTone[event.actionType] || "text-gray-300 border-gray-400/40 bg-gray-500/10"
+                    event.kind === "edge" && eventActionTypes[0]
+                      ? actionTypeTone[eventActionTypes[0]] || "text-gray-300 border-gray-400/40 bg-gray-500/10"
                       : "text-gray-200 border-gray-400/40 bg-gray-500/10"
                   const startDate = filteredEvents[0]?.parsedDate
                   const deltaLabel = startDate ? formatDelta(startDate, event.parsedDate) : ""
@@ -400,8 +411,18 @@ export default function TimelineModal({
                               Incident Log
                             </span>
                           ) : (
-                            <span className={`rounded-full border px-2 py-0.5 text-xs ${tone}`}>
-                              {event.actionType}
+                            <span className="flex flex-wrap gap-1.5">
+                              {eventActionTypes.map((actionType) => (
+                                <span
+                                  key={actionType}
+                                  className={`rounded-full border px-2 py-0.5 text-xs ${
+                                    actionTypeTone[actionType] ||
+                                    "text-gray-300 border-gray-400/40 bg-gray-500/10"
+                                  }`}
+                                >
+                                  {actionType}
+                                </span>
+                              ))}
                             </span>
                           )}
                           {isIncident && event.incidentCategory && (

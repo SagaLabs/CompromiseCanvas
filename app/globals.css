@@ -579,18 +579,14 @@
 }
 
 .react-flow__node-labeledGroupNode {
-  z-index: 0 !important;
+  z-index: -10 !important;
 }
 
 .react-flow__node-customNode {
   z-index: 10 !important;
 }
 
-.react-flow__edge-label {
-  z-index: 15 !important;
-}
-
-.react-flow__edge-label-renderer {
+.react-flow__edgelabel-renderer {
   z-index: 15 !important;
 }
 

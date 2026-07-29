@@ -14,6 +14,7 @@ import { useToast } from "@/components/ui/use-toast"
 import { initialNodes, initialEdges } from "@/lib/utils/compromise-canvas-constants"
 import type { ActivityLogEntry, CustomNode, CustomEdge, IncidentLogEntry, InvestigationStatus } from "@/lib/types"
 import { layoutSelectedNodes, type SelectionLayoutAction } from "@/lib/selection-layout"
+import { withoutTransientEdgeViewState } from "@/lib/edge-action-types"
 
 const AUTOSAVE_ENABLED_KEY = "compromise-canvas-autosave-enabled"
 const AUTOSAVE_FLOW_KEY = "compromise-canvas-autosave-flow"
@@ -49,7 +50,9 @@ interface SelectionReference {
 const createAutosaveContent = ({ nodes, edges, viewport, canvasTitle, incidentLog }: AutosaveContent): AutosaveContent => ({
   // Selection and drag flags are transient UI state and create noisy writes while moving around the canvas.
   nodes: nodes.map(({ selected: _selected, dragging: _dragging, ...node }) => node),
-  edges: edges.map(({ selected: _selected, ...edge }) => edge),
+  edges: edges.map(({ selected: _selected, ...edge }) =>
+    withoutTransientEdgeViewState(edge as CustomEdge),
+  ),
   viewport,
   canvasTitle,
   incidentLog,
@@ -169,25 +172,34 @@ export const useCompromiseCanvasState = () => {
             throw new Error("Autosave snapshot has an invalid structure")
           }
 
+          const restoredEdges = snapshot.edges.map(
+            withoutTransientEdgeViewState,
+          )
+          const restoredContent = JSON.stringify({
+            version: "1.0",
+            ...createAutosaveContent({
+              nodes: snapshot.nodes,
+              edges: restoredEdges,
+              viewport: snapshot.viewport,
+              canvasTitle:
+                snapshot.canvasTitle || "Intrusion Path Diagram",
+              incidentLog: Array.isArray(snapshot.incidentLog)
+                ? snapshot.incidentLog
+                : [],
+            }),
+          })
+
           setNodes(snapshot.nodes)
-          setEdges(snapshot.edges)
+          setEdges(restoredEdges)
           setCanvasTitle(snapshot.canvasTitle || "Intrusion Path Diagram")
           setIncidentLog(Array.isArray(snapshot.incidentLog) ? snapshot.incidentLog : [])
-          reset({ nodes: snapshot.nodes, edges: snapshot.edges })
+          reset({ nodes: snapshot.nodes, edges: restoredEdges })
           const restoredTimestamp = snapshot.timestamp || localStorage.getItem(AUTOSAVE_TIMESTAMP_KEY)
           setLastAutosavedAt(restoredTimestamp)
-          lastAutosaveContentRef.current = JSON.stringify(
-            {
-              version: "1.0",
-              ...createAutosaveContent({
-                nodes: snapshot.nodes,
-                edges: snapshot.edges,
-                viewport: snapshot.viewport,
-                canvasTitle: snapshot.canvasTitle || "Intrusion Path Diagram",
-                incidentLog: Array.isArray(snapshot.incidentLog) ? snapshot.incidentLog : [],
-              }),
-            },
-          )
+          lastAutosaveContentRef.current = restoredContent
+          if (restoredContent !== storedSnapshot) {
+            localStorage.setItem(AUTOSAVE_FLOW_KEY, restoredContent)
+          }
 
           setPendingAutosaveViewport(snapshot.viewport ?? null)
         } catch {

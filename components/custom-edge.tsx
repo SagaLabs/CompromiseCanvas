@@ -3,53 +3,49 @@ import { memo, useState, useRef, useCallback, useEffect } from "react"
 import { type Edge, type EdgeProps, getSmoothStepPath, EdgeLabelRenderer, BaseEdge, useStore } from "@xyflow/react"
 import type { EdgeData, EdgeActionType } from "@/lib/types"
 import {
-  MoveRight,
-  Upload,
-  Search,
   PenToolIcon as Tool,
   User,
   Clock,
-  Terminal,
   FileText,
   Wifi,
   Code,
-  Shield,
-  Key,
-  Eye,
-  Database,
-  Zap,
-  Target,
-  Hammer,
-  Truck,
-  Bug,
-  Lock,
-  Users,
-  Building,
-  Package,
-  Activity,
   ExternalLink,
-} from "lucide-react" // Import necessary icons
-import { cn } from "@/lib/utils" // Assuming cn utility is available
+} from "lucide-react"
+import { cn } from "@/lib/utils"
 import EdgeToolbar from "./edge-toolbar"
 import {
   getMitreTechniqueLabel,
   getMitreTechniqueUrl,
   normalizeMitreTechniqueReferences,
 } from "@/lib/mitre-attack"
+import { getEdgeActionTypes } from "@/lib/edge-action-types"
 import { useCanvasActions } from "./canvas-actions-context"
+import { getEdgeActionVisual } from "./edge-action-visuals"
+import { SelfConnectionActionCard } from "./self-connection-action-card"
+import {
+  formatCompactLocalTimestamp,
+  getCenteredParallelLaneCenters,
+} from "@/lib/self-connection-runtime"
 
 interface CustomEdgeProps extends EdgeProps<Edge<EdgeData>> {
   animationsEnabled?: boolean
   selected?: boolean
+  actionTypesExpanded?: boolean
   onDeleteEdge?: (id: string) => void
-  onSetEdgeActionType?: (id: string, actionType: EdgeActionType) => void
+  onSetEdgeActionTypes?: (id: string, actionTypes: EdgeActionType[]) => void
+  onSetEdgeActionTypesExpanded?: (id: string, expanded: boolean) => void
   onSelectEdge?: (id: string, additive?: boolean) => void
   onSetEdgeLabelOffset?: (id: string, x: number, y: number) => void
   onToggleEdgeUnlocked?: (id: string) => void
 }
 
 const EDGE_ROUTE_DRAG_THRESHOLD_PX = 4
+const EDGE_TOOLBAR_CARD_GAP_PX = 20
+const EDGE_TOOLBAR_ESTIMATED_WIDTH_PX = 104
+const EDGE_TOOLBAR_ESTIMATED_HEIGHT_PX = 38
 const SELF_LOOP_LABEL_CLEARANCE_PX = 80
+const SELF_LOOP_CARD_ASSET_GAP_PX = 16
+const SELF_LOOP_INITIAL_LABEL_CARD_HEIGHT_PX = 100
 
 interface SelfLoopGeometry {
   path: string
@@ -65,6 +61,8 @@ function getSelfLoopGeometry({
   nodeHeight = 0,
   offsetX = 0,
   offsetY = 0,
+  laneOffset = 0,
+  labelClearance = SELF_LOOP_LABEL_CLEARANCE_PX,
 }: {
   sourceX: number
   sourceY: number
@@ -73,12 +71,16 @@ function getSelfLoopGeometry({
   nodeHeight?: number
   offsetX?: number
   offsetY?: number
+  laneOffset?: number
+  labelClearance?: number
 }): SelfLoopGeometry {
   const nodeWidth = Math.abs(sourceX - targetX)
-  const sideOffset = Math.max(90, nodeWidth * 0.35)
+  const sideOffset =
+    Math.max(90, nodeWidth * 0.35) + laneOffset * 0.75
   const nodeClearanceHeight =
-    ((nodeHeight / 2 + SELF_LOOP_LABEL_CLEARANCE_PX) * 4) / 3
-  const controlHeight = Math.max(220, nodeWidth, nodeClearanceHeight)
+    ((nodeHeight / 2 + labelClearance) * 4) / 3
+  const controlHeight =
+    Math.max(220, nodeWidth, nodeClearanceHeight) + laneOffset
 
   // At the midpoint of a cubic curve, the two control points contribute 3/4
   // of its position. Scaling the drag offset by 4/3 keeps the label on the line.
@@ -112,8 +114,10 @@ const CustomEdge = memo(function CustomEdge({
   markerEnd,
   animationsEnabled = true,
   selected = false,
+  actionTypesExpanded = false,
   onDeleteEdge,
-  onSetEdgeActionType,
+  onSetEdgeActionTypes,
+  onSetEdgeActionTypesExpanded,
   onSelectEdge,
   onSetEdgeLabelOffset,
   onToggleEdgeUnlocked,
@@ -128,6 +132,11 @@ const CustomEdge = memo(function CustomEdge({
   // mouse is released after picking. Unlike a node (which stays selected on click),
   // an edge is never selected on hover, so we mimic that stickiness here.
   const [pinned, setPinned] = useState(false)
+  const labelCardRef = useRef<HTMLDivElement | null>(null)
+  const [labelCardHeight, setLabelCardHeight] = useState(
+    SELF_LOOP_INITIAL_LABEL_CARD_HEIGHT_PX,
+  )
+  const [labelCardWidth, setLabelCardWidth] = useState(220)
 
   // Hover-intent: delay hiding so the pointer can travel from the edge to the
   // toolbar (which floats above the label with a gap) without it vanishing.
@@ -160,6 +169,8 @@ const CustomEdge = memo(function CustomEdge({
 
   // Current viewport zoom, so a screen-space drag maps to the right flow-space delta.
   const zoom = useStore((s) => s.transform[2])
+  const viewportX = useStore((s) => s.transform[0])
+  const flowWidth = useStore((s) => s.width)
   const sourceNodeHeight = useStore(
     (state) => state.nodeLookup.get(source)?.measured.height ?? 0,
   )
@@ -270,6 +281,54 @@ const CustomEdge = memo(function CustomEdge({
   const midX = (sourceX + targetX) / 2
   const midY = (sourceY + targetY) / 2
   const isSelfConnection = source === target
+  const actionTypes = isSelfConnection
+    ? getEdgeActionTypes(data)
+    : data?.actionType
+      ? [data.actionType]
+      : []
+  const primaryActionType = actionTypes[0] ?? data?.actionType
+  const showsActionBundle =
+    isSelfConnection && actionTypes.length > 1
+  const hasNonCommandAndControlAction = actionTypes.some(
+    (actionType) => actionType !== "Command & Control",
+  )
+  const selfLoopLabelClearance = isSelfConnection
+    ? Math.max(
+        SELF_LOOP_LABEL_CLEARANCE_PX,
+        labelCardHeight / 2 +
+          SELF_LOOP_CARD_ASSET_GAP_PX / zoom,
+      )
+    : SELF_LOOP_LABEL_CLEARANCE_PX
+
+  useEffect(() => {
+    const measure = () => {
+      const nextLabelCardHeight =
+        labelCardRef.current?.offsetHeight ??
+        SELF_LOOP_INITIAL_LABEL_CARD_HEIGHT_PX
+      const nextLabelCardWidth =
+        labelCardRef.current?.offsetWidth ?? 220
+
+      setLabelCardHeight((current) =>
+        current === nextLabelCardHeight
+          ? current
+          : nextLabelCardHeight,
+      )
+      setLabelCardWidth((current) =>
+        current === nextLabelCardWidth
+          ? current
+          : nextLabelCardWidth,
+      )
+    }
+
+    measure()
+    const observer = new ResizeObserver(measure)
+    if (labelCardRef.current) observer.observe(labelCardRef.current)
+
+    return () => observer.disconnect()
+  }, [
+    actionTypes.length,
+    actionTypesExpanded,
+  ])
 
   const selfLoop = getSelfLoopGeometry({
     sourceX,
@@ -279,6 +338,26 @@ const CustomEdge = memo(function CustomEdge({
     nodeHeight: sourceNodeHeight,
     offsetX: unlocked ? offsetX : 0,
     offsetY: unlocked ? offsetY : 0,
+    labelClearance: selfLoopLabelClearance,
+  })
+  const actionStrokeWidths = actionTypes.map(
+    (actionType) => getEdgeActionVisual(actionType).strokeWidth,
+  )
+  const actionLaneCenters =
+    getCenteredParallelLaneCenters(actionStrokeWidths)
+  const selfLoopActionGeometries = actionTypes.map((_, index) => {
+    const visualOffset = actionLaneCenters[index] ?? 0
+    return getSelfLoopGeometry({
+      sourceX,
+      sourceY,
+      targetX,
+      targetY,
+      nodeHeight: sourceNodeHeight,
+      offsetX: unlocked ? offsetX : 0,
+      offsetY: unlocked ? offsetY : 0,
+      laneOffset: visualOffset / 0.75,
+      labelClearance: selfLoopLabelClearance,
+    })
   })
 
   const edgePath = isSelfConnection
@@ -288,254 +367,157 @@ const CustomEdge = memo(function CustomEdge({
       : smoothPath
   const labelX = isSelfConnection ? selfLoop.labelX : unlocked ? midX + offsetX : smoothLabelX
   const labelY = isSelfConnection ? selfLoop.labelY : unlocked ? midY + offsetY : smoothLabelY
-
-  // Determine edge styling based on action type
-  const getEdgeStyle = (actionType?: string) => {
-    switch (actionType) {
-      case "Initial Access":
-        return {
-          stroke: "#ef4444", // Red
-          strokeWidth: 3,
-          strokeDasharray: "8 4",
-        }
-      case "Lateral Movement":
-        return {
-          stroke: "#f59e0b", // Orange
-          strokeWidth: 2,
-          strokeDasharray: "5 5",
-        }
-      case "Privilege Escalation":
-        return {
-          stroke: "#dc2626", // Dark red
-          strokeWidth: 3,
-          strokeDasharray: "12 6",
-        }
-      case "Persistence":
-        return {
-          stroke: "#7c3aed", // Purple
-          strokeWidth: 2,
-          strokeDasharray: "3 3",
-        }
-      case "Defense Evasion":
-        return {
-          stroke: "#059669", // Green
-          strokeWidth: 2,
-          strokeDasharray: "6 3",
-        }
-      case "Credential Access":
-        return {
-          stroke: "#d97706", // Amber
-          strokeWidth: 2,
-          strokeDasharray: "4 4",
-        }
-      case "Discovery":
-        return {
-          stroke: "#0891b2", // Cyan
-          strokeWidth: 2,
-          strokeDasharray: "5 5",
-        }
-      case "Collection":
-        return {
-          stroke: "#0d9488", // Teal
-          strokeWidth: 2,
-          strokeDasharray: "7 3",
-        }
-      case "Exfiltration":
-        return {
-          stroke: "#be185d", // Pink
-          strokeWidth: 3,
-          strokeDasharray: "10 5",
-        }
-      case "Command & Control":
-        return {
-          stroke: "#7c2d12", // Brown
-          strokeWidth: 2,
-          strokeDasharray: "6 6",
-        }
-      case "Impact":
-        return {
-          stroke: "#991b1b", // Dark red
-          strokeWidth: 4,
-          strokeDasharray: "15 8",
-        }
-      case "Reconnaissance":
-        return {
-          stroke: "#1e40af", // Blue
-          strokeWidth: 2,
-          strokeDasharray: "4 8",
-        }
-      case "Weaponization":
-        return {
-          stroke: "#92400e", // Dark orange
-          strokeWidth: 2,
-          strokeDasharray: "8 4",
-        }
-      case "Delivery":
-        return {
-          stroke: "#a16207", // Yellow
-          strokeWidth: 2,
-          strokeDasharray: "6 3",
-        }
-      case "Exploitation":
-        return {
-          stroke: "#b91c1c", // Red
-          strokeWidth: 3,
-          strokeDasharray: "9 4",
-        }
-      case "Installation":
-        return {
-          stroke: "#6b21a8", // Purple
-          strokeWidth: 2,
-          strokeDasharray: "5 5",
-        }
-      case "Data Theft":
-        return {
-          stroke: "#be123c", // Rose
-          strokeWidth: 3,
-          strokeDasharray: "8 4",
-        }
-      case "Data Manipulation":
-        return {
-          stroke: "#c026d3", // Fuchsia
-          strokeWidth: 2,
-          strokeDasharray: "4 6",
-        }
-      case "Service Abuse":
-        return {
-          stroke: "#15803d", // Green
-          strokeWidth: 2,
-          strokeDasharray: "3 7",
-        }
-      case "Network Scanning":
-        return {
-          stroke: "#0c4a6e", // Sky blue
-          strokeWidth: 2,
-          strokeDasharray: "5 5",
-        }
-      case "Vulnerability Exploitation":
-        return {
-          stroke: "#dc2626", // Red
-          strokeWidth: 3,
-          strokeDasharray: "7 3",
-        }
-      case "Social Engineering":
-        return {
-          stroke: "#0369a1", // Light blue
-          strokeWidth: 2,
-          strokeDasharray: "6 4",
-        }
-      case "Physical Access":
-        return {
-          stroke: "#854d0e", // Amber
-          strokeWidth: 3,
-          strokeDasharray: "10 5",
-        }
-      case "Supply Chain Attack":
-        return {
-          stroke: "#7c2d12", // Brown
-          strokeWidth: 2,
-          strokeDasharray: "8 6",
-        }
-      default:
-        return {
-          stroke: "#8B5CF6", // Default purple
-          strokeWidth: 2,
-          strokeDasharray: "5 5",
-        }
-    }
-  }
-
-  const baseEdgeStyle = getEdgeStyle(data?.actionType)
+  const labelScreenX = labelX * zoom + viewportX
+  const labelCardHalfScreenWidth =
+    (labelCardWidth * zoom) / 2
+  const toolbarSpaceNeeded =
+    EDGE_TOOLBAR_ESTIMATED_WIDTH_PX + EDGE_TOOLBAR_CARD_GAP_PX
+  const availableToolbarSpaceLeft =
+    labelScreenX - labelCardHalfScreenWidth
+  const availableToolbarSpaceRight =
+    flowWidth - (labelScreenX + labelCardHalfScreenWidth)
+  const placeToolbarOnRight =
+    availableToolbarSpaceRight >= toolbarSpaceNeeded ||
+    availableToolbarSpaceRight >= availableToolbarSpaceLeft
+  const toolbarHorizontalOffset =
+    labelCardWidth / 2 + EDGE_TOOLBAR_CARD_GAP_PX / zoom
+  const toolbarX = showsActionBundle
+    ? labelX +
+      (placeToolbarOnRight
+        ? toolbarHorizontalOffset
+        : -toolbarHorizontalOffset)
+    : labelX
+  const toolbarY = showsActionBundle
+    ? labelY +
+      labelCardHeight / 2 -
+      (EDGE_TOOLBAR_ESTIMATED_HEIGHT_PX / 2 + 8) / zoom
+    : labelY -
+      labelCardHeight / 2 -
+      EDGE_TOOLBAR_CARD_GAP_PX / zoom
+  const toolbarAlignX = showsActionBundle
+    ? placeToolbarOnRight
+      ? "left"
+      : "right"
+    : "center"
+  const toolbarAlignY = showsActionBundle ? "center" : "bottom"
 
   const flowAnimation = animationsEnabled ? "edge-flow 2.5s linear infinite" : ""
   const pulseAnimation = selected && !multiSelectionActive ? "edge-pulse 1.5s ease-in-out infinite" : ""
   const animationValue = [flowAnimation, pulseAnimation].filter(Boolean).join(", ")
 
-  // Apply selection styling if edge is selected
-  const edgeStyle = selected
-    ? {
-        ...baseEdgeStyle,
-        strokeWidth: baseEdgeStyle.strokeWidth + 2, // Make selected edge thicker
-        filter: "drop-shadow(0 0 8px rgba(59, 130, 246, 0.6))",
-        strokeDasharray: baseEdgeStyle.strokeDasharray || "6 6",
-        strokeDashoffset: 0,
-        animation: animationValue || undefined,
-      }
-    : {
-        ...baseEdgeStyle,
-        strokeDasharray: baseEdgeStyle.strokeDasharray || "6 6",
-        strokeDashoffset: 0,
-        animation: animationValue || undefined,
-      }
-
-  // Determine icon for Action Type
-  const getActionTypeIcon = (actionType?: string) => {
-    switch (actionType) {
-      case "Initial Access":
-        return Target
-      case "Lateral Movement":
-        return MoveRight
-      case "Privilege Escalation":
-        return Shield
-      case "Persistence":
-        return Lock
-      case "Defense Evasion":
-        return Eye
-      case "Credential Access":
-        return Key
-      case "Discovery":
-        return Search
-      case "Collection":
-        return Database
-      case "Exfiltration":
-        return Upload
-      case "Command & Control":
-        return Terminal
-      case "Impact":
-        return Zap
-      case "Reconnaissance":
-        return Search
-      case "Weaponization":
-        return Hammer
-      case "Delivery":
-        return Truck
-      case "Exploitation":
-        return Bug
-      case "Installation":
-        return Package
-      case "Data Theft":
-        return Upload
-      case "Data Manipulation":
-        return FileText
-      case "Service Abuse":
-        return Activity
-      case "Network Scanning":
-        return Search
-      case "Vulnerability Exploitation":
-        return Bug
-      case "Social Engineering":
-        return Users
-      case "Physical Access":
-        return Building
-      case "Supply Chain Attack":
-        return Package
-      default:
-        return Activity
+  const getRenderedEdgeStyle = (actionType?: EdgeActionType) => {
+    const visual = getEdgeActionVisual(actionType)
+    const baseStyle = {
+      stroke: visual.stroke,
+      strokeWidth: visual.strokeWidth,
+      strokeDasharray: visual.strokeDasharray,
     }
+    return selected
+      ? {
+          ...baseStyle,
+          strokeWidth:
+            baseStyle.strokeWidth + (showsActionBundle ? 0 : 2),
+          filter: "drop-shadow(0 0 8px rgba(59, 130, 246, 0.6))",
+          strokeDasharray: baseStyle.strokeDasharray || "6 6",
+          strokeDashoffset: 0,
+          animation: animationValue || undefined,
+        }
+      : {
+          ...baseStyle,
+          strokeDasharray: baseStyle.strokeDasharray || "6 6",
+          strokeDashoffset: 0,
+          animation: animationValue || undefined,
+        }
   }
 
-  const ActionTypeIcon = getActionTypeIcon(data?.actionType)
+  const edgeStyle = getRenderedEdgeStyle(primaryActionType)
+  const edgeLayers =
+    isSelfConnection && actionTypes.length > 1
+      ? actionTypes.map((actionType, index) => ({
+          actionType,
+          path:
+            selfLoopActionGeometries[index]?.path ?? edgePath,
+          style: getRenderedEdgeStyle(actionType),
+        }))
+      : [{
+          actionType: primaryActionType,
+          path: edgePath,
+          style: edgeStyle,
+        }]
 
   // Check if this edge should have animations based on global setting
-  const shouldAnimate = animationsEnabled && data?.actionType
+  const shouldAnimate = animationsEnabled && actionTypes.length > 0
+  const showsLabelDetail = Boolean(
+    data?.label &&
+      !actionTypes.includes(data.label as EdgeActionType) &&
+      data?.displaySettings?.showLabel,
+  )
+  const showsToolDetail = Boolean(
+    hasNonCommandAndControlAction &&
+      data?.toolUsed &&
+      data?.displaySettings?.showTool,
+  )
+  const showsUserDetail = Boolean(
+    hasNonCommandAndControlAction &&
+      data?.userUsed &&
+      data?.displaySettings?.showUser,
+  )
+  const showsTimestampDetail = Boolean(
+    data?.timestamp && data?.displaySettings?.showTimestamp,
+  )
+  const showsMitreDetail = Boolean(
+    mitreTechniques.length > 0 &&
+      data?.displaySettings?.showMitreId,
+  )
+  const showsDescriptionDetail = Boolean(
+    data?.description && data?.displaySettings?.showDescription,
+  )
+  const showsC2ChannelDetail = Boolean(
+    actionTypes.includes("Command & Control") &&
+      data?.c2Channel &&
+      data?.displaySettings?.showC2Channel,
+  )
+  const showsC2FrameworkDetail = Boolean(
+    actionTypes.includes("Command & Control") &&
+      data?.c2Framework &&
+      data?.displaySettings?.showC2Framework,
+  )
+  const hasSupportingEdgeDetails =
+    showsToolDetail ||
+    showsUserDetail ||
+    showsTimestampDetail ||
+    showsMitreDetail ||
+    showsDescriptionDetail ||
+    showsC2ChannelDetail ||
+    showsC2FrameworkDetail
+  const hasVisibleEdgeDetails =
+    showsLabelDetail || hasSupportingEdgeDetails
+  const compactHiddenDetailCount = [
+    showsToolDetail,
+    showsUserDetail,
+    showsMitreDetail,
+    showsDescriptionDetail,
+    showsC2ChannelDetail,
+    showsC2FrameworkDetail,
+  ].filter(Boolean).length
+  const compactTitle = showsLabelDetail
+    ? String(data?.label)
+    : "Actions on this asset"
+  const compactTimestamp =
+    showsTimestampDetail && data?.timestamp
+      ? formatCompactLocalTimestamp(data.timestamp)
+      : null
 
   return (
     <>
-      <BaseEdge
-        id={id}
-        path={edgePath}
-        style={{ ...style, ...edgeStyle }}
-      />
+      {edgeLayers.map((layer, index) => (
+        <BaseEdge
+          key={`${id}-${layer.actionType ?? index}`}
+          id={index === 0 ? id : `${id}-action-${index}`}
+          path={layer.path}
+          style={{ ...style, ...layer.style }}
+        />
+      ))}
 
       {/* Invisible wide interaction path so hovering near the edge is detected.
           When unlocked, this path is also the drag handle for rerouting. */}
@@ -557,12 +539,17 @@ const CustomEdge = memo(function CustomEdge({
       {/* Quick-action toolbar shown at the edge midpoint on hover or when selected */}
       <EdgeToolbar
         id={id}
-        labelX={labelX}
-        labelY={labelY}
+        x={toolbarX}
+        y={toolbarY}
+        alignX={toolbarAlignX}
+        alignY={toolbarAlignY}
         isVisible={!multiSelectionActive && (hovered || selected || menuOpen || pinned)}
-        currentActionType={data?.actionType}
+        currentActionTypes={actionTypes}
+        allowsMultipleActionTypes={isSelfConnection}
         unlocked={unlocked}
-        onSetActionType={(actionType) => onSetEdgeActionType?.(id, actionType)}
+        onSetActionTypes={(nextActionTypes) =>
+          onSetEdgeActionTypes?.(id, nextActionTypes)
+        }
         onToggleUnlocked={() => onToggleEdgeUnlocked?.(id)}
         onDelete={() => onDeleteEdge?.(id)}
         onMouseEnter={showToolbar}
@@ -572,34 +559,56 @@ const CustomEdge = memo(function CustomEdge({
 
       {/* Animated circles only for specific action types and when animations are enabled */}
       {shouldAnimate && (
-        <>
-          {/* Animated circle moving along the edge path */}
-          <circle r="4" fill={edgeStyle.stroke} opacity="0.8">
-            <animateMotion
-              dur="3s"
-              repeatCount="indefinite"
-              path={edgePath}
-              calcMode="spline"
-              keySplines="0.4 0 0.6 1"
-            />
-          </circle>
-
-          {/* Second animated circle with different timing */}
-          <circle r="3" fill={edgeStyle.stroke} opacity="0.6">
-            <animateMotion
-              dur="4s"
-              repeatCount="indefinite"
-              path={edgePath}
-              calcMode="spline"
-              keySplines="0.4 0 0.6 1"
-              begin="-1s"
-            />
-          </circle>
-        </>
+        isSelfConnection && edgeLayers.length > 1 ? (
+          edgeLayers.map((layer, index) => (
+            <circle
+              key={`${id}-marker-${layer.actionType ?? index}`}
+              data-edge-action-marker={layer.actionType}
+              r={index === 0 ? 4 : 3}
+              fill={layer.style.stroke}
+              opacity={index === 0 ? "0.8" : "0.65"}
+            >
+              <animateMotion
+                dur={`${3 + index * 0.5}s`}
+                repeatCount="indefinite"
+                path={layer.path}
+                calcMode="spline"
+                keySplines="0.4 0 0.6 1"
+                begin={`${index * -0.75}s`}
+              />
+            </circle>
+          ))
+        ) : (
+          <>
+            <circle r="4" fill={edgeStyle.stroke} opacity="0.8">
+              <animateMotion
+                dur="3s"
+                repeatCount="indefinite"
+                path={edgePath}
+                calcMode="spline"
+                keySplines="0.4 0 0.6 1"
+              />
+            </circle>
+            <circle r="3" fill={edgeStyle.stroke} opacity="0.6">
+              <animateMotion
+                dur="4s"
+                repeatCount="indefinite"
+                path={edgePath}
+                calcMode="spline"
+                keySplines="0.4 0 0.6 1"
+                begin="-1s"
+              />
+            </circle>
+          </>
+        )
       )}
       {data?.displaySettings?.showLabel !== false && (
         <EdgeLabelRenderer>
           <div
+            ref={labelCardRef}
+            data-self-connection-action-bundle-card={
+              showsActionBundle ? "true" : undefined
+            }
             style={{
               transform: `translate(-50%, -50%) translate(${labelX}px,${labelY}px)`,
             }}
@@ -610,105 +619,189 @@ const CustomEdge = memo(function CustomEdge({
             onMouseEnter={showToolbar}
             onMouseLeave={hideToolbar}
             className={cn(
-              "nodrag nopan absolute pointer-events-auto rounded-lg border border-gray-700 bg-gray-800 p-3 shadow-lg",
-              "min-w-[220px] max-w-[300px] text-xs text-white", // Increased min-width for better readability
+              "nodrag nopan absolute pointer-events-auto border border-gray-700 bg-gray-800 shadow-lg",
+              "text-xs text-white",
+              showsActionBundle
+                ? "w-[220px] max-w-[220px] rounded-lg p-2"
+                : "min-w-[220px] max-w-[300px] rounded-lg p-3",
               selected && "ip-selection-highlight border-blue-400",
               unlocked && (drag ? "cursor-grabbing select-none" : "cursor-grab"),
             )}
           >
-            {/* Main Label / Action Type */}
-            <div className="mb-1 flex items-center justify-center gap-2 text-sm font-semibold" style={{ color: edgeStyle.stroke }}>
-              {ActionTypeIcon && <ActionTypeIcon className="h-4 w-4" />}
-              <span>{data?.actionType || "New Technique"}</span>
+            {/* Main Label / Action Types */}
+            <div
+              className={cn(
+                !showsActionBundle && "mb-1 space-y-1",
+              )}
+            >
+              {showsActionBundle ? (
+                <SelfConnectionActionCard
+                  actionTypes={actionTypes}
+                  expanded={actionTypesExpanded}
+                  title={compactTitle}
+                  showTitleTooltip={showsLabelDetail}
+                  compactTimestamp={compactTimestamp}
+                  hiddenDetailCount={compactHiddenDetailCount}
+                  onExpandedChange={(expanded) =>
+                    onSetEdgeActionTypesExpanded?.(id, expanded)
+                  }
+                />
+              ) : actionTypes.length > 0 ? (
+                actionTypes.map((actionType) => {
+                  const visual = getEdgeActionVisual(actionType)
+                  const ActionTypeIcon = visual.icon
+                  return (
+                    <div
+                      key={actionType}
+                      data-edge-action-type={actionType}
+                      className="flex items-center justify-center gap-2 text-sm font-semibold"
+                      style={{ color: visual.stroke }}
+                    >
+                      <ActionTypeIcon className="h-4 w-4" />
+                      <span>{actionType}</span>
+                    </div>
+                  )
+                })
+              ) : (
+                <div className="text-center text-sm font-semibold" style={{ color: edgeStyle.stroke }}>
+                  New Technique
+                </div>
+              )}
             </div>
 
-            <div className="space-y-1 text-gray-400">
-              {/* Custom Label (if different from action type) */}
-              {data?.label && data.label !== data.actionType && data?.displaySettings?.showLabel && (
-                <div className="flex items-center gap-1">
-                  <FileText className="h-3 w-3" />
-                  <span>Label: {data.label}</span>
-                </div>
-              )}
+            {(!showsActionBundle ||
+              (actionTypesExpanded && hasSupportingEdgeDetails)) && (
+              <div
+                data-edge-expanded-metadata={
+                  showsActionBundle ? "true" : undefined
+                }
+                className={cn(
+                  "space-y-1 text-gray-400",
+                  showsActionBundle &&
+                    hasVisibleEdgeDetails &&
+                    "mt-2 border-t border-gray-700 pt-2",
+                )}
+              >
+                {/* Custom Label (if different from action type) */}
+                {data?.label &&
+                  !showsActionBundle &&
+                  !actionTypes.includes(data.label as EdgeActionType) &&
+                  data?.displaySettings?.showLabel && (
+                    <div
+                      data-edge-expanded-label="true"
+                      className="flex min-w-0 items-start gap-1"
+                    >
+                      <FileText className="mt-0.5 h-3 w-3 shrink-0" />
+                      <span className="min-w-0 whitespace-normal break-words">
+                        Label: {data.label}
+                      </span>
+                    </div>
+                  )}
 
-              {/* Tool Used */}
-              {data?.toolUsed && data?.displaySettings?.showTool && (
-                <div className="flex items-center gap-1">
-                  <Tool className="h-3 w-3" />
-                  <span>Tool: {data.toolUsed}</span>
-                </div>
-              )}
+                {/* Tool Used */}
+                {hasNonCommandAndControlAction &&
+                  data?.toolUsed &&
+                  data?.displaySettings?.showTool && (
+                    <div className="flex items-center gap-1">
+                      <Tool className="h-3 w-3" />
+                      <span>Tool: {data.toolUsed}</span>
+                    </div>
+                  )}
 
-              {/* User Used */}
-              {data?.userUsed && data?.displaySettings?.showUser && (
-                <div className="flex items-center gap-1">
-                  <User className="h-3 w-3" />
-                  <span>User: {data.userUsed}</span>
-                </div>
-              )}
+                {/* User Used */}
+                {hasNonCommandAndControlAction &&
+                  data?.userUsed &&
+                  data?.displaySettings?.showUser && (
+                    <div className="flex items-center gap-1">
+                      <User className="h-3 w-3" />
+                      <span>User: {data.userUsed}</span>
+                    </div>
+                  )}
 
-              {/* Timestamp */}
-              {data?.timestamp && data?.displaySettings?.showTimestamp && (
-                <div className="flex items-center gap-1">
-                  <Clock className="h-3 w-3" />
-                  <span>Time: {data.timestamp}</span>
-                </div>
-              )}
+                {/* Timestamp */}
+                {data?.timestamp &&
+                  data?.displaySettings?.showTimestamp && (
+                    <div className="flex items-center gap-1">
+                      <Clock className="h-3 w-3" />
+                      <span>Time: {data.timestamp}</span>
+                    </div>
+                  )}
 
-              {/* MITRE ATT&CK ID */}
-              {mitreTechniques.length > 0 && data?.displaySettings?.showMitreId && (
-                <div className="min-w-0 space-y-0.5">
-                  {mitreTechniques.map((technique) => {
-                    const url = getMitreTechniqueUrl(technique.id)
-                    const label = getMitreTechniqueLabel(technique.id, technique.name)
+                {/* MITRE ATT&CK ID */}
+                {mitreTechniques.length > 0 &&
+                  data?.displaySettings?.showMitreId && (
+                    <div className="min-w-0 space-y-0.5">
+                      {mitreTechniques.map((technique) => {
+                        const url = getMitreTechniqueUrl(technique.id)
+                        const label = getMitreTechniqueLabel(
+                          technique.id,
+                          technique.name,
+                        )
 
-                    return (
-                      <div key={technique.id} className="flex items-start gap-1.5">
-                        <span className="min-w-0 break-words">{label}</span>
-                        {url && (
-                          <a
-                            href={url}
-                            target="_blank"
-                            rel="noreferrer"
-                            aria-label={`Open ${label} on MITRE ATT&CK`}
-                            title="Open on MITRE ATT&CK"
-                            className="mt-0.5 shrink-0 text-blue-400 hover:text-blue-300"
-                            onClick={(event) => event.stopPropagation()}
-                            onMouseDown={(event) => event.stopPropagation()}
+                        return (
+                          <div
+                            key={technique.id}
+                            className="flex items-start gap-1.5"
                           >
-                            <ExternalLink className="h-3 w-3" />
-                          </a>
-                        )}
-                      </div>
-                    )
-                  })}
-                </div>
-              )}
+                            <span className="min-w-0 break-words">
+                              {label}
+                            </span>
+                            {url && (
+                              <a
+                                href={url}
+                                target="_blank"
+                                rel="noreferrer"
+                                aria-label={`Open ${label} on MITRE ATT&CK`}
+                                title="Open on MITRE ATT&CK"
+                                className="mt-0.5 shrink-0 text-blue-400 hover:text-blue-300"
+                                onClick={(event) =>
+                                  event.stopPropagation()
+                                }
+                                onMouseDown={(event) =>
+                                  event.stopPropagation()
+                                }
+                              >
+                                <ExternalLink className="h-3 w-3" />
+                              </a>
+                            )}
+                          </div>
+                        )
+                      })}
+                    </div>
+                  )}
 
-              {/* Description */}
-              {data?.description && data?.displaySettings?.showDescription && (
-                <div className="flex items-start gap-1">
-                  <FileText className="h-3 w-3 mt-0.5 flex-shrink-0" />
-                  <span className="break-words whitespace-pre-wrap overflow-hidden max-w-full">Desc: {data.description}</span>
-                </div>
-              )}
+                {/* Description */}
+                {data?.description &&
+                  data?.displaySettings?.showDescription && (
+                    <div className="flex items-start gap-1">
+                      <FileText className="mt-0.5 h-3 w-3 flex-shrink-0" />
+                      <span className="max-w-full overflow-hidden whitespace-pre-wrap break-words">
+                        Desc: {data.description}
+                      </span>
+                    </div>
+                  )}
 
-              {/* C2 Channel (for Command & Control edges) */}
-              {data?.actionType === "Command & Control" && data?.c2Channel && data?.displaySettings?.showC2Channel && (
-                <div className="flex items-center gap-1">
-                  <Wifi className="h-3 w-3" />
-                  <span>Channel: {data.c2Channel}</span>
-                </div>
-              )}
+                {/* C2 Channel (for Command & Control edges) */}
+                {actionTypes.includes("Command & Control") &&
+                  data?.c2Channel &&
+                  data?.displaySettings?.showC2Channel && (
+                    <div className="flex items-center gap-1">
+                      <Wifi className="h-3 w-3" />
+                      <span>Channel: {data.c2Channel}</span>
+                    </div>
+                  )}
 
-              {/* C2 Framework (for Command & Control edges) */}
-              {data?.actionType === "Command & Control" && data?.c2Framework && data?.displaySettings?.showC2Framework && (
-                <div className="flex items-center gap-1">
-                  <Code className="h-3 w-3" />
-                  <span>Framework: {data.c2Framework}</span>
-                </div>
-              )}
-            </div>
+                {/* C2 Framework (for Command & Control edges) */}
+                {actionTypes.includes("Command & Control") &&
+                  data?.c2Framework &&
+                  data?.displaySettings?.showC2Framework && (
+                    <div className="flex items-center gap-1">
+                      <Code className="h-3 w-3" />
+                      <span>Framework: {data.c2Framework}</span>
+                    </div>
+                  )}
+              </div>
+            )}
           </div>
         </EdgeLabelRenderer>
       )}

@@ -63,35 +63,37 @@ There is no application backend or database. Diagram, incident-log, and custom-t
 
 ## Install and run
 
-The README and CI-oriented workflow use the npm command surface:
+The README and CI-oriented workflow use the pnpm command surface:
 
 ```bash
-npm ci
-npm run dev
-npm run build
-npm run start
+pnpm install --frozen-lockfile
+pnpm run dev
+pnpm run build
+pnpm run start
 ```
 
-The repository tracks both `package-lock.json` and `pnpm-lock.yaml` but does not declare a `packageManager`; the pnpm lockfile currently contains settings but no dependency graph. Do not update both lockfiles incidentally. Use the package manager requested by the task; otherwise prefer npm to match the README and complete lockfile, and update only `package-lock.json`. Use `npm install` only when intentionally changing dependencies. Do not hand-edit lockfiles.
+The repository declares its pnpm version in `package.json` and tracks only `pnpm-lock.yaml`. Use pnpm for dependency and script commands. Use `pnpm install` only when intentionally changing dependencies, commit the resulting lockfile update, and do not hand-edit lockfiles.
 
-Two Next config files are also tracked. The current production build applies `next.config.mjs`, which skips lint and type errors and enables unoptimized images; `next.config.ts` contains the package-import optimization. Do not assume both configurations are merged. If changing Next configuration, first establish which behavior is intended and avoid maintaining conflicting copies.
+`next.config.mjs` is the active Next configuration. It skips lint and type errors and enables unoptimized images.
 
 ## Validation
 
 Run checks proportional to the change and report exactly what passed or failed.
 
 ```bash
-npx tsc --noEmit
-npm run lint
-npm run build
+pnpm exec tsc --noEmit
+pnpm run test:mitre
+pnpm run test:selection
+pnpm exec playwright test
+pnpm run lint
+pnpm run build
 ```
 
 Known baseline at the time this file was written:
 
-- There is no automated test suite or `test` script.
-- `npm run build` succeeds, but the active Next config explicitly skips type validation and linting; a green build is not a full correctness check.
-- `npx tsc --noEmit` has existing errors in asset-library keyboard handling, timeline edge typing, the sidebar mobile-hook import, and copy/paste edge typing.
-- `npm run lint` currently fails in the deprecated `next lint` path with the installed flat ESLint configuration.
+- Unit tests cover the MITRE catalog and selection layout, and Playwright covers core canvas flows.
+- `pnpm run build` succeeds, but the active Next config explicitly skips type validation and linting; a green build is not a full correctness check.
+- `pnpm run lint` currently fails in the deprecated `next lint` path with the installed flat ESLint configuration.
 
 Do not hide new failures behind those baselines. For a touched area, run the closest available static check and manually exercise the relevant browser flow. A canvas/state change should normally smoke-test: add and connect assets, edit node/edge properties, select/delete, copy/paste, undo/redo, save/load, JSON round-trip, template load, incident-log/timeline behavior, and any affected export. Also check an empty canvas and malformed or older imported data where relevant.
 

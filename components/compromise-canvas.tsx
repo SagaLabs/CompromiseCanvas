@@ -1,7 +1,7 @@
 "use client"
 
 import type React from "react"
-import { useRef, useEffect, useMemo, useCallback } from "react"
+import { useRef, useEffect, useMemo, useCallback, useState } from "react"
 import {
   ReactFlow,
   Controls,
@@ -25,11 +25,14 @@ import IncidentLogPanel from "./incident-log-panel"
 import DataHandlingModal from "./data-handling-modal"
 import { createEdgeTypes } from "@/lib/utils/compromise-canvas-utils"
 import type { CustomEdge as CanvasEdge, CustomNode as CanvasNode, EdgeActionType } from "@/lib/types"
+import {
+  createEdgeActionTypeUpdate,
+  getEdgeActionTypes,
+} from "@/lib/edge-action-types"
 import { FIT_VIEW_OPTIONS } from "@/lib/utils/compromise-canvas-constants"
 import { useCompromiseCanvasState } from "@/hooks/use-compromise-canvas-state"
 import { useCompromiseCanvasHandlers } from "@/hooks/use-compromise-canvas-handlers"
 import { useReactFlowCallbacks } from "@/hooks/use-reactflow-callbacks"
-import { useState } from "react"
 import { Button } from "@/components/ui/button"
 import { CanvasActionsProvider } from "./canvas-actions-context"
 import SelectionContextMenu from "./selection-context-menu"
@@ -50,6 +53,8 @@ export default function CompromiseCanvas() {
   const [showMobileWarning, setShowMobileWarning] = useState(true)
   const [dismissedMobileWarning, setDismissedMobileWarning] = useState(false)
   const [selectionContextMenuPoint, setSelectionContextMenuPoint] = useState<{ x: number; y: number } | null>(null)
+  const [expandedSelfConnectionIds, setExpandedSelfConnectionIds] =
+    useState<Set<string>>(() => new Set())
 
   // Use centralized state management hook
   const {
@@ -144,6 +149,7 @@ export default function CompromiseCanvas() {
     () => nodes.map((node) => ({
       ...node,
       className: [node.className, "nokey"].filter(Boolean).join(" "),
+      connectable: node.type !== "labeledGroupNode",
     })),
     [nodes],
   )
@@ -202,6 +208,14 @@ export default function CompromiseCanvas() {
     if (selectedElementCount === 0) setSelectionContextMenuPoint(null)
   }, [selectedElementCount])
 
+  const resetCanvasState = useCallback(
+    (state: Parameters<typeof reset>[0]) => {
+      setExpandedSelfConnectionIds(new Set())
+      reset(state)
+    },
+    [reset],
+  )
+
   // Use handlers hook
   const {
     handleSave,
@@ -242,16 +256,62 @@ export default function CompromiseCanvas() {
     setSnapToGrid,
     setCanvasTitle,
     setIncidentLog,
-    reset,
+    reset: resetCanvasState,
     fitView,
     toast,
   })
 
-  // Change an edge's action type (updates its color/icon), undo-safe via updateEdge
-  const handleSetEdgeActionType = useCallback(
-    (id: string, actionType: EdgeActionType) => updateEdge(id, { actionType }),
+  // Change an edge's action types (updates its routes/labels), undo-safe via updateEdge.
+  const handleSetEdgeActionTypes = useCallback(
+    (id: string, actionTypes: EdgeActionType[]) => {
+      updateEdge(id, createEdgeActionTypeUpdate(actionTypes))
+      if (actionTypes.length < 2) {
+        setExpandedSelfConnectionIds((current) => {
+          if (!current.has(id)) return current
+          const next = new Set(current)
+          next.delete(id)
+          return next
+        })
+      }
+    },
     [updateEdge],
   )
+
+  // Expanded cards are editor view state. Keep them out of saved canvas data
+  // and undo history so an eye-button click never displaces a content edit.
+  const handleSetEdgeActionTypesExpanded = useCallback(
+    (id: string, expanded: boolean) => {
+      setExpandedSelfConnectionIds((current) => {
+        const alreadyExpanded = current.has(id)
+        if (alreadyExpanded === expanded) return current
+
+        const next = new Set(current)
+        if (expanded) next.add(id)
+        else next.delete(id)
+        return next
+      })
+    },
+    [],
+  )
+
+  useEffect(() => {
+    const expandableIds = new Set(
+      edges
+        .filter(
+          (edge) =>
+            edge.source === edge.target &&
+            getEdgeActionTypes(edge.data).length > 1,
+        )
+        .map((edge) => edge.id),
+    )
+
+    setExpandedSelfConnectionIds((current) => {
+      const next = new Set(
+        [...current].filter((id) => expandableIds.has(id)),
+      )
+      return next.size === current.size ? current : next
+    })
+  }, [edges])
 
   // Reposition an edge's control point (dropped after a drag), undo-safe via updateEdge
   const handleSetEdgeLabelOffset = useCallback(
@@ -270,8 +330,29 @@ export default function CompromiseCanvas() {
 
   // Memoize edge types to prevent recreation on every render during dragging
   const edgeTypes = useMemo(
-    () => createEdgeTypes(animationsEnabled, selectedElement, deleteEdgeById, handleSetEdgeActionType, handleSelectEdge, handleSetEdgeLabelOffset, handleToggleEdgeUnlocked),
-    [animationsEnabled, selectedElement, deleteEdgeById, handleSetEdgeActionType, handleSelectEdge, handleSetEdgeLabelOffset, handleToggleEdgeUnlocked],
+    () =>
+      createEdgeTypes(
+        animationsEnabled,
+        selectedElement,
+        expandedSelfConnectionIds,
+        deleteEdgeById,
+        handleSetEdgeActionTypes,
+        handleSetEdgeActionTypesExpanded,
+        handleSelectEdge,
+        handleSetEdgeLabelOffset,
+        handleToggleEdgeUnlocked,
+      ),
+    [
+      animationsEnabled,
+      selectedElement,
+      expandedSelfConnectionIds,
+      deleteEdgeById,
+      handleSetEdgeActionTypes,
+      handleSetEdgeActionTypesExpanded,
+      handleSelectEdge,
+      handleSetEdgeLabelOffset,
+      handleToggleEdgeUnlocked,
+    ],
   )
 
   const copySelection = useCallback(() => {
