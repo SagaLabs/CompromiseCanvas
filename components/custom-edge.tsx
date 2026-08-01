@@ -1,11 +1,12 @@
 import type React from "react"
-import { memo, useState, useRef, useCallback, useEffect } from "react"
+import { memo, useState, useRef, useCallback, useEffect, useMemo } from "react"
 import { type Edge, type EdgeProps, getSmoothStepPath, EdgeLabelRenderer, BaseEdge, useStore } from "@xyflow/react"
 import type { EdgeData, EdgeActionType } from "@/lib/types"
 import {
   PenToolIcon as Tool,
   User,
   Clock,
+  ClockAlert,
   FileText,
   Wifi,
   Code,
@@ -26,6 +27,8 @@ import {
   formatCompactLocalTimestamp,
   getCenteredParallelLaneCenters,
 } from "@/lib/self-connection-runtime"
+import { useCanvasPresentation } from "./canvas-presentation-context"
+import { presentationEdgeDisplaySettings } from "@/lib/presentation-details"
 
 interface CustomEdgeProps extends EdgeProps<Edge<EdgeData>> {
   animationsEnabled?: boolean
@@ -110,7 +113,7 @@ const CustomEdge = memo(function CustomEdge({
   sourcePosition,
   targetPosition,
   style = {},
-  data,
+  data: edgeData,
   markerEnd,
   animationsEnabled = true,
   selected = false,
@@ -123,7 +126,50 @@ const CustomEdge = memo(function CustomEdge({
   onToggleEdgeUnlocked,
 }: CustomEdgeProps) {
   const { multiSelectionActive } = useCanvasActions()
+  const {
+    presentationMode,
+    showAllDetails,
+    expandedEdgeIds,
+    playbackActive,
+    currentPlaybackEdgeId,
+    inspectedPlaybackEdgeId,
+    reachedPlaybackEdgeIds,
+    toggleEdgeDetails,
+  } = useCanvasPresentation()
+  const presentationDetailsExpanded =
+    presentationMode && (showAllDetails || expandedEdgeIds.has(id))
+  const playbackState = !playbackActive
+    ? "inactive"
+    : inspectedPlaybackEdgeId === id
+      ? "missing"
+      : currentPlaybackEdgeId === id
+      ? "current"
+      : reachedPlaybackEdgeIds.has(id)
+        ? "reached"
+        : "future"
+  const playbackOpacity =
+    playbackState === "future"
+      ? 0.12
+      : playbackState === "reached"
+        ? 0.7
+        : 1
+  const data = useMemo(
+    () => edgeData && presentationDetailsExpanded
+      ? {
+          ...edgeData,
+          displaySettings: {
+            ...edgeData.displaySettings,
+            ...presentationEdgeDisplaySettings,
+          },
+        }
+      : edgeData,
+    [edgeData, presentationDetailsExpanded],
+  )
+  const effectiveActionTypesExpanded = presentationMode
+    ? presentationDetailsExpanded
+    : actionTypesExpanded
   const unlocked = !!data?.unlocked
+  const visiblySelected = selected && !presentationMode
   // Track hover so the quick-action toolbar can appear without selecting the edge.
   const [hovered, setHovered] = useState(false)
   // Keep the toolbar mounted while the action-type menu is open (pointer leaves the edge).
@@ -191,14 +237,14 @@ const CustomEdge = memo(function CustomEdge({
 
   const onLabelPointerDown = useCallback(
     (e: React.PointerEvent) => {
-      if (!unlocked) return
+      if (!unlocked || presentationMode) return
       e.stopPropagation()
       const ox = data?.labelOffsetX ?? 0
       const oy = data?.labelOffsetY ?? 0
       dragStart.current = { px: e.clientX, py: e.clientY, ox, oy, dragging: false }
       e.currentTarget.setPointerCapture(e.pointerId)
     },
-    [unlocked, data?.labelOffsetX, data?.labelOffsetY],
+    [unlocked, presentationMode, data?.labelOffsetX, data?.labelOffsetY],
   )
   const onLabelPointerMove = useCallback(
     (e: React.PointerEvent) => {
@@ -239,6 +285,11 @@ const CustomEdge = memo(function CustomEdge({
   )
   const onEdgeLabelPointerDown = useCallback(
     (e: React.PointerEvent) => {
+      if (presentationMode) {
+        e.stopPropagation()
+        return
+      }
+
       if (unlocked) {
         onLabelPointerDown(e)
         return
@@ -248,14 +299,19 @@ const CustomEdge = memo(function CustomEdge({
       // Prevent a label press from selecting the asset underneath it.
       e.stopPropagation()
     },
-    [unlocked, onLabelPointerDown],
+    [presentationMode, unlocked, onLabelPointerDown],
   )
   const onEdgeLabelClick = useCallback(
     (e: React.MouseEvent) => {
       e.stopPropagation()
+      if (presentationMode) {
+        toggleEdgeDetails(id)
+        return
+      }
+
       if (!unlocked) onSelectEdge?.(id, e.shiftKey)
     },
-    [id, unlocked, onSelectEdge],
+    [id, presentationMode, toggleEdgeDetails, unlocked, onSelectEdge],
   )
 
   // Use React Flow's built-in smooth step path for the default (locked) routing.
@@ -327,7 +383,7 @@ const CustomEdge = memo(function CustomEdge({
     return () => observer.disconnect()
   }, [
     actionTypes.length,
-    actionTypesExpanded,
+    effectiveActionTypesExpanded,
   ])
 
   const selfLoop = getSelfLoopGeometry({
@@ -402,7 +458,7 @@ const CustomEdge = memo(function CustomEdge({
   const toolbarAlignY = showsActionBundle ? "center" : "bottom"
 
   const flowAnimation = animationsEnabled ? "edge-flow 2.5s linear infinite" : ""
-  const pulseAnimation = selected && !multiSelectionActive ? "edge-pulse 1.5s ease-in-out infinite" : ""
+  const pulseAnimation = visiblySelected && !multiSelectionActive ? "edge-pulse 1.5s ease-in-out infinite" : ""
   const animationValue = [flowAnimation, pulseAnimation].filter(Boolean).join(", ")
 
   const getRenderedEdgeStyle = (actionType?: EdgeActionType) => {
@@ -412,22 +468,37 @@ const CustomEdge = memo(function CustomEdge({
       strokeWidth: visual.strokeWidth,
       strokeDasharray: visual.strokeDasharray,
     }
-    return selected
-      ? {
-          ...baseStyle,
-          strokeWidth:
-            baseStyle.strokeWidth + (showsActionBundle ? 0 : 2),
-          filter: "drop-shadow(0 0 8px rgba(59, 130, 246, 0.6))",
-          strokeDasharray: baseStyle.strokeDasharray || "6 6",
-          strokeDashoffset: 0,
-          animation: animationValue || undefined,
-        }
-      : {
-          ...baseStyle,
-          strokeDasharray: baseStyle.strokeDasharray || "6 6",
-          strokeDashoffset: 0,
-          animation: animationValue || undefined,
-        }
+    const selectedStyle = {
+      ...baseStyle,
+      strokeWidth:
+        baseStyle.strokeWidth +
+        (visiblySelected && !showsActionBundle ? 2 : 0),
+      filter: visiblySelected
+        ? "drop-shadow(0 0 8px rgba(59, 130, 246, 0.6))"
+        : undefined,
+      strokeDasharray: baseStyle.strokeDasharray || "6 6",
+      strokeDashoffset: 0,
+      animation: animationValue || undefined,
+    }
+
+    if (!playbackActive) return selectedStyle
+
+    const playbackHighlighted =
+      playbackState === "current" || playbackState === "missing"
+
+    return {
+      ...selectedStyle,
+      strokeWidth:
+        selectedStyle.strokeWidth + (playbackHighlighted ? 2 : 0),
+      opacity: playbackOpacity,
+      filter:
+        playbackState === "current"
+          ? "drop-shadow(0 0 9px rgba(236, 72, 153, 0.9))"
+          : playbackState === "missing"
+            ? "drop-shadow(0 0 9px rgba(251, 191, 36, 0.95))"
+            : selectedStyle.filter,
+      transition: "opacity 300ms ease, filter 300ms ease",
+    }
   }
 
   const edgeStyle = getRenderedEdgeStyle(primaryActionType)
@@ -522,18 +593,35 @@ const CustomEdge = memo(function CustomEdge({
       {/* Invisible wide interaction path so hovering near the edge is detected.
           When unlocked, this path is also the drag handle for rerouting. */}
       <path
-        className={unlocked ? "nopan" : undefined}
+        className={unlocked && !presentationMode ? "nopan" : undefined}
         d={edgePath}
         fill="none"
         stroke="transparent"
         strokeWidth={30}
-        style={{ cursor: drag ? "grabbing" : unlocked ? "grab" : "pointer" }}
+        style={{
+          cursor: presentationMode
+            ? "pointer"
+            : drag
+              ? "grabbing"
+              : unlocked
+                ? "grab"
+                : "pointer",
+        }}
         onMouseEnter={showToolbar}
         onMouseLeave={hideToolbar}
         onPointerDown={onLabelPointerDown}
         onPointerMove={onLabelPointerMove}
         onPointerUp={onLabelPointerUp}
-        onClick={unlocked ? (event) => event.stopPropagation() : undefined}
+        onClick={
+          presentationMode
+            ? (event) => {
+                event.stopPropagation()
+                toggleEdgeDetails(id)
+              }
+            : unlocked
+              ? (event) => event.stopPropagation()
+              : undefined
+        }
       />
 
       {/* Quick-action toolbar shown at the edge midpoint on hover or when selected */}
@@ -543,7 +631,11 @@ const CustomEdge = memo(function CustomEdge({
         y={toolbarY}
         alignX={toolbarAlignX}
         alignY={toolbarAlignY}
-        isVisible={!multiSelectionActive && (hovered || selected || menuOpen || pinned)}
+        isVisible={
+          !presentationMode &&
+          !multiSelectionActive &&
+          (hovered || selected || menuOpen || pinned)
+        }
         currentActionTypes={actionTypes}
         allowsMultipleActionTypes={isSelfConnection}
         unlocked={unlocked}
@@ -566,7 +658,13 @@ const CustomEdge = memo(function CustomEdge({
               data-edge-action-marker={layer.actionType}
               r={index === 0 ? 4 : 3}
               fill={layer.style.stroke}
-              opacity={index === 0 ? "0.8" : "0.65"}
+              opacity={
+                (index === 0 ? 0.8 : 0.65) * playbackOpacity
+              }
+              style={{
+                filter: layer.style.filter,
+                transition: "opacity 300ms ease, filter 300ms ease",
+              }}
             >
               <animateMotion
                 dur={`${3 + index * 0.5}s`}
@@ -580,7 +678,15 @@ const CustomEdge = memo(function CustomEdge({
           ))
         ) : (
           <>
-            <circle r="4" fill={edgeStyle.stroke} opacity="0.8">
+            <circle
+              r="4"
+              fill={edgeStyle.stroke}
+              opacity={0.8 * playbackOpacity}
+              style={{
+                filter: edgeStyle.filter,
+                transition: "opacity 300ms ease, filter 300ms ease",
+              }}
+            >
               <animateMotion
                 dur="3s"
                 repeatCount="indefinite"
@@ -589,7 +695,15 @@ const CustomEdge = memo(function CustomEdge({
                 keySplines="0.4 0 0.6 1"
               />
             </circle>
-            <circle r="3" fill={edgeStyle.stroke} opacity="0.6">
+            <circle
+              r="3"
+              fill={edgeStyle.stroke}
+              opacity={0.6 * playbackOpacity}
+              style={{
+                filter: edgeStyle.filter,
+                transition: "opacity 300ms ease, filter 300ms ease",
+              }}
+            >
               <animateMotion
                 dur="4s"
                 repeatCount="indefinite"
@@ -602,16 +716,34 @@ const CustomEdge = memo(function CustomEdge({
           </>
         )
       )}
-      {data?.displaySettings?.showLabel !== false && (
+      {(presentationMode || data?.displaySettings?.showLabel !== false) && (
         <EdgeLabelRenderer>
           <div
             ref={labelCardRef}
+            data-presentation-edge-id={presentationMode ? id : undefined}
             data-self-connection-action-bundle-card={
               showsActionBundle ? "true" : undefined
             }
             style={{
               transform: `translate(-50%, -50%) translate(${labelX}px,${labelY}px)`,
             }}
+            data-presentation-expanded={presentationDetailsExpanded ? "true" : undefined}
+            data-presentation-playback-state={
+              playbackActive ? playbackState : undefined
+            }
+            role={presentationMode ? "button" : undefined}
+            tabIndex={presentationMode ? 0 : undefined}
+            aria-expanded={presentationMode ? presentationDetailsExpanded : undefined}
+            aria-label={presentationMode ? `${data?.actionType || "Route"} details` : undefined}
+            onKeyDown={presentationMode
+              ? (event) => {
+                  if (event.target !== event.currentTarget) return
+                  if (event.key !== "Enter" && event.key !== " ") return
+                  event.preventDefault()
+                  event.stopPropagation()
+                  toggleEdgeDetails(id)
+                }
+              : undefined}
             onPointerDown={onEdgeLabelPointerDown}
             onPointerMove={onLabelPointerMove}
             onPointerUp={onLabelPointerUp}
@@ -624,10 +756,30 @@ const CustomEdge = memo(function CustomEdge({
               showsActionBundle
                 ? "w-[220px] max-w-[220px] rounded-lg p-2"
                 : "min-w-[220px] max-w-[300px] rounded-lg p-3",
-              selected && "ip-selection-highlight border-blue-400",
-              unlocked && (drag ? "cursor-grabbing select-none" : "cursor-grab"),
+              playbackActive &&
+                "transition-[opacity,filter,box-shadow,border-color] duration-300",
+              playbackState === "future" && "brightness-[0.35] saturate-50",
+              playbackState === "reached" && "brightness-75",
+              playbackState === "current" &&
+                "border-pink-400 ring-2 ring-pink-400/60 shadow-[0_0_24px_rgba(236,72,153,0.3)]",
+              playbackState === "missing" &&
+                "border-amber-300 opacity-100 ring-2 ring-amber-300/70 shadow-[0_0_24px_rgba(251,191,36,0.35)]",
+              visiblySelected && "ip-selection-highlight border-blue-400",
+              presentationMode
+                ? "cursor-pointer"
+                : unlocked && (drag ? "cursor-grabbing select-none" : "cursor-grab"),
             )}
           >
+            {playbackState === "missing" && (
+              <div
+                title="This route is missing a valid timestamp"
+                className="absolute -left-2.5 -top-2.5 rounded-full border border-amber-200 bg-amber-400 p-1 text-gray-950 shadow-lg"
+              >
+                <ClockAlert className="h-3.5 w-3.5" aria-hidden="true" />
+                <span className="sr-only">Missing or invalid timestamp</span>
+              </div>
+            )}
+
             {/* Main Label / Action Types */}
             <div
               className={cn(
@@ -637,14 +789,21 @@ const CustomEdge = memo(function CustomEdge({
               {showsActionBundle ? (
                 <SelfConnectionActionCard
                   actionTypes={actionTypes}
-                  expanded={actionTypesExpanded}
+                  expanded={effectiveActionTypesExpanded}
                   title={compactTitle}
                   showTitleTooltip={showsLabelDetail}
                   compactTimestamp={compactTimestamp}
                   hiddenDetailCount={compactHiddenDetailCount}
-                  onExpandedChange={(expanded) =>
+                  onExpandedChange={(expanded) => {
+                    if (presentationMode) {
+                      if (expanded !== presentationDetailsExpanded) {
+                        toggleEdgeDetails(id)
+                      }
+                      return
+                    }
+
                     onSetEdgeActionTypesExpanded?.(id, expanded)
-                  }
+                  }}
                 />
               ) : actionTypes.length > 0 ? (
                 actionTypes.map((actionType) => {
@@ -670,7 +829,8 @@ const CustomEdge = memo(function CustomEdge({
             </div>
 
             {(!showsActionBundle ||
-              (actionTypesExpanded && hasSupportingEdgeDetails)) && (
+              (effectiveActionTypesExpanded &&
+                hasSupportingEdgeDetails)) && (
               <div
                 data-edge-expanded-metadata={
                   showsActionBundle ? "true" : undefined

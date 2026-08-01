@@ -47,6 +47,10 @@ interface SelectionReference {
   kind: "node" | "edge"
 }
 
+interface UseCompromiseCanvasStateOptions {
+  autosavePaused?: boolean
+}
+
 const createAutosaveContent = ({ nodes, edges, viewport, canvasTitle, incidentLog }: AutosaveContent): AutosaveContent => ({
   // Selection and drag flags are transient UI state and create noisy writes while moving around the canvas.
   nodes: nodes.map(({ selected: _selected, dragging: _dragging, ...node }) => node),
@@ -58,7 +62,9 @@ const createAutosaveContent = ({ nodes, edges, viewport, canvasTitle, incidentLo
   incidentLog,
 })
 
-export const useCompromiseCanvasState = () => {
+export const useCompromiseCanvasState = ({
+  autosavePaused = false,
+}: UseCompromiseCanvasStateOptions = {}) => {
   const { toast } = useToast()
 
   // Initialize undo/redo functionality
@@ -226,12 +232,17 @@ export const useCompromiseCanvasState = () => {
     incidentLog,
   }
 
-  const writeAutosave = useCallback(() => {
-    if (!autosaveReady || !autosaveEnabled || typeof window === "undefined") return
+  const flushAutosave = useCallback(() => {
+    if (autosavePaused || !autosaveReady || !autosaveEnabled || typeof window === "undefined") return
 
     try {
       setAutosaveStatus("saving")
-      const content = createAutosaveContent(latestAutosaveContentRef.current)
+      const latestContent = latestAutosaveContentRef.current
+      const content = createAutosaveContent({
+        ...latestContent,
+        viewport:
+          reactFlowInstance?.getViewport() ?? latestContent.viewport,
+      })
       const snapshot: AutosaveSnapshot = {
         version: "1.0",
         ...content,
@@ -252,18 +263,23 @@ export const useCompromiseCanvasState = () => {
     } catch {
       setAutosaveStatus("error")
     }
-  }, [autosaveReady, autosaveEnabled])
+  }, [
+    autosavePaused,
+    autosaveReady,
+    autosaveEnabled,
+    reactFlowInstance,
+  ])
 
   useEffect(() => {
-    if (!autosaveReady || !autosaveEnabled || typeof window === "undefined") return
+    if (autosavePaused || !autosaveReady || !autosaveEnabled || typeof window === "undefined") return
 
     setAutosaveStatus("pending")
     let idleCallbackId: number | undefined
     const timeoutId = window.setTimeout(() => {
       if (typeof window.requestIdleCallback === "function") {
-        idleCallbackId = window.requestIdleCallback(writeAutosave, { timeout: AUTOSAVE_IDLE_TIMEOUT_MS })
+        idleCallbackId = window.requestIdleCallback(flushAutosave, { timeout: AUTOSAVE_IDLE_TIMEOUT_MS })
       } else {
-        writeAutosave()
+        flushAutosave()
       }
     }, AUTOSAVE_DELAY_MS)
 
@@ -273,22 +289,22 @@ export const useCompromiseCanvasState = () => {
         window.cancelIdleCallback(idleCallbackId)
       }
     }
-  }, [autosaveReady, autosaveEnabled, nodes, edges, canvasTitle, incidentLog, reactFlowInstance, writeAutosave])
+  }, [autosavePaused, autosaveReady, autosaveEnabled, nodes, edges, canvasTitle, incidentLog, reactFlowInstance, flushAutosave])
 
   useEffect(() => {
-    if (!autosaveReady || !autosaveEnabled || typeof window === "undefined") return
+    if (autosavePaused || !autosaveReady || !autosaveEnabled || typeof window === "undefined") return
 
     const flushWhenHidden = () => {
-      if (document.visibilityState === "hidden") writeAutosave()
+      if (document.visibilityState === "hidden") flushAutosave()
     }
 
-    window.addEventListener("pagehide", writeAutosave)
+    window.addEventListener("pagehide", flushAutosave)
     document.addEventListener("visibilitychange", flushWhenHidden)
     return () => {
-      window.removeEventListener("pagehide", writeAutosave)
+      window.removeEventListener("pagehide", flushAutosave)
       document.removeEventListener("visibilitychange", flushWhenHidden)
     }
-  }, [autosaveReady, autosaveEnabled, writeAutosave])
+  }, [autosavePaused, autosaveReady, autosaveEnabled, flushAutosave])
 
   const handleToggleAutosave = useCallback((enabled: boolean) => {
     setAutosaveEnabled(enabled)
@@ -546,6 +562,7 @@ export const useCompromiseCanvasState = () => {
     autosaveEnabled,
     autosaveStatus,
     lastAutosavedAt,
+    flushAutosave,
     activityLog,
     showActivityLog,
     incidentLog,
