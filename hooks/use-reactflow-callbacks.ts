@@ -2,6 +2,7 @@ import { useCallback } from "react"
 import { addEdge, type Connection } from "@xyflow/react"
 import type { NodeData, EdgeData, AssetType, CustomNode, CustomEdge } from "@/lib/types"
 import { defaultDisplaySettings, defaultEdgeDisplaySettings, getId, LAYER_Z_INDEX } from "@/lib/utils/compromise-canvas-constants"
+import { withNodeDataDefaults } from "@/lib/node-defaults"
 import { toast } from "@/components/ui/use-toast"
 
 interface UseReactFlowCallbacksProps {
@@ -136,7 +137,7 @@ export const useReactFlowCallbacks = ({
           id: getId(),
           type: "customNode",
           position,
-          data: {
+          data: withNodeDataDefaults({
             label: getDefaultAssetLabel(type),
             type,
             hostname: "",
@@ -149,7 +150,7 @@ export const useReactFlowCallbacks = ({
             displaySettings: { ...defaultDisplaySettings },
             isCompromised: false,
             investigationStatus: "No Status",
-          },
+          }),
           zIndex: LAYER_Z_INDEX.NODE,
         }
 

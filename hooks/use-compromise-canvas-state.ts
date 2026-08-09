@@ -15,6 +15,7 @@ import { initialNodes, initialEdges } from "@/lib/utils/compromise-canvas-consta
 import type { ActivityLogEntry, CustomNode, CustomEdge, IncidentLogEntry, InvestigationStatus } from "@/lib/types"
 import { layoutSelectedNodes, type SelectionLayoutAction } from "@/lib/selection-layout"
 import { withoutTransientEdgeViewState } from "@/lib/edge-action-types"
+import { withNodeDefaults } from "@/lib/node-defaults"
 
 const AUTOSAVE_ENABLED_KEY = "compromise-canvas-autosave-enabled"
 const AUTOSAVE_FLOW_KEY = "compromise-canvas-autosave-flow"
@@ -178,13 +179,14 @@ export const useCompromiseCanvasState = ({
             throw new Error("Autosave snapshot has an invalid structure")
           }
 
+          const restoredNodes = snapshot.nodes.map(withNodeDefaults)
           const restoredEdges = snapshot.edges.map(
             withoutTransientEdgeViewState,
           )
           const restoredContent = JSON.stringify({
             version: "1.0",
             ...createAutosaveContent({
-              nodes: snapshot.nodes,
+              nodes: restoredNodes,
               edges: restoredEdges,
               viewport: snapshot.viewport,
               canvasTitle:
@@ -195,11 +197,11 @@ export const useCompromiseCanvasState = ({
             }),
           })
 
-          setNodes(snapshot.nodes)
+          setNodes(restoredNodes)
           setEdges(restoredEdges)
           setCanvasTitle(snapshot.canvasTitle || "Intrusion Path Diagram")
           setIncidentLog(Array.isArray(snapshot.incidentLog) ? snapshot.incidentLog : [])
-          reset({ nodes: snapshot.nodes, edges: restoredEdges })
+          reset({ nodes: restoredNodes, edges: restoredEdges })
           const restoredTimestamp = snapshot.timestamp || localStorage.getItem(AUTOSAVE_TIMESTAMP_KEY)
           setLastAutosavedAt(restoredTimestamp)
           lastAutosaveContentRef.current = restoredContent
