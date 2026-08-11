@@ -2,9 +2,10 @@ import { useCallback } from "react"
 import type { ReactFlowInstance, FitViewOptions } from "@xyflow/react"
 import type { CustomNode, CustomEdge } from "@/lib/types"
 import type { Template } from "@/components/template-panel"
-import { defaultDisplaySettings, LAYER_Z_INDEX, FIT_VIEW_OPTIONS } from "@/lib/utils/compromise-canvas-constants"
+import { LAYER_Z_INDEX, FIT_VIEW_OPTIONS } from "@/lib/utils/compromise-canvas-constants"
 import { calculateAutoAlignedPositions } from "@/lib/utils/compromise-canvas-utils"
 import { withoutTransientEdgeViewState } from "@/lib/edge-action-types"
+import { withNodeDefaults } from "@/lib/node-defaults"
 
 interface UseCompromiseCanvasHandlersProps {
   reactFlowInstance: ReactFlowInstance | null
@@ -80,14 +81,9 @@ export const useCompromiseCanvasHandlers = ({
     if (flowString) {
       const flow = JSON.parse(flowString)
         if (flow.nodes && flow.edges) {
-        // Ensure all nodes have display settings and compromised status
-        const nodesWithDisplaySettings = flow.nodes.map((node: any) => ({
-          ...node,
-          data: {
-            ...node.data,
-            displaySettings: node.data.displaySettings || { ...defaultDisplaySettings },
-            isCompromised: node.data.isCompromised || false,
-          },
+        // Normalize defaults before installing saved nodes into canvas state.
+        const nodesWithDisplaySettings = flow.nodes.map((node: CustomNode) => ({
+          ...withNodeDefaults(node),
           // Enforce z-index layering
           zIndex: node.type === "labeledGroupNode" ? LAYER_Z_INDEX.GROUP : LAYER_Z_INDEX.NODE,
           selected: false,
@@ -180,14 +176,9 @@ export const useCompromiseCanvasHandlers = ({
               throw new Error("Invalid diagram format")
             }
 
-            // Ensure all nodes have display settings and compromised status
-            const nodesWithDisplaySettings = jsonData.diagram.nodes.map((node: any) => ({
-              ...node,
-              data: {
-                ...node.data,
-                displaySettings: node.data.displaySettings || { ...defaultDisplaySettings },
-                isCompromised: node.data.isCompromised || false,
-              },
+            // Normalize defaults before installing imported nodes into canvas state.
+            const nodesWithDisplaySettings = jsonData.diagram.nodes.map((node: CustomNode) => ({
+              ...withNodeDefaults(node),
               selected: false,
               dragging: false,
             }))
@@ -316,14 +307,9 @@ export const useCompromiseCanvasHandlers = ({
   const handleLoadTemplate = useCallback(
     (template: Template) => {
       // Logic for loading template
-      // Ensure all template nodes have display settings and compromised status
-      const nodesWithDisplaySettings = template.nodes.map((node: any) => ({
-        ...node,
-        data: {
-          ...node.data,
-          displaySettings: node.data.displaySettings || { ...defaultDisplaySettings },
-          isCompromised: node.data.isCompromised || false,
-        },
+      // Normalize defaults before installing template nodes into canvas state.
+      const nodesWithDisplaySettings = template.nodes.map((node) => ({
+        ...withNodeDefaults(node as CustomNode),
         selected: false,
         dragging: false,
       }))

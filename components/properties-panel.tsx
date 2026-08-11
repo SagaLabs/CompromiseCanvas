@@ -50,6 +50,7 @@ import {
   createEdgeActionTypeUpdate,
   getEdgeActionTypes,
 } from "@/lib/edge-action-types"
+import { withNodeDataDefaults } from "@/lib/node-defaults"
 
 // Define action icons mapping directly in this component
 const actionIcons = {
@@ -121,7 +122,7 @@ export default function PropertiesPanel({
   useEffect(() => {
     if (elementData) {
       if (elementType !== "customEdge") {
-        setNodeData(elementData as NodeData)
+        setNodeData(withNodeDataDefaults(elementData as NodeData))
         setEdgeData(null)
       } else {
         setEdgeData(elementData as EdgeData)
@@ -492,101 +493,6 @@ export default function PropertiesPanel({
       handleAttackerChange("attackVectors", newVectors)
     }
   }
-
-  // Initialize identity data when node type changes to identity
-  useEffect(() => {
-    if (nodeData?.type === "identity" && !nodeData.identityData) {
-      const defaultIdentityData: IdentityData = {
-        username: "",
-        domain: "",
-        accountType: "User",
-        accountSource: "Local",
-        privileges: [],
-        groups: [],
-        accountStatus: "Active",
-        mfaEnabled: false,
-        riskLevel: "Medium",
-      }
-      handleNodeChange("identityData", defaultIdentityData)
-    }
-  }, [nodeData?.type])
-
-  // Initialize exfiltration data when node type changes to exfiltration
-  useEffect(() => {
-    if (nodeData?.type === "exfiltration" && !nodeData.exfiltrationData) {
-      const defaultExfiltrationData: ExfiltrationData = {
-        method: "Cloud Storage",
-        destination: "",
-        protocol: "HTTPS",
-        encryption: false,
-        compression: false,
-        dataTypes: [],
-        volumeGB: 0,
-        transferRate: "",
-        detectionEvasion: [],
-        exfiltrationWindow: "Business Hours Only",
-        status: "Planned",
-      }
-      handleNodeChange("exfiltrationData", defaultExfiltrationData)
-    }
-  }, [nodeData?.type])
-
-  // Initialize command control data when node type changes to command-control
-  useEffect(() => {
-    if (nodeData?.type === "command-control" && !nodeData.commandControlData) {
-      const defaultCommandControlData: CommandControlData = {
-        c2Type: "HTTP/HTTPS",
-        c2Server: "",
-        c2Protocol: "HTTPS",
-        beaconInterval: "60s",
-        jitter: 10,
-        implantType: "",
-        encryption: true,
-        obfuscation: [],
-        fallbackChannels: [],
-        killSwitchEnabled: false,
-        persistenceMethods: [],
-        operationalStatus: "Active",
-      }
-      handleNodeChange("commandControlData", defaultCommandControlData)
-    }
-  }, [nodeData?.type])
-
-  // Initialize cloud tenant data when node type changes to cloud-tenant
-  useEffect(() => {
-    if (nodeData?.type === "cloud-tenant" && !nodeData.cloudTenantData) {
-      const defaultCloudTenantData: CloudTenantData = {
-        tenantId: "",
-        tenantName: "",
-        cloudProvider: "Azure",
-        tenantType: "Entra ID",
-        region: "us-east-1",
-        environment: "Production",
-        resourceCount: 0,
-      }
-      handleNodeChange("cloudTenantData", defaultCloudTenantData)
-    }
-  }, [nodeData?.type])
-
-  // Initialize attacker data when node type changes to attacker
-  useEffect(() => {
-    if (nodeData?.type === "attacker" && !nodeData.attackerData) {
-      const defaultAttackerData: AttackerData = {
-        targetIndustries: [],
-        ip: "",
-        attackVectors: [],
-        infrastructureAge: "",
-        lastSeen: "",
-        firstSeen: "",
-        infrastructureStatus: "Active",
-        threatActor: "",
-        location: "",
-        hostingProvider: "",
-        infrastructureType: "VPS",
-      }
-      handleNodeChange("attackerData", defaultAttackerData)
-    }
-  }, [nodeData?.type])
 
   if (!selectedElement) {
     const totalSelected = selectedNodeCount + selectedEdgeCount
