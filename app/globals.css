@@ -493,6 +493,22 @@
     0 12px 28px color-mix(in srgb, var(--ip-danger) 32%, transparent);
 }
 
+.ip-node-status-compromised {
+  background-color: color-mix(in srgb, var(--ip-surface-2) 70%, #7f1d1d 30%);
+}
+
+.ip-node-status-done {
+  background-color: color-mix(in srgb, var(--ip-surface-2) 80%, #14532d 20%);
+}
+
+.ip-node-status-investigating {
+  background-color: color-mix(in srgb, var(--ip-surface-2) 80%, #713f12 20%);
+}
+
+.ip-node-status-not-investigated {
+  background-color: color-mix(in srgb, var(--ip-surface-2) 80%, #581c87 20%);
+}
+
 [data-theme] .bg-gray-950 {
   background-color: var(--ip-bg) !important;
 }

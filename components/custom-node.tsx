@@ -143,15 +143,15 @@ const CustomNode = memo(function CustomNode({ data: nodeData, isConnectable, sel
       return "ip-attacker shadow-lg"
     }
     if (data.isCompromised) {
-      return "bg-red-900/30 border-red-500/50"
+      return "ip-node-status-compromised border-red-500/50"
     }
     switch (data.investigationStatus) {
       case "Done":
-        return "bg-green-900/20 border-green-500/40"
+        return "ip-node-status-done border-green-500/40"
       case "Investigating":
-        return "bg-yellow-900/20 border-yellow-500/40"
+        return "ip-node-status-investigating border-yellow-500/40"
       case "Not Investigated":
-        return "bg-purple-900/20 border-purple-500/40"
+        return "ip-node-status-not-investigated border-purple-500/40"
       default:
         return "bg-gray-800 border-gray-700"
     }
