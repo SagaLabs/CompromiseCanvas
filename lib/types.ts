@@ -67,6 +67,22 @@ export const ACTION_TYPES: ActionType[] = [
   "Other",
 ]
 
+/** Per-tactic colour, so a step reads the same on a node and in the drill-down. */
+export const ACTION_COLORS: Record<ActionType, string> = {
+  "Initial Access": "#f87171",
+  "Lateral Movement": "#fb923c",
+  "Privilege Escalation": "#fbbf24",
+  Persistence: "#a78bfa",
+  "Defense Evasion": "#60a5fa",
+  "Credential Access": "#f472b6",
+  Discovery: "#38bdf8",
+  Collection: "#2dd4bf",
+  Exfiltration: "#facc15",
+  "Command and Control": "#c084fc",
+  Impact: "#ef4444",
+  Other: "#94a3b8",
+}
+
 export type EdgeActionType =
   | "Initial Access"
   | "Lateral Movement"
@@ -128,9 +144,19 @@ export interface NodeAction {
   type: ActionType
   technique: string
   details: string
+  // On-host attack path: array order is the sequence. These optional fields let
+  // a host's internal steps be documented with the same fidelity as the
+  // host-to-host edges, so an intra-host chain can be read as a path.
+  timestamp?: string // ISO8601 (e.g. 'YYYY-MM-DDTHH:MM:SSZ')
+  mitreAttackId?: string
+  mitreAttackName?: string
 }
 
 export interface DisplaySettings {
+  // Render `actions` as a connected, numbered attack path inside the node
+  // instead of a flat bullet list. Undefined behaves as false so existing
+  // canvases are unchanged.
+  showActionPath?: boolean
   showHostname: boolean
   showIpAddress: boolean
   showOs: boolean
