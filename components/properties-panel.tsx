@@ -25,6 +25,8 @@ import {
   Info,
   Shield,
   Palette,
+  ChevronUp,
+  ChevronDown,
 } from "lucide-react" // Import all necessary icons
 import {
   type NodeData,
@@ -341,6 +343,27 @@ export default function PropertiesPanel({
       newActions[index] = { ...newActions[index], [field]: value }
       handleNodeChange("actions", newActions)
     }
+  }
+
+  const handleMoveAction = (index: number, direction: -1 | 1) => {
+    if (!nodeData) return
+    const newActions = [...(nodeData.actions || [])]
+    const target = index + direction
+    if (target < 0 || target >= newActions.length) return
+    ;[newActions[index], newActions[target]] = [newActions[target], newActions[index]]
+    handleNodeChange("actions", newActions)
+  }
+
+  const handleSortActionsByTime = () => {
+    if (!nodeData) return
+    const newActions = [...(nodeData.actions || [])].sort((a, b) => {
+      // steps without a timestamp keep their relative position, at the end
+      if (!a.timestamp && !b.timestamp) return 0
+      if (!a.timestamp) return 1
+      if (!b.timestamp) return -1
+      return a.timestamp.localeCompare(b.timestamp)
+    })
+    handleNodeChange("actions", newActions)
   }
 
   const handleRemoveAction = (index: number) => {
@@ -1725,16 +1748,38 @@ export default function PropertiesPanel({
                 return (
                   <div key={action.id} className="mt-2 rounded-md border border-gray-700 p-3 space-y-2">
                     <div className="flex justify-between items-center">
-                      <Label className="text-sm font-medium">Action {index + 1}</Label>
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        onClick={() => handleRemoveAction(index)}
-                        className="text-red-400 hover:bg-gray-700"
-                        aria-label="Remove action"
-                      >
-                        <X className="h-4 w-4" aria-hidden="true" />
-                      </Button>
+                      <Label className="text-sm font-medium">Step {index + 1}</Label>
+                      <div className="flex items-center gap-1">
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          onClick={() => handleMoveAction(index, -1)}
+                          disabled={index === 0}
+                          className="h-7 w-7 text-gray-400 hover:bg-gray-700 disabled:opacity-30"
+                          aria-label={`Move step ${index + 1} earlier`}
+                        >
+                          <ChevronUp className="h-4 w-4" aria-hidden="true" />
+                        </Button>
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          onClick={() => handleMoveAction(index, 1)}
+                          disabled={index === (nodeData.actions || []).length - 1}
+                          className="h-7 w-7 text-gray-400 hover:bg-gray-700 disabled:opacity-30"
+                          aria-label={`Move step ${index + 1} later`}
+                        >
+                          <ChevronDown className="h-4 w-4" aria-hidden="true" />
+                        </Button>
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          onClick={() => handleRemoveAction(index)}
+                          className="text-red-400 hover:bg-gray-700"
+                          aria-label="Remove action"
+                        >
+                          <X className="h-4 w-4" aria-hidden="true" />
+                        </Button>
+                      </div>
                     </div>
                     <div>
                       <Label htmlFor={`action-type-${index}`} className="text-xs">
@@ -1788,17 +1833,67 @@ export default function PropertiesPanel({
                         placeholder="e.g., webshell placed in C:\inet\, local user created"
                       />
                     </div>
+                    <div>
+                      <Label htmlFor={`action-timestamp-${index}`} className="text-xs">
+                        Timestamp
+                      </Label>
+                      <Input
+                        id={`action-timestamp-${index}`}
+                        value={action.timestamp || ""}
+                        onChange={(e) => handleActionChange(index, "timestamp", e.target.value)}
+                        className="mt-1 bg-gray-800 text-white border-gray-700 text-xs"
+                        placeholder="2026-08-08T17:30:11Z"
+                      />
+                    </div>
+                    <div className="grid grid-cols-2 gap-2">
+                      <div>
+                        <Label htmlFor={`action-mitre-id-${index}`} className="text-xs">
+                          MITRE ID
+                        </Label>
+                        <Input
+                          id={`action-mitre-id-${index}`}
+                          value={action.mitreAttackId || ""}
+                          onChange={(e) => handleActionChange(index, "mitreAttackId", e.target.value)}
+                          className="mt-1 bg-gray-800 text-white border-gray-700 text-xs"
+                          placeholder="T1053.005"
+                        />
+                      </div>
+                      <div>
+                        <Label htmlFor={`action-mitre-name-${index}`} className="text-xs">
+                          MITRE Name
+                        </Label>
+                        <Input
+                          id={`action-mitre-name-${index}`}
+                          value={action.mitreAttackName || ""}
+                          onChange={(e) => handleActionChange(index, "mitreAttackName", e.target.value)}
+                          className="mt-1 bg-gray-800 text-white border-gray-700 text-xs"
+                          placeholder="Scheduled Task"
+                        />
+                      </div>
+                    </div>
                   </div>
                 )
               })}
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={handleAddAction}
-                className="mt-2 w-full border-gray-700 text-white hover:bg-gray-700 bg-transparent"
-              >
-                <Plus className="mr-2 h-4 w-4" /> Add Action
-              </Button>
+              <div className="mt-2 flex gap-2">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={handleAddAction}
+                  className="flex-1 border-gray-700 text-white hover:bg-gray-700 bg-transparent"
+                >
+                  <Plus className="mr-2 h-4 w-4" /> Add Step
+                </Button>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={handleSortActionsByTime}
+                  disabled={(nodeData.actions || []).length < 2}
+                  className="border-gray-700 text-white hover:bg-gray-700 bg-transparent"
+                  title="Order the steps by their timestamps"
+                >
+                  Sort by time
+                </Button>
+              </div>
             </div>
           )}
 
