@@ -40,7 +40,9 @@ import {
   Video,
   Clock,
   CheckCircle,
+  GitBranch,
 } from "lucide-react"
+import { ACTION_COLORS } from "@/lib/types"
 import type { NodeData, Criticality, InvestigationStatus } from "@/lib/types"
 import { cn } from "@/lib/utils"
 import { presentationNodeDisplaySettings } from "@/lib/presentation-details"
@@ -96,6 +98,13 @@ const actionIcons = {
   "Command and Control": Terminal,
   Impact: Zap,
   Other: Info,
+}
+
+/** Compact HH:MM:SS for a step marker; falls back to the raw string. */
+const formatActionTimestamp = (value: string): string => {
+  const parsed = new Date(value)
+  if (Number.isNaN(parsed.getTime())) return value
+  return parsed.toISOString().slice(11, 19) + "Z"
 }
 
 const CustomNode = memo(function CustomNode({ data: nodeData, isConnectable, selected, id }: NodeProps<Node<NodeData>>) {
@@ -582,22 +591,65 @@ const CustomNode = memo(function CustomNode({ data: nodeData, isConnectable, sel
       )}
 
       {data.displaySettings.showActions && data.actions && data.actions.length > 0 && (
-        <div className="mt-2 w-full text-left text-xs text-gray-400">
-          <div className="font-medium text-gray-300">Actions:</div>
-          <ul className="list-inside list-none space-y-1">
-            {data.actions.map((action) => {
-              const ActionIcon = actionIcons[action.type] || Info
-              return (
-                <li key={action.id} className="flex items-center gap-1">
-                  <ActionIcon className="h-3 w-3 text-purple-400" />
-                  <span>
-                    {action.type}: {action.technique}
-                  </span>
-                </li>
-              )
-            })}
-          </ul>
-        </div>
+        data.displaySettings.showActionPath ? (
+          /* On-host attack path, collapsed. The full chain lives in the
+             drill-down (double-click); a node that inlined every step grew
+             taller than the canvas and buried the topology it sits in. What
+             stays here is the signature of the path: one colour-coded marker
+             per step, in order, plus the first and last tactic. */
+          <div className="mt-2 w-full text-left text-xs">
+            <div className="mb-1 flex items-center gap-1 font-medium text-gray-300">
+              <GitBranch className="h-3 w-3 shrink-0 text-purple-400" aria-hidden="true" />
+              On-host path
+              <span className="text-gray-500">
+                ({data.actions.length} {data.actions.length === 1 ? "step" : "steps"})
+              </span>
+            </div>
+            <ol className="flex list-none flex-wrap items-center gap-0.5 pl-0">
+              {data.actions.map((action, index) => {
+                const color = ACTION_COLORS[action.type] ?? ACTION_COLORS.Other
+                return (
+                  <li key={action.id} className="flex items-center gap-0.5">
+                    <span
+                      title={`${index + 1}. ${action.type}${action.technique ? ` — ${action.technique}` : ""}`}
+                      className="flex h-4 w-4 items-center justify-center rounded-full text-[9px] font-bold text-gray-950"
+                      style={{ backgroundColor: color }}
+                    >
+                      {index + 1}
+                    </span>
+                    {index < data.actions.length - 1 && (
+                      <span aria-hidden="true" className="h-px w-1.5 bg-gray-600" />
+                    )}
+                  </li>
+                )
+              })}
+            </ol>
+            <div className="mt-1 truncate text-gray-400">
+              {data.actions[0].type}
+              {data.actions.length > 1 && ` → ${data.actions[data.actions.length - 1].type}`}
+            </div>
+            <div className="mt-0.5 text-[10px] italic text-gray-500">
+              Double-click to open the path
+            </div>
+          </div>
+        ) : (
+          <div className="mt-2 w-full text-left text-xs text-gray-400">
+            <div className="font-medium text-gray-300">Actions:</div>
+            <ul className="list-inside list-none space-y-1">
+              {data.actions.map((action) => {
+                const ActionIcon = actionIcons[action.type] || Info
+                return (
+                  <li key={action.id} className="flex items-center gap-1">
+                    <ActionIcon className="h-3 w-3 text-purple-400" />
+                    <span>
+                      {action.type}: {action.technique}
+                    </span>
+                  </li>
+                )
+              })}
+            </ul>
+          </div>
+        )
       )}
       <Handle
         type="source"
