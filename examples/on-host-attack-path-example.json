@@ -1,0 +1,347 @@
+{
+  "version": "1.0",
+  "timestamp": "2026-08-11T13:15:04Z",
+  "canvasTitle": "Sample C \u2014 on-host attack path (secdis)",
+  "incidentLog": [
+    {
+      "id": "inc-1",
+      "timestamp": "2026-08-08T17:28:17.906Z",
+      "description": "Detection: Malware Detection Alert (process a43853c12573d2dd8792b2380c895118266c289f10e659c457354a009efdb47c.exe)",
+      "category": "Observation"
+    },
+    {
+      "id": "inc-2",
+      "timestamp": "2026-08-08T17:29:19.926Z",
+      "description": "Detection: Malicious Behavior Detection Alert: Shellcode Injection with Parent as Provenance (process a43853c12573d2dd8792b2380c895118266c289f10e659c457354a009efdb47c.exe)",
+      "category": "Observation"
+    },
+    {
+      "id": "inc-3",
+      "timestamp": "2026-08-08T17:29:19.931Z",
+      "description": "Detection: Malicious Behavior Detection Alert: Unbacked Shellcode from Unsigned Module (process a43853c12573d2dd8792b2380c895118266c289f10e659c457354a009efdb47c.exe)",
+      "category": "Observation"
+    },
+    {
+      "id": "inc-4",
+      "timestamp": "2026-08-08T17:29:19.935Z",
+      "description": "Detection: Malicious Behavior Detection Alert: Network Module Loaded from Suspicious Unbacked Memory (process a43853c12573d2dd8792b2380c895118266c289f10e659c457354a009efdb47c.exe)",
+      "category": "Observation"
+    },
+    {
+      "id": "inc-5",
+      "timestamp": "2026-08-08T17:29:19.947Z",
+      "description": "Detection: Malicious Behavior Detection Alert: Scheduled Task by a Low Reputation Process (process a43853c12573d2dd8792b2380c895118266c289f10e659c457354a009efdb47c.exe)",
+      "category": "Observation"
+    },
+    {
+      "id": "inc-6",
+      "timestamp": "2026-08-08T17:30:20.122Z",
+      "description": "Detection: Malicious Behavior Detection Alert: Scheduled Task from a Browser or Compression Utility Descendant (process a43853c12573d2dd8792b2380c895118266c289f10e659c457354a009efdb47c.exe)",
+      "category": "Observation"
+    },
+    {
+      "id": "inc-7",
+      "timestamp": "2026-08-08T17:30:20.126Z",
+      "description": "Detection: Malicious Behavior Detection Alert: Scheduled Task Creation by an Unusual Process (process a43853c12573d2dd8792b2380c895118266c289f10e659c457354a009efdb47c.exe)",
+      "category": "Observation"
+    },
+    {
+      "id": "inc-8",
+      "timestamp": "2026-08-08T17:30:20.135Z",
+      "description": "Detection: Malicious Behavior Detection Alert: Suspicious Windows Schedule Child Process (process xhMLks.exe)",
+      "category": "Observation"
+    },
+    {
+      "id": "inc-9",
+      "timestamp": "2026-08-08T17:30:20.156Z",
+      "description": "Detection: Malicious Behavior Detection Alert: Untrusted DLL Loaded by a Persistent Program (process xhMLks.exe)",
+      "category": "Observation"
+    },
+    {
+      "id": "inc-10",
+      "timestamp": "2026-08-08T17:30:20.160Z",
+      "description": "Detection: Malicious Behavior Detection Alert: Unsigned DLL from Suspicious Directory (process xhMLks.exe)",
+      "category": "Observation"
+    },
+    {
+      "id": "inc-11",
+      "timestamp": "2026-08-08T17:30:20.163Z",
+      "description": "Detection: Malicious Behavior Detection Alert: Direct Syscall from Unsigned Module (process xhMLks.exe)",
+      "category": "Observation"
+    },
+    {
+      "id": "inc-12",
+      "timestamp": "2026-08-08T17:30:20.181Z",
+      "description": "Detection: Malicious Behavior Detection Alert: Native API Call from Unsigned Module (process xhMLks.exe)",
+      "category": "Observation"
+    },
+    {
+      "id": "inc-13",
+      "timestamp": "2026-08-08T17:30:20.192Z",
+      "description": "Detection: Malicious Behavior Detection Alert: VirtualAlloc API Call from an Unsigned DLL (process xhMLks.exe)",
+      "category": "Observation"
+    },
+    {
+      "id": "inc-14",
+      "timestamp": "2026-08-08T17:30:20.203Z",
+      "description": "Detection: Malicious Behavior Detection Alert: Shellcode Execution from Low Reputation Module (process xhMLks.exe)",
+      "category": "Observation"
+    },
+    {
+      "id": "inc-15",
+      "timestamp": "2026-08-08T17:30:20.238Z",
+      "description": "Detection: Malicious Behavior Detection Alert: Suspicious String Value Written to Registry Run Key (process xhMLks.exe)",
+      "category": "Observation"
+    },
+    {
+      "id": "inc-16",
+      "timestamp": "2026-08-08T17:30:20.257Z",
+      "description": "Detection: Malicious Behavior Detection Alert: Suspicious Windows Defender Exclusions Added via PowerShell (process powershell.exe)",
+      "category": "Observation"
+    },
+    {
+      "id": "inc-17",
+      "timestamp": "2026-08-08T17:30:42.567Z",
+      "description": "Detection: Disabling Windows Defender Security Settings via PowerShell (process powershell.exe)",
+      "category": "Observation"
+    },
+    {
+      "id": "inc-18",
+      "timestamp": "2026-08-08T17:30:51.411Z",
+      "description": "Detection: Newly Observed Elastic Defend Behavior Alert",
+      "category": "Observation"
+    },
+    {
+      "id": "inc-19",
+      "timestamp": "2026-08-08T17:31:23.484Z",
+      "description": "Detection: Malicious Behavior Detection Alert: Suspicious NTDLL Image Load (process xhMLks.exe)",
+      "category": "Observation"
+    },
+    {
+      "id": "inc-20",
+      "timestamp": "2026-08-08T17:31:23.488Z",
+      "description": "Detection: Malicious Behavior Detection Alert: Suspicious Scheduled Task Creation (process schtasks.exe)",
+      "category": "Observation"
+    },
+    {
+      "id": "inc-21",
+      "timestamp": "2026-08-08T17:31:23.509Z",
+      "description": "Detection: Malicious Behavior Detection Alert: Windows Defender Exclusions via WMI (process powershell.exe)",
+      "category": "Observation"
+    },
+    {
+      "id": "inc-22",
+      "timestamp": "2026-08-08T17:31:23.704Z",
+      "description": "Detection: Memory Threat Detection Alert: Shellcode Injection (process xhMLks.exe)",
+      "category": "Observation"
+    },
+    {
+      "id": "inc-23",
+      "timestamp": "2026-08-08T17:31:32.610Z",
+      "description": "Detection: Windows Defender Exclusions Added via PowerShell (process powershell.exe)",
+      "category": "Observation"
+    },
+    {
+      "id": "inc-24",
+      "timestamp": "2026-08-08T17:31:39.743Z",
+      "description": "Detection: Threat Intel Hash Indicator Match (process a43853c12573d2dd8792b2380c895118266c289f10e659c457354a009efdb47c.exe)",
+      "category": "Observation"
+    },
+    {
+      "id": "inc-25",
+      "timestamp": "2026-08-08T17:31:58.926Z",
+      "description": "Detection: Startup or Run Key Registry Modification (process xhMLks.exe)",
+      "category": "Observation"
+    },
+    {
+      "id": "inc-26",
+      "timestamp": "2026-08-08T17:32:13.902Z",
+      "description": "Detection: File and Directory Permissions Modification (process icacls.exe)",
+      "category": "Observation"
+    },
+    {
+      "id": "inc-27",
+      "timestamp": "2026-08-08T17:32:17.244Z",
+      "description": "Detection: Threat Intel IP Address Indicator Match",
+      "category": "Observation"
+    }
+  ],
+  "diagram": {
+    "nodes": [
+      {
+        "id": "attacker-infra",
+        "type": "customNode",
+        "position": {
+          "x": 520,
+          "y": 160
+        },
+        "zIndex": 1,
+        "data": {
+          "label": "Attacker infrastructure",
+          "type": "server",
+          "hostname": "",
+          "ipAddress": "",
+          "os": "",
+          "criticality": "High",
+          "services": [],
+          "actions": [],
+          "description": "Delivery / C2 endpoint(s) contacted from the host",
+          "isCompromised": false,
+          "investigationStatus": "No Status",
+          "displaySettings": {
+            "showHostname": false,
+            "showIpAddress": false,
+            "showOs": false,
+            "showServices": true,
+            "showCriticality": true,
+            "showActions": true,
+            "showDescription": true,
+            "showUsername": false,
+            "showDomain": false,
+            "showAccountType": false,
+            "showAccountSource": false,
+            "showAccountStatus": false
+          }
+        }
+      },
+      {
+        "id": "host-secdis",
+        "type": "customNode",
+        "position": {
+          "x": 520,
+          "y": 620
+        },
+        "zIndex": 1,
+        "data": {
+          "label": "secdis",
+          "type": "workstation",
+          "hostname": "",
+          "ipAddress": "",
+          "os": "Windows",
+          "criticality": "Critical",
+          "services": [],
+          "actions": [
+            {
+              "id": "step-1",
+              "type": "Defense Evasion",
+              "technique": "Rundll32 via rundll32.exe",
+              "details": "C:\\Windows\\System32\\rundll32.exe C:\\Windows\\System32\\shell32.dll,SHCreateLocalServerRunDll {9aa46009-3ce0-458a-a354-715610a075e6} -Embedding",
+              "timestamp": "2026-08-08T17:27:49.1779512Z",
+              "mitreAttackId": "T1218.011",
+              "mitreAttackName": "Rundll32"
+            },
+            {
+              "id": "step-2",
+              "type": "Other",
+              "technique": "Malicious File via a43853c12573d2dd8792\u2026, xhMLks.exe",
+              "details": "\"C:\\Users\\analyst\\Downloads\\Sample C\\a43853c12573d2dd8792b2380c895118266c289f10e659c457354a009efdb47c.exe\" \n\"C:\\Users\\Public\\Br3N37\\xhMLks.exe\"",
+              "timestamp": "2026-08-08T17:27:55.8143166Z",
+              "mitreAttackId": "T1204.002",
+              "mitreAttackName": "Malicious File"
+            },
+            {
+              "id": "step-3",
+              "type": "Defense Evasion",
+              "technique": "Disable or Modify Tools via powershell.exe",
+              "details": "\"C:\\Windows\\System32\\WindowsPowerShell\\v1.0\\powershell.exe\" Add-MpPreference -ExclusionPath 'C:\\ProgramData','C:\\Users','C:\\Program Files (x86)','C:\\' -Force\n\"C:\\Windows\\System32\\WindowsPowerShell\\v1.0\\powershell.exe\" Add-MpPreference -ExclusionPath 'C:\\ProgramData','C:\\Users','C:\\Program Files (x86)' -Force",
+              "timestamp": "2026-08-08T17:30:11.4968236Z",
+              "mitreAttackId": "T1562.001",
+              "mitreAttackName": "Disable or Modify Tools"
+            },
+            {
+              "id": "step-4",
+              "type": "Persistence",
+              "technique": "Scheduled Task via cmd.exe, schtasks.exe",
+              "details": "\"C:\\Windows\\System32\\cmd.exe\" cmd.exe /c SCHTASKS /Create /F /TN \"Task1\" /SC ONCE /ST 00:00 /RL HIGHEST /RU \"SYSTEM\" /TR \"cmd.exe /c reg add \\\"HKLM\\SOFTWARE\\Microsoft\\Windows Defender\\Exclusions\\Paths\\\" /v \\\"C:\\Users\\Pub\nSCHTASKS  /Create /F /TN \"Task1\" /SC ONCE /ST 00:00 /RL HIGHEST /RU \"SYSTEM\" /TR \"cmd.exe /c reg add \\\"HKLM\\SOFTWARE\\Microsoft\\Windows Defender\\Exclusions\\Paths\\\" /v \\\"C:\\Users\\Public\\Br3N37\\\" /t REG_DWORD /d 0 /f\" \nSCHTASKS  /Run /TN \"Task1\" \n(+1 more event(s), until 17:30:19 UTC)",
+              "timestamp": "2026-08-08T17:30:11.862465Z",
+              "mitreAttackId": "T1053.005",
+              "mitreAttackName": "Scheduled Task"
+            },
+            {
+              "id": "step-5",
+              "type": "Persistence",
+              "technique": "Modify Registry via cmd.exe",
+              "details": "\"cmd.exe\" /c reg add \"HKLM\\SOFTWARE\\Microsoft\\Windows Defender\\Exclusions\\Paths\" /v \"C:\\Users\" /t REG_DWORD /d 0 /f\n\"cmd.exe\" /c reg add \"HKLM\\SOFTWARE\\Microsoft\\Windows Defender\\Exclusions\\Paths\" /v \"C:\\Program Files (x86)\\5FhqHn\" /t REG_DWORD /d 0 /f\n\"cmd.exe\" /c reg add \"HKLM\\SOFTWARE\\Microsoft\\Windows Defender\\Exclusions\\Paths\" /v \"C:\\ProgramData\" /t REG_DWORD /d 0 /f\n(+1 more event(s), until 17:32:42 UTC)",
+              "timestamp": "2026-08-08T17:30:18.3509408Z",
+              "mitreAttackId": "T1112",
+              "mitreAttackName": "Modify Registry"
+            },
+            {
+              "id": "step-6",
+              "type": "Other",
+              "technique": "Execution",
+              "details": "\"C:\\Program Files (x86)\\5FhqHn\\yYRb4B.exe\" \n\"C:\\Program Files (x86)\\qB2C3S7\\Fqvg0m6.exe\"\nicacls  \"C:\\Program Files (x86)\\5FhqHn\" /grant:r Administrators:(OI)(CI)F /grant:r SYSTEM:(OI)(CI)F\n(+9 more event(s), until 17:32:15 UTC)",
+              "timestamp": "2026-08-08T17:31:03.3894732Z"
+            },
+            {
+              "id": "step-7",
+              "type": "Other",
+              "technique": "Command and Scripting Interpreter via cmd.exe, net.exe, net1.exe",
+              "details": "reg  add \"HKLM\\SOFTWARE\\Microsoft\\Windows Defender\\Exclusions\\Paths\" /v \"C:\\Users\" /t REG_DWORD /d 0 /f\ncmd.exe /c icacls \"C:\\Program Files (x86)\\5FhqHn\" /inheritance:r\ncmd.exe /c icacls \"C:\\Program Files (x86)\\5FhqHn\" /grant:r Administrators:(OI)(CI)F /grant:r SYSTEM:(OI)(CI)F\n(+36 more event(s), until 17:33:10 UTC)",
+              "timestamp": "2026-08-08T17:31:08.1177837Z",
+              "mitreAttackId": "T1059",
+              "mitreAttackName": "Command and Scripting Interpreter"
+            },
+            {
+              "id": "step-8",
+              "type": "Impact",
+              "technique": "Inhibit System Recovery via cmd.exe",
+              "details": "cmd.exe /c vssadmin delete shadows /all /quiet",
+              "timestamp": "2026-08-08T17:31:32.6907985Z",
+              "mitreAttackId": "T1490",
+              "mitreAttackName": "Inhibit System Recovery"
+            }
+          ],
+          "description": "8 on-host step(s) \u2014 double-click to drill into the path",
+          "isCompromised": true,
+          "investigationStatus": "Investigating",
+          "displaySettings": {
+            "showHostname": false,
+            "showIpAddress": false,
+            "showOs": true,
+            "showServices": false,
+            "showCriticality": true,
+            "showActions": true,
+            "showDescription": true,
+            "showUsername": false,
+            "showDomain": false,
+            "showAccountType": false,
+            "showAccountSource": false,
+            "showAccountStatus": false,
+            "showActionPath": true
+          }
+        }
+      }
+    ],
+    "edges": [
+      {
+        "id": "e-attacker-host",
+        "source": "attacker-infra",
+        "target": "host-secdis",
+        "type": "customEdge",
+        "data": {
+          "label": "initial access",
+          "actionType": "Initial Access",
+          "toolUsed": "",
+          "userUsed": "",
+          "timestamp": "2026-08-08T17:27:49.1779512Z",
+          "description": "",
+          "displaySettings": {
+            "showLabel": true,
+            "showActionType": true,
+            "showToolUsed": true,
+            "showUserUsed": false,
+            "showTimestamp": true,
+            "showMitreAttack": true,
+            "showDescription": false
+          }
+        }
+      }
+    ],
+    "viewport": {
+      "x": 0,
+      "y": 0,
+      "zoom": 1
+    }
+  }
+}
