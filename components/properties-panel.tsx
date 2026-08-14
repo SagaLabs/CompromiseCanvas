@@ -25,6 +25,8 @@ import {
   Info,
   Shield,
   Palette,
+  ChevronUp,
+  ChevronDown,
 } from "lucide-react" // Import all necessary icons
 import {
   type NodeData,
@@ -87,6 +89,7 @@ export default function PropertiesPanel({
 }: PropertiesPanelProps) {
   const [nodeData, setNodeData] = useState<NodeData | null>(null)
   const [edgeData, setEdgeData] = useState<EdgeData | null>(null)
+  const orderedActionPath = nodeData?.actionMode === "ordered-path"
   const edgeActionTypes = getEdgeActionTypes(edgeData)
   const isSelfConnection =
     selectedElement?.type === "customEdge" &&
@@ -341,6 +344,50 @@ export default function PropertiesPanel({
       newActions[index] = { ...newActions[index], [field]: value }
       handleNodeChange("actions", newActions)
     }
+  }
+
+  const handleActionMitreChange = (
+    index: number,
+    techniques: Array<{ id: string; name: string }>,
+  ) => {
+    if (!nodeData) return
+    const primaryTechnique = techniques[0]
+    const newActions = [...(nodeData.actions || [])]
+    newActions[index] = {
+      ...newActions[index],
+      mitreAttackId: primaryTechnique?.id || "",
+      mitreAttackName: primaryTechnique?.name || "",
+    }
+    handleNodeChange("actions", newActions)
+  }
+
+  const handleMoveAction = (index: number, direction: -1 | 1) => {
+    if (!nodeData) return
+    const newActions = [...(nodeData.actions || [])]
+    const target = index + direction
+    if (target < 0 || target >= newActions.length) return
+    ;[newActions[index], newActions[target]] = [newActions[target], newActions[index]]
+    handleNodeChange("actions", newActions)
+  }
+
+  const handleSortActionsByTime = () => {
+    if (!nodeData) return
+    const newActions = (nodeData.actions || [])
+      .map((action, index) => ({
+        action,
+        index,
+        time: action.timestamp ? new Date(action.timestamp).getTime() : Number.NaN,
+      }))
+      .sort((a, b) => {
+        const aValid = Number.isFinite(a.time)
+        const bValid = Number.isFinite(b.time)
+        if (aValid && bValid) return a.time - b.time || a.index - b.index
+        if (aValid) return -1
+        if (bValid) return 1
+        return a.index - b.index
+      })
+      .map(({ action }) => action)
+    handleNodeChange("actions", newActions)
   }
 
   const handleRemoveAction = (index: number) => {
@@ -1719,22 +1766,71 @@ export default function PropertiesPanel({
 
           {nodeData.type !== "group" && (
             <div>
-              <Label className="text-sm">Actions</Label>
+              <div className="flex items-start justify-between gap-3 rounded-md border border-gray-700 bg-gray-800/50 p-3">
+                <div>
+                  <Label htmlFor="ordered-action-path" className="text-sm">
+                    Ordered Attack Path
+                  </Label>
+                  <p className="mt-1 text-[11px] leading-relaxed text-gray-400">
+                    {orderedActionPath
+                      ? "Steps are sequential and appear in the timeline and report when timestamped."
+                      : "Actions remain independent notes. Enable this when their order describes an asset-local path."}
+                  </p>
+                </div>
+                <Switch
+                  id="ordered-action-path"
+                  checked={orderedActionPath}
+                  onCheckedChange={(checked) =>
+                    handleNodeChange("actionMode", checked ? "ordered-path" : "list")
+                  }
+                />
+              </div>
+              <Label className="mt-3 block text-sm">
+                {orderedActionPath ? "Steps" : "Actions"}
+              </Label>
               {(nodeData.actions || []).map((action, index) => {
                 const ActionIcon = actionIcons[action.type] || Info // Get the icon based on action type
                 return (
                   <div key={action.id} className="mt-2 rounded-md border border-gray-700 p-3 space-y-2">
                     <div className="flex justify-between items-center">
-                      <Label className="text-sm font-medium">Action {index + 1}</Label>
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        onClick={() => handleRemoveAction(index)}
-                        className="text-red-400 hover:bg-gray-700"
-                        aria-label="Remove action"
-                      >
-                        <X className="h-4 w-4" aria-hidden="true" />
-                      </Button>
+                      <Label className="text-sm font-medium">
+                        {orderedActionPath ? `Step ${index + 1}` : `Action ${index + 1}`}
+                      </Label>
+                      <div className="flex items-center gap-1">
+                        {orderedActionPath && (
+                          <>
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              onClick={() => handleMoveAction(index, -1)}
+                              disabled={index === 0}
+                              className="h-7 w-7 text-gray-400 hover:bg-gray-700 disabled:opacity-30"
+                              aria-label={`Move step ${index + 1} earlier`}
+                            >
+                              <ChevronUp className="h-4 w-4" aria-hidden="true" />
+                            </Button>
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              onClick={() => handleMoveAction(index, 1)}
+                              disabled={index === (nodeData.actions || []).length - 1}
+                              className="h-7 w-7 text-gray-400 hover:bg-gray-700 disabled:opacity-30"
+                              aria-label={`Move step ${index + 1} later`}
+                            >
+                              <ChevronDown className="h-4 w-4" aria-hidden="true" />
+                            </Button>
+                          </>
+                        )}
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          onClick={() => handleRemoveAction(index)}
+                          className="text-red-400 hover:bg-gray-700"
+                          aria-label="Remove action"
+                        >
+                          <X className="h-4 w-4" aria-hidden="true" />
+                        </Button>
+                      </div>
                     </div>
                     <div>
                       <Label htmlFor={`action-type-${index}`} className="text-xs">
@@ -1788,17 +1884,71 @@ export default function PropertiesPanel({
                         placeholder="e.g., webshell placed in C:\inet\, local user created"
                       />
                     </div>
+                    {orderedActionPath && (
+                      <>
+                        <div>
+                          <Label htmlFor={`action-timestamp-${index}`} className="text-xs">
+                            Timestamp
+                          </Label>
+                          <Input
+                            id={`action-timestamp-${index}`}
+                            type="datetime-local"
+                            value={toLocalInputValue(action.timestamp)}
+                            onChange={(e) =>
+                              handleActionChange(
+                                index,
+                                "timestamp",
+                                e.target.value ? new Date(e.target.value).toISOString() : "",
+                              )
+                            }
+                            className="mt-1 bg-gray-800 text-white border-gray-700 text-xs"
+                          />
+                          {action.timestamp && !toLocalInputValue(action.timestamp) && (
+                            <p className="mt-1 text-[10px] text-amber-400">
+                              Invalid stored timestamp: {action.timestamp}
+                            </p>
+                          )}
+                        </div>
+                        <div>
+                          <Label className="text-xs">MITRE ATT&amp;CK Technique</Label>
+                          <MitreTechniquePicker
+                            techniques={normalizeMitreTechniqueReferences(
+                              undefined,
+                              action.mitreAttackId,
+                              action.mitreAttackName,
+                            )}
+                            maxTechniques={1}
+                            onChange={(techniques) => handleActionMitreChange(index, techniques)}
+                          />
+                        </div>
+                      </>
+                    )}
                   </div>
                 )
               })}
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={handleAddAction}
-                className="mt-2 w-full border-gray-700 text-white hover:bg-gray-700 bg-transparent"
-              >
-                <Plus className="mr-2 h-4 w-4" /> Add Action
-              </Button>
+              <div className="mt-2 flex gap-2">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={handleAddAction}
+                  className="flex-1 border-gray-700 text-white hover:bg-gray-700 bg-transparent"
+                >
+                  <Plus className="mr-2 h-4 w-4" />
+                  {orderedActionPath ? "Add Step" : "Add Action"}
+                </Button>
+                {orderedActionPath && (
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={handleSortActionsByTime}
+                    disabled={(nodeData.actions || []).length < 2}
+                    className="border-gray-700 text-white hover:bg-gray-700 bg-transparent"
+                    title="Order the steps by their timestamps"
+                  >
+                    Sort by time
+                  </Button>
+                )}
+              </div>
             </div>
           )}
 

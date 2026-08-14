@@ -15,46 +15,29 @@ import {
   StickyNote,
   X,
 } from "lucide-react"
-import type { CustomEdge, EdgeData, EdgeActionType, IncidentLogEntry, MitreTechniqueReference } from "@/lib/types"
+import type { CustomEdge, CustomNode, EdgeData, IncidentLogEntry } from "@/lib/types"
 import {
   getMitreTechniqueLabel,
   getMitreTechniqueUrl,
-  normalizeMitreTechniqueReferences,
 } from "@/lib/mitre-attack"
-import { getEdgeActionTypes } from "@/lib/edge-action-types"
-
-interface TimelineEvent {
-  id: string
-  timestamp: string
-  parsedDate: Date
-  kind: "edge" | "incident"
-  actionType?: EdgeActionType
-  actionTypes?: EdgeActionType[]
-  toolUsed?: string
-  userUsed?: string
-  mitreAttackId?: string
-  mitreAttackName?: string
-  mitreAttackTechniques?: MitreTechniqueReference[]
-  description: string
-  sourceId?: string
-  targetId?: string
-  c2Channel?: string
-  c2Framework?: string
-  incidentCategory?: IncidentLogEntry["category"]
-}
+import {
+  buildTimelineEvents,
+  type TimelineActionType,
+  type TimelineEvent,
+} from "@/lib/timeline-events"
 
 interface TimelineModalProps {
   isOpen: boolean
   onClose: () => void
   edges: CustomEdge[]
-  nodes: any[]
+  nodes: CustomNode[]
   incidentLog?: IncidentLogEntry[]
   onHighlightEdge?: (edgeId: string) => void
   onSelectEdge?: (edgeId: string) => void
   onUpdateEdge?: (edgeId: string, data: Partial<EdgeData>) => void
 }
 
-const actionTypeTone: Record<EdgeActionType, string> = {
+const actionTypeTone: Partial<Record<TimelineActionType, string>> = {
   "Initial Access": "text-red-400 border-red-400/40 bg-red-500/10",
   "Lateral Movement": "text-blue-400 border-blue-400/40 bg-blue-500/10",
   "Privilege Escalation": "text-red-400 border-red-400/40 bg-red-500/10",
@@ -65,6 +48,7 @@ const actionTypeTone: Record<EdgeActionType, string> = {
   "Collection": "text-cyan-400 border-cyan-400/40 bg-cyan-500/10",
   "Exfiltration": "text-pink-400 border-pink-400/40 bg-pink-500/10",
   "Command & Control": "text-gray-300 border-gray-400/40 bg-gray-500/10",
+  "Command and Control": "text-gray-300 border-gray-400/40 bg-gray-500/10",
   "Impact": "text-red-400 border-red-400/40 bg-red-500/10",
   "Reconnaissance": "text-cyan-400 border-cyan-400/40 bg-cyan-500/10",
   "Weaponization": "text-amber-400 border-amber-400/40 bg-amber-500/10",
@@ -94,7 +78,7 @@ export default function TimelineModal({
   onSelectEdge,
   onUpdateEdge,
 }: TimelineModalProps) {
-  const [selectedActionTypes, setSelectedActionTypes] = useState<EdgeActionType[]>([])
+  const [selectedActionTypes, setSelectedActionTypes] = useState<TimelineActionType[]>([])
   const [query, setQuery] = useState("")
   const [includeIncidentLog, setIncludeIncidentLog] = useState(false)
   const [editingEventId, setEditingEventId] = useState<string | null>(null)
@@ -146,61 +130,13 @@ export default function TimelineModal({
 
   const timelineEvents = useMemo(() => {
     if (!isOpen) return []
-    const events: TimelineEvent[] = []
-
-    edges.forEach((edge) => {
-      if (edge.data?.timestamp) {
-        const parsedDate = new Date(edge.data.timestamp)
-        if (!isNaN(parsedDate.getTime())) {
-          events.push({
-            id: edge.id,
-            timestamp: edge.data.timestamp,
-            parsedDate,
-            kind: "edge",
-            actionType: edge.data.actionType,
-            actionTypes: getEdgeActionTypes(edge.data),
-            toolUsed: edge.data.toolUsed,
-            userUsed: edge.data.userUsed,
-            mitreAttackId: edge.data.mitreAttackId,
-            mitreAttackName: edge.data.mitreAttackName,
-            mitreAttackTechniques: normalizeMitreTechniqueReferences(
-              edge.data.mitreAttackTechniques,
-              edge.data.mitreAttackId,
-              edge.data.mitreAttackName,
-            ),
-            description: edge.data.description,
-            sourceId: edge.source,
-            targetId: edge.target,
-            c2Channel: edge.data.c2Channel,
-            c2Framework: edge.data.c2Framework,
-          })
-        }
-      }
-    })
-
-    if (includeIncidentLog) {
-      incidentLog.forEach((entry) => {
-        if (!entry.timestamp) return
-        const parsedDate = new Date(entry.timestamp)
-        if (Number.isNaN(parsedDate.getTime())) return
-        events.push({
-          id: entry.id,
-          timestamp: entry.timestamp,
-          parsedDate,
-          kind: "incident",
-          description: entry.description,
-          incidentCategory: entry.category,
-        })
-      })
-    }
-
-    return [...events].sort((a, b) => a.parsedDate.getTime() - b.parsedDate.getTime())
-  }, [edges, incidentLog, includeIncidentLog, isOpen])
+    return buildTimelineEvents({ nodes, edges, incidentLog, includeIncidentLog })
+  }, [nodes, edges, incidentLog, includeIncidentLog, isOpen])
 
   const availableActionTypes = useMemo(() => {
-    const types = new Set<EdgeActionType>()
+    const types = new Set<TimelineActionType>()
     timelineEvents.forEach((event) => {
-      if (event.kind === "edge") {
+      if (event.kind !== "incident") {
         event.actionTypes?.forEach((actionType) => types.add(actionType))
       }
     })
@@ -213,7 +149,7 @@ export default function TimelineModal({
 
     return timelineEvents.filter((event) => {
       if (
-        event.kind === "edge" &&
+        event.kind !== "incident" &&
         selectedActionTypes.length > 0 &&
         event.actionTypes &&
         !event.actionTypes.some((actionType) =>
@@ -227,11 +163,13 @@ export default function TimelineModal({
 
       const sourceLabel = event.sourceId ? nodeLabels[event.sourceId] || event.sourceId : ""
       const targetLabel = event.targetId ? nodeLabels[event.targetId] || event.targetId : ""
+      const nodeLabel = event.nodeId ? nodeLabels[event.nodeId] || event.nodeId : ""
 
       const haystack = [
         event.actionTypes?.join(" ") || event.actionType || "",
         event.toolUsed || "",
         event.userUsed || "",
+        event.technique || "",
         event.mitreAttackId || "",
         event.mitreAttackName || "",
         event.mitreAttackTechniques
@@ -241,6 +179,7 @@ export default function TimelineModal({
         event.description,
         sourceLabel,
         targetLabel,
+        nodeLabel,
       ]
         .join(" ")
         .toLowerCase()
@@ -267,7 +206,7 @@ export default function TimelineModal({
     return `T+${seconds}s`
   }
 
-  const toggleActionType = (actionType: EdgeActionType) => {
+  const toggleActionType = (actionType: TimelineActionType) => {
     setSelectedActionTypes((prev) =>
       prev.includes(actionType) ? prev.filter((t) => t !== actionType) : [...prev, actionType],
     )
@@ -356,7 +295,7 @@ export default function TimelineModal({
             {!hasEvents ? (
               <div className="flex flex-col items-center justify-center gap-3 py-16 ip-text-muted">
                 <Clock className="h-10 w-10 opacity-60" />
-                <div className="text-sm">Add timestamps to edges to build the timeline.</div>
+                <div className="text-sm">Add timestamps to routes or ordered asset steps to build the timeline.</div>
               </div>
             ) : filteredEvents.length === 0 ? (
               <div className="flex flex-col items-center justify-center gap-3 py-16 ip-text-muted">
@@ -368,6 +307,7 @@ export default function TimelineModal({
                 {filteredEvents.map((event, index) => {
                   const sourceLabel = event.sourceId ? nodeLabels[event.sourceId] || event.sourceId : ""
                   const targetLabel = event.targetId ? nodeLabels[event.targetId] || event.targetId : ""
+                  const assetLabel = event.nodeId ? nodeLabels[event.nodeId] || event.nodeId : ""
                   const eventActionTypes =
                     event.actionTypes?.length
                       ? event.actionTypes
@@ -375,30 +315,32 @@ export default function TimelineModal({
                         ? [event.actionType]
                         : []
                   const tone =
-                    event.kind === "edge" && eventActionTypes[0]
+                    event.kind !== "incident" && eventActionTypes[0]
                       ? actionTypeTone[eventActionTypes[0]] || "text-gray-300 border-gray-400/40 bg-gray-500/10"
                       : "text-gray-200 border-gray-400/40 bg-gray-500/10"
                   const startDate = filteredEvents[0]?.parsedDate
                   const deltaLabel = startDate ? formatDelta(startDate, event.parsedDate) : ""
                   const isIncident = event.kind === "incident"
+                  const isNodeAction = event.kind === "node-action"
+                  const isEdge = event.kind === "edge"
 
                   return (
                     <div
                       key={event.id}
                       className="ip-panel-muted border ip-border rounded-lg px-4 py-3 transition hover:bg-gray-700"
                       onClick={() => {
-                        if (!isIncident) handleEventClick(event.id)
+                        if (isEdge) handleEventClick(event.id)
                       }}
                       onMouseEnter={() => {
-                        if (!isIncident) onHighlightEdge?.(event.id)
+                        if (isEdge) onHighlightEdge?.(event.id)
                       }}
                       onMouseLeave={() => {
-                        if (!isIncident) onHighlightEdge?.("")
+                        if (isEdge) onHighlightEdge?.("")
                       }}
-                      role={isIncident ? undefined : "button"}
-                      tabIndex={isIncident ? -1 : 0}
+                      role={isEdge ? "button" : undefined}
+                      tabIndex={isEdge ? 0 : -1}
                       onKeyDown={(e) => {
-                        if (isIncident) return
+                        if (!isEdge) return
                         if (e.key === "Enter" || e.key === " ") {
                           handleEventClick(event.id)
                         }
@@ -443,6 +385,14 @@ export default function TimelineModal({
                           <StickyNote className="h-4 w-4 ip-text-muted" />
                           <span className="font-medium ip-text">Incident Log Entry</span>
                         </div>
+                      ) : isNodeAction ? (
+                        <div className="mt-2 flex flex-wrap items-center gap-2 text-sm">
+                          <Activity className="h-4 w-4 ip-text-muted" aria-hidden="true" />
+                          <span className="font-medium ip-text truncate">{assetLabel}</span>
+                          <span className="rounded-full border px-2 py-0.5 text-[10px] ip-border ip-text-muted">
+                            Asset step {(event.stepIndex ?? 0) + 1}
+                          </span>
+                        </div>
                       ) : (
                         <div className="mt-2 flex flex-wrap items-center gap-2 text-sm">
                           <span className="font-medium ip-text truncate">{sourceLabel}</span>
@@ -451,7 +401,7 @@ export default function TimelineModal({
                         </div>
                       )}
 
-                      {!isIncident && editingEventId === event.id ? (
+                      {isEdge && editingEventId === event.id ? (
                         <div className="mt-3 space-y-2">
                           <Input
                             type="datetime-local"
@@ -488,12 +438,14 @@ export default function TimelineModal({
                           {!isIncident &&
                             (event.toolUsed ||
                               event.userUsed ||
+                              event.technique ||
                               event.mitreAttackTechniques?.length ||
                               event.mitreAttackId ||
                               event.description) && (
                             <div className="mt-2 grid gap-1 text-xs ip-text-muted">
                               {event.toolUsed && <div>Tool: {event.toolUsed}</div>}
                               {event.userUsed && <div>User: {event.userUsed}</div>}
+                              {event.technique && <div>Technique: {event.technique}</div>}
                               {event.mitreAttackTechniques && event.mitreAttackTechniques.length > 0 && (
                                 <div className="flex flex-wrap gap-x-2 gap-y-1">
                                   {event.mitreAttackTechniques.map((technique) => {
@@ -523,7 +475,7 @@ export default function TimelineModal({
                           {event.description && isIncident && (
                             <div className="mt-2 text-xs ip-text-muted">{event.description}</div>
                           )}
-                          {!isIncident && (
+                          {isEdge && (
                             <div className="mt-2 flex items-center gap-2">
                               <Button
                                 size="sm"

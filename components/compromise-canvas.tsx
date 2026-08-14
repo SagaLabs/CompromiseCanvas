@@ -39,6 +39,7 @@ import { CanvasPresentationProvider } from "./canvas-presentation-context"
 import SelectionContextMenu from "./selection-context-menu"
 import SelectionToolbar from "./selection-toolbar"
 import PresentationControls from "./presentation-controls"
+import HostPathDrilldown from "./host-path-drilldown"
 import { useCanvasPresentation } from "@/hooks/use-canvas-presentation"
 
 const nodeTypes = {
@@ -50,6 +51,22 @@ export default function CompromiseCanvas() {
   const reactFlowWrapper = useRef<HTMLDivElement>(null)
   const { fitView } = useReactFlow()
   const reactFlowStore = useStoreApi()
+
+  // Drill-down: which asset's ordered attack path is open, if any.
+  const [drilldownNodeId, setDrilldownNodeId] = useState<string | null>(null)
+
+  const handleNodeDoubleClick = useCallback(
+    (_event: React.MouseEvent, node: CanvasNode) => {
+      // Group boxes are backdrops, and legacy action lists are not ordered paths.
+      if (
+        node.type === "labeledGroupNode" ||
+        node.data.actionMode !== "ordered-path" ||
+        node.data.actions.length === 0
+      ) return
+      setDrilldownNodeId(node.id)
+    },
+    [],
+  )
 
   // Mobile detection
   const isMobile = useMobile()
@@ -580,6 +597,7 @@ export default function CompromiseCanvas() {
               snapToGrid={snapToGrid}
               snapGrid={[15, 15]}
               onNodeClick={presentationMode ? handlePresentationNodeClick : onNodeClick}
+              onNodeDoubleClick={presentationMode ? undefined : handleNodeDoubleClick}
               onNodeContextMenu={presentationMode ? undefined : handleNodeContextMenu}
               onEdgeClick={presentationMode ? handlePresentationEdgeClick : onEdgeClick}
               onEdgeContextMenu={presentationMode ? undefined : handleEdgeContextMenu}
@@ -667,6 +685,11 @@ export default function CompromiseCanvas() {
               )}
             </CanvasActionsProvider>
           </CanvasPresentationProvider>
+          <HostPathDrilldown
+            node={nodes.find((n) => n.id === drilldownNodeId) ?? null}
+            isOpen={drilldownNodeId !== null}
+            onClose={() => setDrilldownNodeId(null)}
+          />
           {presentationMode && (
             <PresentationControls
               showAllDetails={showAllPresentationDetails}

@@ -31,6 +31,7 @@ export type AssetType =
   | "other"
 
 export type Criticality = "Low" | "Medium" | "High" | "Critical"
+export type ActionMode = "list" | "ordered-path"
 export type InvestigationStatus = "No Status" | "Not Investigated" | "Investigating" | "Done"
 export const INVESTIGATION_STATUSES: InvestigationStatus[] = [
   "No Status",
@@ -66,6 +67,22 @@ export const ACTION_TYPES: ActionType[] = [
   "Impact",
   "Other",
 ]
+
+/** Per-tactic colour, so a step reads the same on a node and in the drill-down. */
+export const ACTION_COLORS: Record<ActionType, string> = {
+  "Initial Access": "#f87171",
+  "Lateral Movement": "#fb923c",
+  "Privilege Escalation": "#fbbf24",
+  Persistence: "#a78bfa",
+  "Defense Evasion": "#60a5fa",
+  "Credential Access": "#f472b6",
+  Discovery: "#38bdf8",
+  Collection: "#2dd4bf",
+  Exfiltration: "#facc15",
+  "Command and Control": "#c084fc",
+  Impact: "#ef4444",
+  Other: "#94a3b8",
+}
 
 export type EdgeActionType =
   | "Initial Access"
@@ -128,6 +145,11 @@ export interface NodeAction {
   type: ActionType
   technique: string
   details: string
+  // Ordered asset attack path: array order is the sequence. These optional
+  // fields let asset-local steps retain timeline and ATT&CK context.
+  timestamp?: string // ISO8601 (e.g. 'YYYY-MM-DDTHH:MM:SSZ')
+  mitreAttackId?: string
+  mitreAttackName?: string
 }
 
 export interface DisplaySettings {
@@ -268,6 +290,9 @@ export interface NodeData extends Record<string, unknown> {
   criticality: Criticality
   services: string[]
   actions: NodeAction[]
+  // Missing values hydrate to `list`, preserving the semantics of canvases
+  // created before ordered asset-local attack paths were introduced.
+  actionMode?: ActionMode
   description?: string
   // Display settings
   displaySettings: DisplaySettings

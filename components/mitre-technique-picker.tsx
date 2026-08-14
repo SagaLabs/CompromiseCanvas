@@ -25,9 +25,14 @@ import { cn } from "@/lib/utils"
 interface MitreTechniquePickerProps {
   techniques: MitreTechniqueReference[]
   onChange: (techniques: MitreTechniqueReference[]) => void
+  maxTechniques?: number
 }
 
-export function MitreTechniquePicker({ techniques, onChange }: MitreTechniquePickerProps) {
+export function MitreTechniquePicker({
+  techniques,
+  onChange,
+  maxTechniques,
+}: MitreTechniquePickerProps) {
   const [open, setOpen] = useState(false)
   const [query, setQuery] = useState("")
   const [editingIndex, setEditingIndex] = useState<number | null>(null)
@@ -48,7 +53,8 @@ export function MitreTechniquePicker({ techniques, onChange }: MitreTechniquePic
         ),
       )
     } else if (!selectedIds.has(technique.id)) {
-      onChange([...techniques, { id: technique.id, name: technique.name }])
+      const nextTechnique = { id: technique.id, name: technique.name }
+      onChange(maxTechniques === 1 ? [nextTechnique] : [...techniques, nextTechnique])
     }
     setOpen(false)
     setEditingIndex(null)
@@ -110,7 +116,7 @@ export function MitreTechniquePicker({ techniques, onChange }: MitreTechniquePic
         </div>
       )}
 
-      <Popover
+      {(maxTechniques === undefined || techniques.length < maxTechniques) && <Popover
         open={open}
         onOpenChange={(nextOpen) => {
           setOpen(nextOpen)
@@ -210,7 +216,7 @@ export function MitreTechniquePicker({ techniques, onChange }: MitreTechniquePic
             </CommandList>
           </Command>
         </PopoverContent>
-      </Popover>
+      </Popover>}
     </div>
   )
 }
