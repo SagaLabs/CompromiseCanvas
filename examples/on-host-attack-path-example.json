@@ -292,6 +292,7 @@
               "mitreAttackName": "Inhibit System Recovery"
             }
           ],
+          "actionMode": "ordered-path",
           "description": "8 on-host step(s) \u2014 double-click to drill into the path",
           "isCompromised": true,
           "investigationStatus": "Investigating",
@@ -307,8 +308,7 @@
             "showDomain": false,
             "showAccountType": false,
             "showAccountSource": false,
-            "showAccountStatus": false,
-            "showActionPath": true
+            "showAccountStatus": false
           }
         }
       }

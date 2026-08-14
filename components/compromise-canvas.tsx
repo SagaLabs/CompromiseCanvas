@@ -52,13 +52,17 @@ export default function CompromiseCanvas() {
   const { fitView } = useReactFlow()
   const reactFlowStore = useStoreApi()
 
-  // Drill-down: which host's internal attack path is open, if any.
+  // Drill-down: which asset's ordered attack path is open, if any.
   const [drilldownNodeId, setDrilldownNodeId] = useState<string | null>(null)
 
   const handleNodeDoubleClick = useCallback(
     (_event: React.MouseEvent, node: CanvasNode) => {
-      // Group boxes are backdrops, not hosts — nothing to drill into.
-      if (node.type === "labeledGroupNode") return
+      // Group boxes are backdrops, and legacy action lists are not ordered paths.
+      if (
+        node.type === "labeledGroupNode" ||
+        node.data.actionMode !== "ordered-path" ||
+        node.data.actions.length === 0
+      ) return
       setDrilldownNodeId(node.id)
     },
     [],

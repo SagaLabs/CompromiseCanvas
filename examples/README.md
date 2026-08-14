@@ -2,7 +2,7 @@
 
 ## `on-host-attack-path-example.json`
 
-A canvas showing the on-host attack path feature, generated from **real endpoint
+A canvas showing the ordered asset attack path feature, generated from **real endpoint
 telemetry** rather than written by hand: 206 Elastic Defend process events from a
 malware detonation in a home lab, folded down to the 8 steps that matter.
 
@@ -10,8 +10,8 @@ Import it with **Import JSON**, then **double-click the `secdis` host**.
 
 What it exercises:
 
-- a host whose `actions` are an ordered chain, with `displaySettings.showActionPath`
-  set, so the node shows the compact step ribbon;
+- an asset whose `actions` are an ordered chain, with `actionMode` set to
+  `ordered-path`, so the node shows the compact step ribbon;
 - per-step `timestamp` and `mitreAttackId` / `mitreAttackName`;
 - the drill-down, with real command lines as the evidence for each step;
 - 27 `incidentLog` entries from the detection rules that fired.

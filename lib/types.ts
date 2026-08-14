@@ -31,6 +31,7 @@ export type AssetType =
   | "other"
 
 export type Criticality = "Low" | "Medium" | "High" | "Critical"
+export type ActionMode = "list" | "ordered-path"
 export type InvestigationStatus = "No Status" | "Not Investigated" | "Investigating" | "Done"
 export const INVESTIGATION_STATUSES: InvestigationStatus[] = [
   "No Status",
@@ -144,19 +145,14 @@ export interface NodeAction {
   type: ActionType
   technique: string
   details: string
-  // On-host attack path: array order is the sequence. These optional fields let
-  // a host's internal steps be documented with the same fidelity as the
-  // host-to-host edges, so an intra-host chain can be read as a path.
+  // Ordered asset attack path: array order is the sequence. These optional
+  // fields let asset-local steps retain timeline and ATT&CK context.
   timestamp?: string // ISO8601 (e.g. 'YYYY-MM-DDTHH:MM:SSZ')
   mitreAttackId?: string
   mitreAttackName?: string
 }
 
 export interface DisplaySettings {
-  // Render `actions` as a connected, numbered attack path inside the node
-  // instead of a flat bullet list. Undefined behaves as false so existing
-  // canvases are unchanged.
-  showActionPath?: boolean
   showHostname: boolean
   showIpAddress: boolean
   showOs: boolean
@@ -294,6 +290,9 @@ export interface NodeData extends Record<string, unknown> {
   criticality: Criticality
   services: string[]
   actions: NodeAction[]
+  // Missing values hydrate to `list`, preserving the semantics of canvases
+  // created before ordered asset-local attack paths were introduced.
+  actionMode?: ActionMode
   description?: string
   // Display settings
   displaySettings: DisplaySettings

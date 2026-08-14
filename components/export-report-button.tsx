@@ -5,9 +5,10 @@ import jsPDF from 'jspdf';
 import autoTable from 'jspdf-autotable';
 import { FileText } from 'lucide-react';
 import { Button } from "@/components/ui/button";
-import type { NodeData, EdgeData, IncidentLogEntry } from "@/lib/types";
+import type { CustomEdge, CustomNode, NodeData, EdgeData, IncidentLogEntry } from "@/lib/types";
 import { getMitreTechniqueLabel, normalizeMitreTechniqueReferences } from "@/lib/mitre-attack";
 import { getEdgeActionTypes } from "@/lib/edge-action-types";
+import { buildTimelineEvents } from "@/lib/timeline-events";
 
 interface ExportReportButtonProps {
   label?: string
@@ -27,6 +28,8 @@ export default function ExportReportButton({
   const generateReport = useCallback(async () => {
     const nodes = getNodes();
     const edges = getEdges();
+    const canvasNodes = nodes as CustomNode[];
+    const canvasEdges = edges as CustomEdge[];
 
     if (nodes.length === 0) {
       alert("No diagram to export! Please add some nodes first.");
@@ -104,7 +107,7 @@ export default function ExportReportButton({
       currentY = (doc as any).lastAutoTable.finalY + 15;
     }
 
-    // --- Attack Timeline (chronological edges) ---
+    // --- Attack Timeline (chronological routes and ordered asset steps) ---
     doc.setFontSize(14);
     if (currentY > pageHeight - 40) {
       doc.addPage();
@@ -113,39 +116,33 @@ export default function ExportReportButton({
     doc.text("Attack Timeline", marginX, currentY);
     currentY += 5;
 
-    const timelineData = edges
-      .filter(e => (e.data as EdgeData).timestamp)
-      .map(e => {
-        const d = e.data as EdgeData;
-        const sourceNode = nodes.find(n => n.id === e.source);
-        const targetNode = nodes.find(n => n.id === e.target);
-        const parsedDate = new Date(d.timestamp);
-        return {
-          timestamp: d.timestamp,
-          parsedDate,
-          source: sourceNode?.data.label || e.source,
-          target: targetNode?.data.label || e.target,
-          action: getEdgeActionTypes(d).join("\n"),
-          mitre: normalizeMitreTechniqueReferences(
-            d.mitreAttackTechniques,
-            d.mitreAttackId,
-            d.mitreAttackName,
-          ).map(technique => getMitreTechniqueLabel(technique.id, technique.name)).join("\n"),
-          description: d.description || ""
-        };
-      })
-      .filter(item => !isNaN(item.parsedDate.getTime()))
-      .sort((a, b) => a.parsedDate.getTime() - b.parsedDate.getTime());
+    const timelineData = buildTimelineEvents({ nodes: canvasNodes, edges: canvasEdges })
+      .filter(event => event.kind !== "incident")
+      .map(event => ({
+        ...event,
+        scope: event.kind === "edge" ? "Route" : "Asset step",
+        source: event.kind === "edge"
+          ? canvasNodes.find(node => node.id === event.sourceId)?.data.label || event.sourceId || ""
+          : canvasNodes.find(node => node.id === event.nodeId)?.data.label || event.nodeId || "",
+        target: event.kind === "edge"
+          ? canvasNodes.find(node => node.id === event.targetId)?.data.label || event.targetId || ""
+          : "Asset-local",
+        action: event.actionTypes?.join("\n") || event.actionType || "",
+        mitre: (event.mitreAttackTechniques || [])
+          .map(technique => getMitreTechniqueLabel(technique.id, technique.name))
+          .join("\n"),
+      }));
 
     const formatIsoSeconds = (value: Date) => value.toISOString().replace(/\.\d{3}Z$/, "Z");
 
     if (timelineData.length === 0) {
       doc.setFontSize(11);
-      doc.text("No timeline events available. Add timestamps to edges.", marginX, currentY + 5);
+      doc.text("No timeline events available. Add timestamps to routes or ordered asset steps.", marginX, currentY + 5);
       currentY += 15;
     } else {
       const timelineRows = timelineData.map(item => [
         formatIsoSeconds(item.parsedDate),
+        item.scope,
         item.source,
         item.target,
         item.action,
@@ -155,13 +152,14 @@ export default function ExportReportButton({
 
       autoTable(doc, {
         startY: currentY,
-        head: [['Timestamp (ISO)', 'Source', 'Target', 'Action', 'MITRE ATT&CK', 'Description']],
+        head: [['Timestamp (ISO)', 'Scope', 'Source / Asset', 'Target', 'Action', 'MITRE ATT&CK', 'Description']],
         body: timelineRows,
         theme: 'striped',
         headStyles: { fillColor: [75, 85, 99] },
         columnStyles: {
-          5: { cellWidth: 55 }
-        }
+          6: { cellWidth: 45 }
+        },
+        styles: { fontSize: 7 }
       });
       currentY = (doc as any).lastAutoTable.finalY + 15;
     }
@@ -238,6 +236,56 @@ export default function ExportReportButton({
     });
 
     currentY = (doc as any).lastAutoTable.finalY + 15;
+
+    // --- Ordered Asset Attack Paths ---
+    const assetPathRows = canvasNodes.flatMap(node => {
+      if (node.type === "labeledGroupNode" || node.data.actionMode !== "ordered-path") return [];
+      return node.data.actions.map((action, index) => {
+        const parsedTimestamp = action.timestamp ? new Date(action.timestamp) : null;
+        const timestamp = parsedTimestamp && !Number.isNaN(parsedTimestamp.getTime())
+          ? formatIsoSeconds(parsedTimestamp)
+          : action.timestamp || '-';
+        const mitre = normalizeMitreTechniqueReferences(
+          undefined,
+          action.mitreAttackId,
+          action.mitreAttackName,
+        ).map(technique => getMitreTechniqueLabel(technique.id, technique.name)).join("\n");
+
+        return [
+          node.data.label,
+          String(index + 1),
+          timestamp,
+          action.type,
+          action.technique || '-',
+          mitre || '-',
+          action.details || '-',
+        ];
+      });
+    });
+
+    if (assetPathRows.length > 0) {
+      doc.setFontSize(14);
+      if (currentY > pageHeight - 40) {
+        doc.addPage();
+        currentY = 20;
+      }
+      doc.text("Asset Attack Paths", marginX, currentY);
+      currentY += 5;
+
+      autoTable(doc, {
+        startY: currentY,
+        head: [['Asset', 'Step', 'Timestamp', 'Tactic', 'Technique', 'MITRE ATT&CK', 'Evidence']],
+        body: assetPathRows,
+        theme: 'striped',
+        headStyles: { fillColor: [37, 99, 235] },
+        styles: { fontSize: 7, overflow: 'linebreak' },
+        columnStyles: {
+          1: { cellWidth: 10 },
+          6: { cellWidth: 55 },
+        },
+      });
+      currentY = (doc as any).lastAutoTable.finalY + 15;
+    }
 
     // --- Incident Response Log ---
     const incidentLogRaw = typeof window !== "undefined"

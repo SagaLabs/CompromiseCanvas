@@ -116,9 +116,23 @@ export const withCloudTenantDefaults = (
   mergeDefinedDefaults(createDefaultCloudTenantData(), cloudTenantData)
 
 export const withNodeDataDefaults = (data: NodeData): NodeData => {
+  const legacyDisplaySettings = data.displaySettings as
+    | (Partial<NodeData["displaySettings"]> & { showActionPath?: boolean })
+    | undefined
+  const { showActionPath: legacyShowActionPath, ...displaySettings } =
+    legacyDisplaySettings ?? {}
   const normalizedData: NodeData = {
     ...data,
-    displaySettings: data.displaySettings || { ...defaultDisplaySettings },
+    actionMode:
+      data.actionMode === "ordered-path" || data.actionMode === "list"
+        ? data.actionMode
+        : legacyShowActionPath
+          ? "ordered-path"
+          : "list",
+    actions: Array.isArray(data.actions) ? data.actions : [],
+    displaySettings: legacyDisplaySettings
+      ? (displaySettings as NodeData["displaySettings"])
+      : { ...defaultDisplaySettings },
     isCompromised: data.isCompromised ?? false,
   }
 
