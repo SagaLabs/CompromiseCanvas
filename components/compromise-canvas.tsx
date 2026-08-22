@@ -491,7 +491,7 @@ export default function CompromiseCanvas() {
   }
 
   return (
-    <div className="ip-app flex h-screen w-screen flex-col">
+    <div className="ip-app flex h-[100dvh] w-full max-w-full flex-col overflow-hidden">
       {!presentationMode && (
         <HeaderControls
           onSave={handleSave}
