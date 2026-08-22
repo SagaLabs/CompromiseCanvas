@@ -120,11 +120,11 @@ export default function HeaderControls({
     : autosaveLabel
 
   return (
-    <header className="ip-header flex h-14 items-center justify-between border-b px-4">
-      <div className="flex items-center gap-4">
-        <div className="flex items-center gap-3">
+    <header className="ip-header flex min-h-14 flex-wrap items-center justify-between gap-x-4 border-b px-4 py-2 2xl:h-14 2xl:flex-nowrap 2xl:py-0">
+      <div className="flex w-full items-center gap-4 xl:w-auto">
+        <div className="flex shrink-0 items-center gap-3">
           <div className="text-xl font-bold text-blue-400">Compromise Canvas</div>
-          <div className="text-xs text-gray-500">by SagaLabs</div>
+          <div className="hidden text-xs text-gray-500 2xl:block">by SagaLabs</div>
         </div>
         <div className="ip-divider h-6 w-px"></div>
         <div className="flex items-center gap-2">
@@ -249,13 +249,13 @@ export default function HeaderControls({
         </div>
       </div>
 
-      <div className="flex items-center gap-2">
+      <div className="flex w-full items-center justify-end gap-2 xl:w-auto">
         <div
-          className="flex items-center gap-2 px-2 py-1"
+          className="flex items-center gap-2 py-1 2xl:px-2"
           title={autosaveTitle}
         >
           <span
-            className={`whitespace-nowrap text-xs ${
+            className={`sr-only whitespace-nowrap text-xs 2xl:not-sr-only ${
               autosaveStatus === "error" ? "text-red-400" : autosaveEnabled ? "text-green-400" : "text-gray-500"
             }`}
             aria-live="polite"
@@ -272,22 +272,24 @@ export default function HeaderControls({
           variant="ghost"
           size="sm"
           onClick={onToggleIncidentLog}
-          className="bg-blue-600 text-white shadow-lg shadow-blue-600/30 hover:bg-blue-500 hover:text-white"
+          className="w-9 bg-blue-600 px-0 text-white shadow-lg shadow-blue-600/30 hover:bg-blue-500 hover:text-white 2xl:w-auto 2xl:px-3"
           title="Open Incident Log"
+          aria-label="Open Incident Log"
         >
-          <ClipboardList className="h-4 w-4 mr-2" aria-hidden="true" />
-          Incident Log
+          <ClipboardList className="h-4 w-4 2xl:mr-2" aria-hidden="true" />
+          <span className="sr-only 2xl:not-sr-only">Incident Log</span>
         </Button>
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <Button
               variant="ghost"
               size="sm"
-              className="bg-blue-600 text-white shadow-lg shadow-blue-600/30 hover:bg-blue-500 hover:text-white"
+              className="w-9 bg-blue-600 px-0 text-white shadow-lg shadow-blue-600/30 hover:bg-blue-500 hover:text-white 2xl:w-auto 2xl:px-3"
               title="Export"
+              aria-label="Export"
             >
-              <FileDown className="mr-2 h-4 w-4" aria-hidden="true" />
-              Export
+              <FileDown className="h-4 w-4 2xl:mr-2" aria-hidden="true" />
+              <span className="sr-only 2xl:not-sr-only">Export</span>
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end" className="w-48">
@@ -302,7 +304,7 @@ export default function HeaderControls({
           label="Create report"
           variant="ghost"
           size="sm"
-          className="bg-blue-600 text-white shadow-lg shadow-blue-600/30 hover:bg-blue-500 hover:text-white"
+          className="h-9 w-9 bg-blue-600 px-0 text-white shadow-lg shadow-blue-600/30 hover:bg-blue-500 hover:text-white [&>span]:sr-only 2xl:w-auto 2xl:px-3 2xl:[&>span]:not-sr-only"
         />
         <ThemePicker />
         <Button
