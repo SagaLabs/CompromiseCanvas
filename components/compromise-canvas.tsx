@@ -253,40 +253,15 @@ export default function CompromiseCanvas() {
     () => new Set(assetNodeIdsKey ? assetNodeIdsKey.split("\n") : []),
     [assetNodeIdsKey],
   )
-  const renderedEdges = useMemo(
-    () => edges.map((edge) => {
-      const sourceHandle =
-        edge.sourceHandle ?? (assetNodeIds.has(edge.source) ? "right" : edge.sourceHandle)
-      const targetHandle =
-        edge.targetHandle ?? (assetNodeIds.has(edge.target) ? "left" : edge.targetHandle)
 
-      if (
-        !presentationMode &&
-        sourceHandle === edge.sourceHandle &&
-        targetHandle === edge.targetHandle
-      ) {
-        return edge
-      }
-
-      return {
-        ...edge,
-        sourceHandle,
-        targetHandle,
-        selected: presentationMode ? false : edge.selected,
-      }
-    }),
-    [assetNodeIds, edges, presentationMode],
-  )
-
-  // Links between the same pair of handles would draw on top of each other, so
-  // give each one a lane (centred on 0) that the edge renderer bends apart.
-  // Lanes are signed against a canonical direction so A->B and B->A fan apart.
   const parallelEdgeLanesKey = useMemo(() => {
     const groups = new Map<string, CanvasEdge[]>()
-    for (const edge of renderedEdges) {
+    for (const edge of edges) {
       if (edge.source === edge.target) continue
-      const sourceEnd = `${edge.source}:${edge.sourceHandle ?? ""}`
-      const targetEnd = `${edge.target}:${edge.targetHandle ?? ""}`
+      const sourceHandle = edge.sourceHandle ?? (assetNodeIds.has(edge.source) ? "right" : edge.sourceHandle)
+      const targetHandle = edge.targetHandle ?? (assetNodeIds.has(edge.target) ? "left" : edge.targetHandle)
+      const sourceEnd = `${edge.source}:${sourceHandle ?? ""}`
+      const targetEnd = `${edge.target}:${targetHandle ?? ""}`
       const key = sourceEnd < targetEnd ? `${sourceEnd}|${targetEnd}` : `${targetEnd}|${sourceEnd}`
       const group = groups.get(key)
       if (group) group.push(edge)
@@ -298,13 +273,14 @@ export default function CompromiseCanvas() {
       if (group.length < 2) continue
       const canonicalSourceEnd = key.split("|")[0]
       group.forEach((edge, index) => {
+        const sourceHandle = edge.sourceHandle ?? (assetNodeIds.has(edge.source) ? "right" : edge.sourceHandle)
         const lane = index - (group.length - 1) / 2
-        const forward = `${edge.source}:${edge.sourceHandle ?? ""}` === canonicalSourceEnd
+        const forward = `${edge.source}:${sourceHandle ?? ""}` === canonicalSourceEnd
         if (lane !== 0) lanes.push(`${edge.id}\t${forward ? lane : -lane}`)
       })
     }
     return lanes.join("\n")
-  }, [renderedEdges])
+  }, [edges, assetNodeIds])
   const parallelEdgeLanes = useMemo(
     () => new Map(
       parallelEdgeLanesKey
@@ -315,6 +291,34 @@ export default function CompromiseCanvas() {
         : [],
     ),
     [parallelEdgeLanesKey],
+  )
+
+  const renderedEdges = useMemo(
+    () => edges.map((edge): CanvasEdge => {
+      const sourceHandle =
+        edge.sourceHandle ?? (assetNodeIds.has(edge.source) ? "right" : edge.sourceHandle)
+      const targetHandle =
+        edge.targetHandle ?? (assetNodeIds.has(edge.target) ? "left" : edge.targetHandle)
+      const parallelLane = parallelEdgeLanes.get(edge.id) ?? 0
+
+      if (
+        !presentationMode &&
+        sourceHandle === edge.sourceHandle &&
+        targetHandle === edge.targetHandle &&
+        parallelLane === 0
+      ) {
+        return edge
+      }
+
+      return {
+        ...edge,
+        sourceHandle,
+        targetHandle,
+        selected: presentationMode ? false : edge.selected,
+        data: parallelLane !== 0 ? { ...edge.data, parallelLane } as any : edge.data,
+      }
+    }),
+    [assetNodeIds, edges, presentationMode, parallelEdgeLanes],
   )
 
   const handleNodeContextMenu = useCallback(
@@ -521,7 +525,7 @@ export default function CompromiseCanvas() {
       updateEdge(id, {
         displaySettings: {
           ...(edge.data.displaySettings ?? defaultEdgeDisplaySettings),
-          showLabel: edge.data.displaySettings?.showLabel === false,
+          hideTechniqueBox: !edge.data.displaySettings?.hideTechniqueBox,
         },
       })
     },
@@ -552,9 +556,7 @@ export default function CompromiseCanvas() {
         handleToggleEdgeUnlocked,
         handleToggleEdgeLabelBox,
         handleSetEdgeLabel,
-        editingEdgeLabelId,
         setEditingEdgeLabelId,
-        parallelEdgeLanes,
       ),
     [
       animationsEnabled,
@@ -569,8 +571,6 @@ export default function CompromiseCanvas() {
       handleToggleEdgeUnlocked,
       handleToggleEdgeLabelBox,
       handleSetEdgeLabel,
-      editingEdgeLabelId,
-      parallelEdgeLanes,
     ],
   )
 
@@ -683,6 +683,7 @@ export default function CompromiseCanvas() {
             <CanvasActionsProvider
               updateNode={updateNode}
               multiSelectionActive={presentationMode ? false : multiSelectionActive}
+              editingEdgeLabelId={editingEdgeLabelId}
             >
               <ReactFlow
               nodes={renderedNodes}

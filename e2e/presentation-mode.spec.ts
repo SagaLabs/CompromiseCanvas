@@ -715,7 +715,7 @@ test("reveals complete details from partial settings and keeps hidden routes key
         target: "b",
         data: {
           ...seed.edges[0].data,
-          displaySettings: { showTool: false },
+          displaySettings: { showLabel: false },
           mitreAttackId: "T1003",
         },
       },
@@ -761,7 +761,7 @@ test("reveals complete details from partial settings and keeps hidden routes key
     showHostname: false,
   })
   expect(saved.edges[0].data.displaySettings).toEqual({
-    showTool: false,
+    showLabel: false,
   })
 })
 
@@ -777,7 +777,7 @@ test("keeps a hidden technique box hidden in presentation, even with all details
         target: "b",
         data: {
           ...seed.edges[0].data,
-          displaySettings: { ...seed.edges[0].data.displaySettings, showLabel: false },
+          displaySettings: { ...seed.edges[0].data.displaySettings, hideTechniqueBox: true },
         },
       },
     ],

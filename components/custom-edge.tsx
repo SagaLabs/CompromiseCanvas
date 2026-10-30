@@ -184,7 +184,7 @@ const CustomEdge = memo(function CustomEdge({
   onSetEdgeLabel,
   parallelLane = 0,
 }: CustomEdgeProps) {
-  const { multiSelectionActive } = useCanvasActions()
+  const { multiSelectionActive, editingEdgeLabelId: editingEdgeLabelIdFromContext } = useCanvasActions()
   const {
     presentationMode,
     showAllDetails,
@@ -228,14 +228,11 @@ const CustomEdge = memo(function CustomEdge({
     ? presentationDetailsExpanded
     : actionTypesExpanded
   const unlocked = !!data?.unlocked
-  // Read the stored setting, not the presentation override, so a hidden
-  // technique box stays hidden even when presentation details are expanded.
-  const labelBoxVisible = edgeData?.displaySettings?.showLabel !== false
+  const labelBoxVisible = presentationMode
+    ? edgeData?.displaySettings?.hideTechniqueBox !== true
+    : edgeData?.displaySettings?.hideTechniqueBox !== true
   const visiblySelected = selected && !presentationMode
-  // Inline rename of an Other edge's name. The canvas owns which edge is being
-  // renamed because edge renderers remount when the selection changes. The
-  // ref guards against the blur that follows Enter/Escape committing again.
-  const editingName = editingEdgeNameProp && !presentationMode
+  const editingName = editingEdgeLabelIdFromContext === id && !presentationMode
   const nameSettledRef = useRef(false)
   const setEditingName = useCallback(
     (editing: boolean) => {

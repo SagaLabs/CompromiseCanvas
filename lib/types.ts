@@ -328,6 +328,7 @@ export interface EdgeDisplaySettings {
   showDescription: boolean
   showC2Channel: boolean
   showC2Framework: boolean
+  hideTechniqueBox?: boolean
 }
 
 export interface AnimationSettings {

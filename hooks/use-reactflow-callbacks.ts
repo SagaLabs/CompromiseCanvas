@@ -59,6 +59,13 @@ export const useReactFlowCallbacks = ({
       }
 
       const isSelfConnection = params.source === params.target
+      if (isSelfConnection) {
+        const isRightToLeft =
+          (params.sourceHandle ?? "right") === "right" &&
+          (params.targetHandle ?? "left") === "left"
+        if (!isRightToLeft) return
+      }
+
       const sameEndpoints = (edge: CustomEdge) =>
         edge.source === params.source &&
         edge.target === params.target &&
@@ -66,9 +73,6 @@ export const useReactFlowCallbacks = ({
         (edge.targetHandle ?? null) === (params.targetHandle ?? null)
 
       updateEdges((eds) => {
-        // Self-connections combine extra actions on one loop instead of
-        // stacking duplicates. Links between two assets may repeat (e.g. two
-        // techniques between the same hosts); the canvas fans them apart.
         if (isSelfConnection && eds.some(sameEndpoints)) return eds
 
         const baseId = `xy-edge__${params.source}${params.sourceHandle || ""}-${params.target}${params.targetHandle || ""}`
