@@ -17,7 +17,7 @@ import {
   DropdownMenuSubTrigger,
 } from "@/components/ui/dropdown-menu"
 import { EDGE_ACTION_TYPES, type EdgeActionType } from "@/lib/types"
-import { replaceEdgeActionTypeAtIndex } from "@/lib/edge-action-types"
+import { replaceEdgeActionTypeAtIndex, NAMED_EDGE_ACTION_TYPE } from "@/lib/edge-action-types"
 import { cn } from "@/lib/utils"
 
 const ACTION_MENU_MAX_HEIGHT =
@@ -76,6 +76,7 @@ export default function EdgeToolbar({
   const availableActionTypes = EDGE_ACTION_TYPES.filter(
     (actionType) => !currentActionTypes.includes(actionType),
   )
+  const isOtherEdge = currentActionTypes.includes(NAMED_EDGE_ACTION_TYPE)
 
   return (
     <XYEdgeToolbar
@@ -107,21 +108,23 @@ export default function EdgeToolbar({
       >
         {unlocked ? <LockOpen className="h-4 w-4" /> : <Lock className="h-4 w-4" />}
       </Button>
-      <Button
-        type="button"
-        size="icon"
-        variant="ghost"
-        className={cn(
-          "h-7 w-7 hover:bg-gray-700",
-          labelBoxVisible ? "text-gray-300 hover:text-white" : "text-amber-400 hover:text-amber-300",
-        )}
-        title={labelBoxVisible ? "Hide technique box (show only the link)" : "Show technique box"}
-        aria-label={labelBoxVisible ? "Hide technique box" : "Show technique box"}
-        aria-pressed={!labelBoxVisible}
-        onClick={() => onToggleLabelBox()}
-      >
-        {labelBoxVisible ? <Eye className="h-4 w-4" /> : <EyeOff className="h-4 w-4" />}
-      </Button>
+      {!isOtherEdge && (
+        <Button
+          type="button"
+          size="icon"
+          variant="ghost"
+          className={cn(
+            "h-7 w-7 hover:bg-gray-700",
+            labelBoxVisible ? "text-gray-300 hover:text-white" : "text-amber-400 hover:text-amber-300",
+          )}
+          title={labelBoxVisible ? "Hide technique box (show only the link)" : "Show technique box"}
+          aria-label={labelBoxVisible ? "Hide technique box" : "Show technique box"}
+          aria-pressed={!labelBoxVisible}
+          onClick={() => onToggleLabelBox()}
+        >
+          {labelBoxVisible ? <Eye className="h-4 w-4" /> : <EyeOff className="h-4 w-4" />}
+        </Button>
+      )}
       {canRename && (
         <Button
           type="button"

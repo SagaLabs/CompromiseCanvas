@@ -171,9 +171,9 @@ test("hides and restores the technique box from the edge toolbar", async ({ page
       const saved = await page.evaluate(() =>
         JSON.parse(localStorage.getItem("compromise-canvas-autosave-flow") || "{}"),
       )
-      return saved.edges?.[0]?.data?.displaySettings?.showLabel
+      return saved.edges?.[0]?.data?.displaySettings?.hideTechniqueBox
     }, { timeout: 15_000 })
-    .toBe(false)
+    .toBe(true)
 
   // The toolbar stays reachable from the bare line to bring the box back.
   await page.getByRole("button", { name: "Show technique box" }).click()
