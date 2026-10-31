@@ -126,7 +126,7 @@ export default function PresentationPlaybackControls({
             <div className="mt-2">
               <div className="flex flex-wrap items-center gap-2 text-sm">
                 <span className="font-semibold text-gray-100">
-                  {currentEvent.actionType}
+                  {currentEvent.actionLabel}
                 </span>
                 <span className="text-gray-500" aria-hidden="true">•</span>
                 <span className="text-gray-300">
@@ -327,7 +327,7 @@ export default function PresentationPlaybackControls({
                         {routeLabel}
                       </span>
                       <span className="mt-0.5 block text-[10px] text-amber-200/60">
-                        {issue.actionType} ·{" "}
+                        {issue.actionLabel} ·{" "}
                         {issue.reason === "missing"
                           ? "Missing timestamp"
                           : "Invalid timestamp"}

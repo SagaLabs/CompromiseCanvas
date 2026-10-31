@@ -16,6 +16,9 @@ export const createEdgeTypes = (
   onSelectEdge: (id: string, additive?: boolean) => void,
   onSetEdgeLabelOffset: (id: string, x: number, y: number) => void,
   onToggleEdgeUnlocked: (id: string) => void,
+  onToggleEdgeLabelBox: (id: string) => void,
+  onSetEdgeLabel: (id: string, label: string) => void,
+  onSetEditingEdgeLabel: (id: string | null) => void,
 ) => ({
   customEdge: (props: any) => (
     <CustomEdge
@@ -29,6 +32,10 @@ export const createEdgeTypes = (
       onSelectEdge={onSelectEdge}
       onSetEdgeLabelOffset={onSetEdgeLabelOffset}
       onToggleEdgeUnlocked={onToggleEdgeUnlocked}
+      onToggleEdgeLabelBox={onToggleEdgeLabelBox}
+      onSetEdgeLabel={onSetEdgeLabel}
+      onSetEditingEdgeLabel={onSetEditingEdgeLabel}
+      parallelLane={props.data?.parallelLane ?? 0}
     />
   ),
 })

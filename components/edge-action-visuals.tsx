@@ -7,6 +7,7 @@ import {
   Eye,
   FileText,
   Hammer,
+  Info,
   Key,
   Lock,
   MoveRight,
@@ -184,7 +185,8 @@ export const EDGE_ACTION_VISUALS: Record<
     strokeWidth: 2,
     strokeDasharray: "8 6",
   },
-  Other: DEFAULT_EDGE_ACTION_VISUAL,
+  // Other is a free-form, user-named link, so it gets an information icon.
+  Other: { ...DEFAULT_EDGE_ACTION_VISUAL, icon: Info },
 }
 
 export function getEdgeActionVisual(

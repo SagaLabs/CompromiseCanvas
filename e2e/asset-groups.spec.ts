@@ -113,7 +113,7 @@ test("does not create a new route to an asset group", async ({ page }) => {
   await seedDiagram(page)
 
   const assetSource = page.locator(
-    `.react-flow__node[data-id="${firstAssetId}"] .react-flow__handle.source`,
+    `.react-flow__node[data-id="${firstAssetId}"] .react-flow__handle[data-handleid="right"]`,
   )
   const groupTarget = page.locator(
     `.react-flow__node[data-id="${groupId}"] .react-flow__handle.target`,
@@ -130,10 +130,10 @@ test("still creates routes directly between assets", async ({ page }) => {
   })
 
   const source = page.locator(
-    `.react-flow__node[data-id="${firstAssetId}"] .react-flow__handle.source`,
+    `.react-flow__node[data-id="${firstAssetId}"] .react-flow__handle[data-handleid="right"]`,
   )
   const target = page.locator(
-    `.react-flow__node[data-id="${secondAssetId}"] .react-flow__handle.target`,
+    `.react-flow__node[data-id="${secondAssetId}"] .react-flow__handle[data-handleid="left"]`,
   )
 
   await dragConnection(page, source, target)

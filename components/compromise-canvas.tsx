@@ -6,6 +6,7 @@ import {
   ReactFlow,
   Controls,
   Background,
+  ConnectionMode,
   Panel,
   useReactFlow,
   useStoreApi,
@@ -26,10 +27,10 @@ import DataHandlingModal from "./data-handling-modal"
 import { createEdgeTypes } from "@/lib/utils/compromise-canvas-utils"
 import type { CustomEdge as CanvasEdge, CustomNode as CanvasNode, EdgeActionType } from "@/lib/types"
 import {
-  createEdgeActionTypeUpdate,
+  createEdgeActionTypeChange,
   getEdgeActionTypes,
 } from "@/lib/edge-action-types"
-import { FIT_VIEW_OPTIONS } from "@/lib/utils/compromise-canvas-constants"
+import { defaultEdgeDisplaySettings, FIT_VIEW_OPTIONS } from "@/lib/utils/compromise-canvas-constants"
 import { useCompromiseCanvasState } from "@/hooks/use-compromise-canvas-state"
 import { useCompromiseCanvasHandlers } from "@/hooks/use-compromise-canvas-handlers"
 import { useReactFlowCallbacks } from "@/hooks/use-reactflow-callbacks"
@@ -238,11 +239,86 @@ export default function CompromiseCanvas() {
     }),
     [expandedPresentationLayout, nodes, presentationMode],
   )
+  // Asset nodes expose an ID'd handle on every side. Edges saved before that
+  // have no handle IDs, so route them right -> left as they always rendered.
+  // Group nodes keep their legacy unnamed anchors and are left untouched.
+  const assetNodeIdsKey = useMemo(
+    () => nodes
+      .filter((node) => node.type === "customNode")
+      .map((node) => node.id)
+      .join("\n"),
+    [nodes],
+  )
+  const assetNodeIds = useMemo(
+    () => new Set(assetNodeIdsKey ? assetNodeIdsKey.split("\n") : []),
+    [assetNodeIdsKey],
+  )
+
+  const parallelEdgeLanesKey = useMemo(() => {
+    const groups = new Map<string, CanvasEdge[]>()
+    for (const edge of edges) {
+      if (edge.source === edge.target) continue
+      const sourceHandle = edge.sourceHandle ?? (assetNodeIds.has(edge.source) ? "right" : edge.sourceHandle)
+      const targetHandle = edge.targetHandle ?? (assetNodeIds.has(edge.target) ? "left" : edge.targetHandle)
+      const sourceEnd = `${edge.source}:${sourceHandle ?? ""}`
+      const targetEnd = `${edge.target}:${targetHandle ?? ""}`
+      const key = sourceEnd < targetEnd ? `${sourceEnd}|${targetEnd}` : `${targetEnd}|${sourceEnd}`
+      const group = groups.get(key)
+      if (group) group.push(edge)
+      else groups.set(key, [edge])
+    }
+
+    const lanes: string[] = []
+    for (const [key, group] of groups) {
+      if (group.length < 2) continue
+      const canonicalSourceEnd = key.split("|")[0]
+      group.forEach((edge, index) => {
+        const sourceHandle = edge.sourceHandle ?? (assetNodeIds.has(edge.source) ? "right" : edge.sourceHandle)
+        const lane = index - (group.length - 1) / 2
+        const forward = `${edge.source}:${sourceHandle ?? ""}` === canonicalSourceEnd
+        if (lane !== 0) lanes.push(`${edge.id}\t${forward ? lane : -lane}`)
+      })
+    }
+    return lanes.join("\n")
+  }, [edges, assetNodeIds])
+  const parallelEdgeLanes = useMemo(
+    () => new Map(
+      parallelEdgeLanesKey
+        ? parallelEdgeLanesKey.split("\n").map((entry) => {
+            const [edgeId, lane] = entry.split("\t")
+            return [edgeId, Number(lane)] as const
+          })
+        : [],
+    ),
+    [parallelEdgeLanesKey],
+  )
+
   const renderedEdges = useMemo(
-    () => presentationMode
-      ? edges.map((edge) => ({ ...edge, selected: false }))
-      : edges,
-    [edges, presentationMode],
+    () => edges.map((edge): CanvasEdge => {
+      const sourceHandle =
+        edge.sourceHandle ?? (assetNodeIds.has(edge.source) ? "right" : edge.sourceHandle)
+      const targetHandle =
+        edge.targetHandle ?? (assetNodeIds.has(edge.target) ? "left" : edge.targetHandle)
+      const parallelLane = parallelEdgeLanes.get(edge.id) ?? 0
+
+      if (
+        !presentationMode &&
+        sourceHandle === edge.sourceHandle &&
+        targetHandle === edge.targetHandle &&
+        parallelLane === 0
+      ) {
+        return edge
+      }
+
+      return {
+        ...edge,
+        sourceHandle,
+        targetHandle,
+        selected: presentationMode ? false : edge.selected,
+        data: parallelLane !== 0 ? { ...edge.data, parallelLane } as any : edge.data,
+      }
+    }),
+    [assetNodeIds, edges, presentationMode, parallelEdgeLanes],
   )
 
   const handleNodeContextMenu = useCallback(
@@ -371,7 +447,13 @@ export default function CompromiseCanvas() {
   // Change an edge's action types (updates its routes/labels), undo-safe via updateEdge.
   const handleSetEdgeActionTypes = useCallback(
     (id: string, actionTypes: EdgeActionType[]) => {
-      updateEdge(id, createEdgeActionTypeUpdate(actionTypes))
+      updateEdges((current) =>
+        current.map((edge) =>
+          edge.id === id && edge.data
+            ? { ...edge, data: { ...edge.data, ...createEdgeActionTypeChange(edge.data, actionTypes) } }
+            : edge,
+        ),
+      )
       if (actionTypes.length < 2) {
         setExpandedSelfConnectionIds((current) => {
           if (!current.has(id)) return current
@@ -381,7 +463,7 @@ export default function CompromiseCanvas() {
         })
       }
     },
-    [updateEdge],
+    [updateEdges],
   )
 
   // Expanded cards are editor view state. Keep them out of saved canvas data
@@ -435,6 +517,30 @@ export default function CompromiseCanvas() {
     [edges, updateEdge],
   )
 
+  // Show or hide an edge's technique box so it can act as a plain link, undo-safe via updateEdge
+  const handleToggleEdgeLabelBox = useCallback(
+    (id: string) => {
+      const edge = edges.find((e) => e.id === id)
+      if (!edge?.data) return
+      updateEdge(id, {
+        displaySettings: {
+          ...(edge.data.displaySettings ?? defaultEdgeDisplaySettings),
+          hideTechniqueBox: !edge.data.displaySettings?.hideTechniqueBox,
+        },
+      })
+    },
+    [edges, updateEdge],
+  )
+
+  // Which edge's name is being edited inline on the canvas
+  const [editingEdgeLabelId, setEditingEdgeLabelId] = useState<string | null>(null)
+
+  // Rename an edge inline (Other edges show their label as the name), undo-safe via updateEdge
+  const handleSetEdgeLabel = useCallback(
+    (id: string, label: string) => updateEdge(id, { label }),
+    [updateEdge],
+  )
+
   // Memoize edge types to prevent recreation on every render during dragging
   const edgeTypes = useMemo(
     () =>
@@ -448,6 +554,9 @@ export default function CompromiseCanvas() {
         handleSelectEdge,
         handleSetEdgeLabelOffset,
         handleToggleEdgeUnlocked,
+        handleToggleEdgeLabelBox,
+        handleSetEdgeLabel,
+        setEditingEdgeLabelId,
       ),
     [
       animationsEnabled,
@@ -460,6 +569,8 @@ export default function CompromiseCanvas() {
       handleSelectEdge,
       handleSetEdgeLabelOffset,
       handleToggleEdgeUnlocked,
+      handleToggleEdgeLabelBox,
+      handleSetEdgeLabel,
     ],
   )
 
@@ -572,6 +683,7 @@ export default function CompromiseCanvas() {
             <CanvasActionsProvider
               updateNode={updateNode}
               multiSelectionActive={presentationMode ? false : multiSelectionActive}
+              editingEdgeLabelId={editingEdgeLabelId}
             >
               <ReactFlow
               nodes={renderedNodes}
@@ -579,6 +691,7 @@ export default function CompromiseCanvas() {
               onNodesChange={presentationMode ? undefined : onNodesChange}
               onEdgesChange={presentationMode ? undefined : setEdgesChange}
               onConnect={presentationMode ? undefined : onConnect}
+              connectionMode={ConnectionMode.Loose}
               onInit={setReactFlowInstance}
               onDrop={presentationMode ? undefined : onDrop}
               onDragOver={presentationMode ? undefined : onDragOver}

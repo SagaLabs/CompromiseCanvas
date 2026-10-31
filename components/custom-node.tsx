@@ -47,6 +47,13 @@ import type { NodeData, Criticality, InvestigationStatus } from "@/lib/types"
 import { cn } from "@/lib/utils"
 import { presentationNodeDisplaySettings } from "@/lib/presentation-details"
 
+const NODE_HANDLE_SIDES = [
+  { id: "right", position: Position.Right },
+  { id: "bottom", position: Position.Bottom },
+  { id: "left", position: Position.Left },
+  { id: "top", position: Position.Top },
+] as const
+
 const assetIcons = {
   "web-server": Server,
   database: Database,
@@ -502,13 +509,6 @@ const CustomNode = memo(function CustomNode({ data: nodeData, isConnectable, sel
           )
         }}
       />
-      <Handle
-        type="target"
-        position={Position.Left}
-        isConnectable={isConnectable && !presentationMode}
-        className={presentationMode ? "!pointer-events-none !opacity-0" : "!bg-red-500"}
-      />
-
       {/* Compromised indicator */}
       {data.isCompromised && (
         <div className="absolute -top-2 -right-2 bg-red-600 rounded-full p-1">
@@ -652,12 +652,20 @@ const CustomNode = memo(function CustomNode({ data: nodeData, isConnectable, sel
           </div>
         )
       )}
-      <Handle
-        type="source"
-        position={Position.Right}
-        isConnectable={isConnectable && !presentationMode}
-        className={presentationMode ? "!pointer-events-none !opacity-0" : "!bg-red-500"}
-      />
+      {/* Connectable handles on every side. The canvas uses loose connection
+          mode, so any side can link to any side and the drag direction sets
+          the edge direction. Edges saved without handle IDs are routed
+          right -> left in compromise-canvas.tsx. */}
+      {NODE_HANDLE_SIDES.map(({ id, position }) => (
+        <Handle
+          key={id}
+          id={id}
+          type="source"
+          position={position}
+          isConnectable={isConnectable && !presentationMode}
+          className={presentationMode ? "!pointer-events-none !opacity-0" : "!bg-red-500"}
+        />
+      ))}
     </div>
   )
 })

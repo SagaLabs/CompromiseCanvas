@@ -633,9 +633,10 @@ test("hides editor chrome, preserves edits, and restores the editor with Escape"
   ).toHaveCount(0)
   await expect(page.locator(".react-flow__controls")).toHaveCount(0)
   const handles = firstNode.locator(".react-flow__handle")
-  await expect(handles).toHaveCount(2)
-  await expect(handles.nth(0)).toHaveCSS("opacity", "0")
-  await expect(handles.nth(1)).toHaveCSS("opacity", "0")
+  await expect(handles).toHaveCount(4)
+  for (let index = 0; index < 4; index += 1) {
+    await expect(handles.nth(index)).toHaveCSS("opacity", "0")
+  }
   await expect(firstNode).not.toHaveClass(/selected/)
 
   await expect(page.getByRole("button", { name: "Got it" })).toHaveCount(0)
@@ -762,6 +763,34 @@ test("reveals complete details from partial settings and keeps hidden routes key
   expect(saved.edges[0].data.displaySettings).toEqual({
     showLabel: false,
   })
+})
+
+test("keeps a hidden technique box hidden in presentation, even with all details shown", async ({
+  page,
+}) => {
+  await seedDiagram(page, {
+    ...seed,
+    nodes: seed.nodes.slice(0, 2),
+    edges: [
+      {
+        ...seed.edges[0],
+        target: "b",
+        data: {
+          ...seed.edges[0].data,
+          displaySettings: { ...seed.edges[0].data.displaySettings, hideTechniqueBox: true },
+        },
+      },
+    ],
+  })
+  await enterPresentation(page)
+
+  const route = page.getByRole("button", { name: "Initial Access details" })
+  await expect(page.locator(".react-flow__edge")).toHaveCount(1)
+  await expect(route).toHaveCount(0)
+
+  await page.getByRole("button", { name: "Show all details" }).click()
+  await expect(route).toHaveCount(0)
+  await expect(page.locator(".react-flow__edge")).toHaveCount(1)
 })
 
 test("renders a stable single-step playback without an invalid slider", async ({

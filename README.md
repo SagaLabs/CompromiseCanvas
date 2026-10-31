@@ -93,6 +93,7 @@ Connections between nodes can be labeled with MITRE ATT&CK-aligned actions:
 - Collection, Command & Control, Exfiltration, Impact
 - And more...
 
+
 ### Keyboard Shortcuts
 
 | Shortcut | Action |

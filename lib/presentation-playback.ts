@@ -3,6 +3,7 @@ import type {
   CustomNode,
   EdgeActionType,
 } from "@/lib/types"
+import { getEdgeActionTypeDisplayName } from "@/lib/edge-action-types"
 import {
   buildPresentationPlaybackTimeline as buildPresentationPlaybackTimelineRuntime,
   getPresentationPlaybackFrame as getPresentationPlaybackFrameRuntime,
@@ -15,6 +16,8 @@ export interface PresentationPlaybackEvent {
   targetId: string
   targetLabel: string
   actionType: EdgeActionType
+  // Display name of the action (an Other edge's own name).
+  actionLabel: string
   timestamp: string
   timestampMs: number
 }
@@ -33,6 +36,7 @@ export interface PresentationPlaybackIssue {
   targetId: string
   targetLabel: string
   actionType: EdgeActionType
+  actionLabel: string
   reason: "missing" | "invalid"
 }
 
@@ -53,10 +57,26 @@ export function buildPresentationPlaybackTimeline(
   nodes: CustomNode[],
   edges: CustomEdge[],
 ): PresentationPlaybackTimeline {
-  return buildPresentationPlaybackTimelineRuntime(
+  const timeline = buildPresentationPlaybackTimelineRuntime(
     nodes,
     edges,
-  ) as PresentationPlaybackTimeline
+  ) as Omit<PresentationPlaybackTimeline, "events" | "issues"> & {
+    events: Omit<PresentationPlaybackEvent, "actionLabel">[]
+    issues: Omit<PresentationPlaybackIssue, "actionLabel">[]
+  }
+  const edgeLabels = new Map(edges.map((edge) => [edge.id, edge.data?.label]))
+  const withActionLabel = <T extends { edgeId: string; actionType: EdgeActionType }>(
+    item: T,
+  ) => ({
+    ...item,
+    actionLabel: getEdgeActionTypeDisplayName(item.actionType, edgeLabels.get(item.edgeId)),
+  })
+
+  return {
+    ...timeline,
+    events: timeline.events.map(withActionLabel),
+    issues: timeline.issues.map(withActionLabel),
+  }
 }
 
 export function getPresentationPlaybackFrame(

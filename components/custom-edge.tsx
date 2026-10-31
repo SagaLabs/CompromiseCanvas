@@ -1,6 +1,15 @@
 import type React from "react"
 import { memo, useState, useRef, useCallback, useEffect, useMemo } from "react"
-import { type Edge, type EdgeProps, getSmoothStepPath, EdgeLabelRenderer, BaseEdge, useStore } from "@xyflow/react"
+import {
+  type Edge,
+  type EdgeProps,
+  getSmoothStepPath,
+  getStraightPath,
+  EdgeLabelRenderer,
+  BaseEdge,
+  Position,
+  useStore,
+} from "@xyflow/react"
 import type { EdgeData, EdgeActionType } from "@/lib/types"
 import {
   PenToolIcon as Tool,
@@ -19,7 +28,11 @@ import {
   getMitreTechniqueUrl,
   normalizeMitreTechniqueReferences,
 } from "@/lib/mitre-attack"
-import { getEdgeActionTypes } from "@/lib/edge-action-types"
+import {
+  getEdgeActionTypes,
+  getNamedEdgeName,
+  NAMED_EDGE_ACTION_TYPE,
+} from "@/lib/edge-action-types"
 import { useCanvasActions } from "./canvas-actions-context"
 import { getEdgeActionVisual } from "./edge-action-visuals"
 import { SelfConnectionActionCard } from "./self-connection-action-card"
@@ -40,15 +53,56 @@ interface CustomEdgeProps extends EdgeProps<Edge<EdgeData>> {
   onSelectEdge?: (id: string, additive?: boolean) => void
   onSetEdgeLabelOffset?: (id: string, x: number, y: number) => void
   onToggleEdgeUnlocked?: (id: string) => void
+  onToggleEdgeLabelBox?: (id: string) => void
+  editingEdgeName?: boolean
+  onSetEditingEdgeLabel?: (id: string | null) => void
+  onSetEdgeLabel?: (id: string, label: string) => void
+  // Signed lane among links that share the same pair of handles (0 = centre).
+  parallelLane?: number
 }
 
 const EDGE_ROUTE_DRAG_THRESHOLD_PX = 4
 const EDGE_TOOLBAR_CARD_GAP_PX = 20
-const EDGE_TOOLBAR_ESTIMATED_WIDTH_PX = 104
+const EDGE_TOOLBAR_ESTIMATED_WIDTH_PX = 136
 const EDGE_TOOLBAR_ESTIMATED_HEIGHT_PX = 38
 const SELF_LOOP_LABEL_CLEARANCE_PX = 80
 const SELF_LOOP_CARD_ASSET_GAP_PX = 16
 const SELF_LOOP_INITIAL_LABEL_CARD_HEIGHT_PX = 100
+// Facing handles this close to aligned get a straight line instead of a
+// smoothstep with a small jog (e.g. assets one snap-grid step apart).
+const STRAIGHT_EDGE_ALIGNMENT_TOLERANCE_PX = 40
+// Travelling markers are skipped when the technique box leaves less than this
+// much line visible (split across both sides of the box); otherwise they
+// flash briefly in the short stubs beside the box.
+const MIN_VISIBLE_RUN_FOR_MARKERS_PX = 160
+// Space between the technique boxes of parallel links.
+const PARALLEL_EDGE_LANE_GAP_PX = 24
+
+/** True when the two handles face each other along one axis and nearly line up. */
+function handlesNearlyAligned(
+  sourceX: number,
+  sourceY: number,
+  sourcePosition: Position,
+  targetX: number,
+  targetY: number,
+  targetPosition: Position,
+) {
+  const dx = targetX - sourceX
+  const dy = targetY - sourceY
+  if (Math.abs(dx) <= STRAIGHT_EDGE_ALIGNMENT_TOLERANCE_PX) {
+    return (
+      (sourcePosition === Position.Bottom && targetPosition === Position.Top && dy > 0) ||
+      (sourcePosition === Position.Top && targetPosition === Position.Bottom && dy < 0)
+    )
+  }
+  if (Math.abs(dy) <= STRAIGHT_EDGE_ALIGNMENT_TOLERANCE_PX) {
+    return (
+      (sourcePosition === Position.Right && targetPosition === Position.Left && dx > 0) ||
+      (sourcePosition === Position.Left && targetPosition === Position.Right && dx < 0)
+    )
+  }
+  return false
+}
 
 interface SelfLoopGeometry {
   path: string
@@ -124,8 +178,13 @@ const CustomEdge = memo(function CustomEdge({
   onSelectEdge,
   onSetEdgeLabelOffset,
   onToggleEdgeUnlocked,
+  onToggleEdgeLabelBox,
+  editingEdgeName: editingEdgeNameProp = false,
+  onSetEditingEdgeLabel,
+  onSetEdgeLabel,
+  parallelLane = 0,
 }: CustomEdgeProps) {
-  const { multiSelectionActive } = useCanvasActions()
+  const { multiSelectionActive, editingEdgeLabelId: editingEdgeLabelIdFromContext } = useCanvasActions()
   const {
     presentationMode,
     showAllDetails,
@@ -169,7 +228,28 @@ const CustomEdge = memo(function CustomEdge({
     ? presentationDetailsExpanded
     : actionTypesExpanded
   const unlocked = !!data?.unlocked
+  const labelBoxVisible = presentationMode
+    ? edgeData?.displaySettings?.hideTechniqueBox !== true
+    : edgeData?.displaySettings?.hideTechniqueBox !== true
   const visiblySelected = selected && !presentationMode
+  const editingName = editingEdgeLabelIdFromContext === id && !presentationMode
+  const nameSettledRef = useRef(false)
+  const setEditingName = useCallback(
+    (editing: boolean) => {
+      nameSettledRef.current = !editing
+      onSetEditingEdgeLabel?.(editing ? id : null)
+    },
+    [id, onSetEditingEdgeLabel],
+  )
+  const commitName = useCallback(
+    (value: string) => {
+      if (nameSettledRef.current) return
+      setEditingName(false)
+      const nextLabel = value.trim()
+      if (nextLabel !== (edgeData?.label ?? "")) onSetEdgeLabel?.(id, nextLabel)
+    },
+    [edgeData?.label, id, onSetEdgeLabel, setEditingName],
+  )
   // Track hover so the quick-action toolbar can appear without selecting the edge.
   const [hovered, setHovered] = useState(false)
   // Keep the toolbar mounted while the action-type menu is open (pointer leaves the edge).
@@ -314,16 +394,27 @@ const CustomEdge = memo(function CustomEdge({
     [id, presentationMode, toggleEdgeDetails, unlocked, onSelectEdge],
   )
 
-  // Use React Flow's built-in smooth step path for the default (locked) routing.
-  const [smoothPath, smoothLabelX, smoothLabelY] = getSmoothStepPath({
+  // Use React Flow's built-in smooth step path for the default (locked)
+  // routing, or a straight line when the facing handles already line up.
+  const straightRoute = handlesNearlyAligned(
     sourceX,
     sourceY,
     sourcePosition,
     targetX,
     targetY,
     targetPosition,
-    borderRadius: 50, // Larger border radius to avoid obstacles
-  })
+  )
+  const [smoothPath, smoothLabelX, smoothLabelY] = straightRoute
+    ? getStraightPath({ sourceX, sourceY, targetX, targetY })
+    : getSmoothStepPath({
+        sourceX,
+        sourceY,
+        sourcePosition,
+        targetX,
+        targetY,
+        targetPosition,
+        borderRadius: 50, // Larger border radius to avoid obstacles
+      })
   const mitreTechniques = normalizeMitreTechniqueReferences(
     data?.mitreAttackTechniques,
     data?.mitreAttackId,
@@ -416,16 +507,38 @@ const CustomEdge = memo(function CustomEdge({
     })
   })
 
+  // Parallel links bend sideways (perpendicular to the line) by their lane,
+  // far enough that their technique boxes sit side by side.
+  const lineLength = Math.hypot(targetX - sourceX, targetY - sourceY) || 1
+  const laneSpacing =
+    (Math.abs(targetY - sourceY) > Math.abs(targetX - sourceX)
+      ? Math.max(labelCardWidth, 220)
+      : Math.max(labelCardHeight, 60)) + PARALLEL_EDGE_LANE_GAP_PX
+  const laneOffsetX = isSelfConnection
+    ? 0
+    : (-(targetY - sourceY) / lineLength) * parallelLane * laneSpacing
+  const laneOffsetY = isSelfConnection
+    ? 0
+    : ((targetX - sourceX) / lineLength) * parallelLane * laneSpacing
+  const curvedRoute = unlocked || (!isSelfConnection && parallelLane !== 0)
+  // A quadratic curve whose control is midpoint + 2*offset passes exactly
+  // through midpoint + offset, so the label rides the bend.
+  const curveOffsetX = laneOffsetX + (unlocked ? offsetX : 0)
+  const curveOffsetY = laneOffsetY + (unlocked ? offsetY : 0)
+
   const edgePath = isSelfConnection
     ? selfLoop.path
-    : unlocked
-      ? `M ${sourceX},${sourceY} Q ${midX + 2 * offsetX},${midY + 2 * offsetY} ${targetX},${targetY}`
+    : curvedRoute
+      ? `M ${sourceX},${sourceY} Q ${midX + 2 * curveOffsetX},${midY + 2 * curveOffsetY} ${targetX},${targetY}`
       : smoothPath
-  const labelX = isSelfConnection ? selfLoop.labelX : unlocked ? midX + offsetX : smoothLabelX
-  const labelY = isSelfConnection ? selfLoop.labelY : unlocked ? midY + offsetY : smoothLabelY
+  const labelX = isSelfConnection ? selfLoop.labelX : curvedRoute ? midX + curveOffsetX : smoothLabelX
+  const labelY = isSelfConnection ? selfLoop.labelY : curvedRoute ? midY + curveOffsetY : smoothLabelY
+  // A hidden technique box takes no space, so the toolbar sits on the line.
+  const visibleLabelCardWidth = labelBoxVisible ? labelCardWidth : 0
+  const visibleLabelCardHeight = labelBoxVisible ? labelCardHeight : 0
   const labelScreenX = labelX * zoom + viewportX
   const labelCardHalfScreenWidth =
-    (labelCardWidth * zoom) / 2
+    (visibleLabelCardWidth * zoom) / 2
   const toolbarSpaceNeeded =
     EDGE_TOOLBAR_ESTIMATED_WIDTH_PX + EDGE_TOOLBAR_CARD_GAP_PX
   const availableToolbarSpaceLeft =
@@ -436,7 +549,7 @@ const CustomEdge = memo(function CustomEdge({
     availableToolbarSpaceRight >= toolbarSpaceNeeded ||
     availableToolbarSpaceRight >= availableToolbarSpaceLeft
   const toolbarHorizontalOffset =
-    labelCardWidth / 2 + EDGE_TOOLBAR_CARD_GAP_PX / zoom
+    visibleLabelCardWidth / 2 + EDGE_TOOLBAR_CARD_GAP_PX / zoom
   const toolbarX = showsActionBundle
     ? labelX +
       (placeToolbarOnRight
@@ -445,10 +558,10 @@ const CustomEdge = memo(function CustomEdge({
     : labelX
   const toolbarY = showsActionBundle
     ? labelY +
-      labelCardHeight / 2 -
+      visibleLabelCardHeight / 2 -
       (EDGE_TOOLBAR_ESTIMATED_HEIGHT_PX / 2 + 8) / zoom
     : labelY -
-      labelCardHeight / 2 -
+      visibleLabelCardHeight / 2 -
       EDGE_TOOLBAR_CARD_GAP_PX / zoom
   const toolbarAlignX = showsActionBundle
     ? placeToolbarOnRight
@@ -517,9 +630,24 @@ const CustomEdge = memo(function CustomEdge({
         }]
 
   // Check if this edge should have animations based on global setting
-  const shouldAnimate = animationsEnabled && actionTypes.length > 0
+  // How much of the line the technique box leaves visible along its main axis.
+  const visibleLineRun =
+    Math.abs(targetY - sourceY) > Math.abs(targetX - sourceX)
+      ? Math.abs(targetY - sourceY) - visibleLabelCardHeight
+      : Math.abs(targetX - sourceX) - visibleLabelCardWidth
+  const markersHaveRoom =
+    isSelfConnection ||
+    curvedRoute ||
+    visibleLineRun >= MIN_VISIBLE_RUN_FOR_MARKERS_PX
+  const shouldAnimate =
+    animationsEnabled && actionTypes.length > 0 && markersHaveRoom
+  const isNamedEdge = actionTypes.includes(NAMED_EDGE_ACTION_TYPE)
+  const namedEdgeName = getNamedEdgeName(data?.label)
+  const canEditName = isNamedEdge && !presentationMode && !showsActionBundle
+  // Other edges show their label as the title, so it is not repeated below.
   const showsLabelDetail = Boolean(
     data?.label &&
+      !(isNamedEdge && !showsActionBundle) &&
       !actionTypes.includes(data.label as EdgeActionType) &&
       data?.displaySettings?.showLabel,
   )
@@ -616,7 +744,7 @@ const CustomEdge = memo(function CustomEdge({
           presentationMode
             ? (event) => {
                 event.stopPropagation()
-                toggleEdgeDetails(id)
+                if (labelBoxVisible) toggleEdgeDetails(id)
               }
             : unlocked
               ? (event) => event.stopPropagation()
@@ -639,10 +767,14 @@ const CustomEdge = memo(function CustomEdge({
         currentActionTypes={actionTypes}
         allowsMultipleActionTypes={isSelfConnection}
         unlocked={unlocked}
+        labelBoxVisible={labelBoxVisible}
+        canRename={canEditName && labelBoxVisible}
+        onRename={() => setEditingName(true)}
         onSetActionTypes={(nextActionTypes) =>
           onSetEdgeActionTypes?.(id, nextActionTypes)
         }
         onToggleUnlocked={() => onToggleEdgeUnlocked?.(id)}
+        onToggleLabelBox={() => onToggleEdgeLabelBox?.(id)}
         onDelete={() => onDeleteEdge?.(id)}
         onMouseEnter={showToolbar}
         onMouseLeave={hideToolbar}
@@ -716,7 +848,7 @@ const CustomEdge = memo(function CustomEdge({
           </>
         )
       )}
-      {(presentationMode || data?.displaySettings?.showLabel !== false) && (
+      {labelBoxVisible && (
         <EdgeLabelRenderer>
           <div
             ref={labelCardRef}
@@ -809,6 +941,58 @@ const CustomEdge = memo(function CustomEdge({
                 actionTypes.map((actionType) => {
                   const visual = getEdgeActionVisual(actionType)
                   const ActionTypeIcon = visual.icon
+                  if (actionType === NAMED_EDGE_ACTION_TYPE) {
+                    return (
+                      <div
+                        key={actionType}
+                        data-edge-action-type={actionType}
+                        className="flex items-center justify-center gap-2 text-sm font-semibold"
+                        style={{ color: visual.stroke }}
+                      >
+                        <ActionTypeIcon className="h-4 w-4 shrink-0" aria-hidden="true" />
+                        {editingName ? (
+                          <input
+                            autoFocus
+                            aria-label="Box name"
+                            defaultValue={data?.label === namedEdgeName ? data.label : ""}
+                            placeholder="Other"
+                            className="nodrag nopan min-w-0 flex-1 rounded border border-sky-500/60 bg-gray-900 px-1.5 py-0.5 text-sm font-semibold text-white outline-none"
+                            onPointerDown={(event) => event.stopPropagation()}
+                            onClick={(event) => event.stopPropagation()}
+                            onKeyDown={(event) => {
+                              event.stopPropagation()
+                              if (event.key === "Enter") {
+                                commitName(event.currentTarget.value)
+                              } else if (event.key === "Escape") {
+                                setEditingName(false)
+                              }
+                            }}
+                            onBlur={(event) => commitName(event.currentTarget.value)}
+                          />
+                        ) : (
+                          <span
+                            className="min-w-0 whitespace-normal break-words"
+                            title={canEditName ? "Double-click to rename" : undefined}
+                            // Double-click to rename. Uses the second press's click count
+                            // because the first click selects the edge, which remounts
+                            // this card before a dblclick event could fire.
+                            onMouseDown={
+                              canEditName
+                                ? (event) => {
+                                    if (event.detail < 2) return
+                                    event.preventDefault()
+                                    event.stopPropagation()
+                                    setEditingName(true)
+                                  }
+                                : undefined
+                            }
+                          >
+                            {namedEdgeName}
+                          </span>
+                        )}
+                      </div>
+                    )
+                  }
                   return (
                     <div
                       key={actionType}
@@ -843,17 +1027,15 @@ const CustomEdge = memo(function CustomEdge({
                 )}
               >
                 {/* Custom Label (if different from action type) */}
-                {data?.label &&
-                  !showsActionBundle &&
-                  !actionTypes.includes(data.label as EdgeActionType) &&
-                  data?.displaySettings?.showLabel && (
+                {showsLabelDetail &&
+                  !showsActionBundle && (
                     <div
                       data-edge-expanded-label="true"
                       className="flex min-w-0 items-start gap-1"
                     >
                       <FileText className="mt-0.5 h-3 w-3 shrink-0" />
                       <span className="min-w-0 whitespace-normal break-words">
-                        Label: {data.label}
+                        Label: {data?.label}
                       </span>
                     </div>
                   )}

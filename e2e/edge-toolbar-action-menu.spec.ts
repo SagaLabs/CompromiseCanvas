@@ -174,6 +174,7 @@ test("keeps a full action menu inside the viewport and scrolls to keyboard focus
   }))
   expect(overflow.scrollHeight).toBeGreaterThan(overflow.clientHeight)
 
+  const lastActionType = EDGE_ACTION_TYPES[EDGE_ACTION_TYPES.length - 1]
   const expectedMainMenuLabels = EDGE_ACTION_TYPES.flatMap(
     (actionType) => [
       `Change ${actionType}`,
@@ -192,7 +193,7 @@ test("keeps a full action menu inside the viewport and scrolls to keyboard focus
 
   expect(await menu.evaluate((element) => element.scrollTop)).toBeGreaterThan(0)
   await expect(
-    page.getByRole("menuitem", { name: "Remove Other" }),
+    page.getByRole("menuitem", { name: `Remove ${lastActionType}` }),
   ).toBeFocused()
 
   await page.keyboard.press("Enter")
@@ -200,7 +201,7 @@ test("keeps a full action menu inside the viewport and scrolls to keyboard focus
 
   const updatedMenu = await openActionMenuWithKeyboard(page)
   await expect(
-    page.getByRole("menuitem", { name: "Remove Other" }),
+    page.getByRole("menuitem", { name: `Remove ${lastActionType}` }),
   ).toHaveCount(0)
   await expect(
     updatedMenu.getByRole("menuitem", { name: /^Remove / }),

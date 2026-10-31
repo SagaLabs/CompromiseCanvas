@@ -1,5 +1,5 @@
 import { useCallback } from "react"
-import { addEdge, type Connection } from "@xyflow/react"
+import type { Connection } from "@xyflow/react"
 import type { NodeData, EdgeData, AssetType, CustomNode, CustomEdge } from "@/lib/types"
 import { defaultDisplaySettings, defaultEdgeDisplaySettings, getId, LAYER_Z_INDEX } from "@/lib/utils/compromise-canvas-constants"
 import { withNodeDataDefaults } from "@/lib/node-defaults"
@@ -58,10 +58,34 @@ export const useReactFlowCallbacks = ({
         return
       }
 
-      updateEdges((eds) =>
-        addEdge(
+      const isSelfConnection = params.source === params.target
+      if (isSelfConnection) {
+        const isRightToLeft =
+          (params.sourceHandle ?? "right") === "right" &&
+          (params.targetHandle ?? "left") === "left"
+        if (!isRightToLeft) return
+      }
+
+      const sameEndpoints = (edge: CustomEdge) =>
+        edge.source === params.source &&
+        edge.target === params.target &&
+        (edge.sourceHandle ?? null) === (params.sourceHandle ?? null) &&
+        (edge.targetHandle ?? null) === (params.targetHandle ?? null)
+
+      updateEdges((eds) => {
+        if (isSelfConnection && eds.some(sameEndpoints)) return eds
+
+        const baseId = `xy-edge__${params.source}${params.sourceHandle || ""}-${params.target}${params.targetHandle || ""}`
+        let id = baseId
+        for (let suffix = 2; eds.some((edge) => edge.id === id); suffix += 1) {
+          id = `${baseId}-${suffix}`
+        }
+
+        return [
+          ...eds,
           {
             ...params,
+            id,
             type: "customEdge",
             data: {
               label: "New Technique",
@@ -74,9 +98,8 @@ export const useReactFlowCallbacks = ({
               displaySettings: { ...defaultEdgeDisplaySettings },
             },
           },
-          eds,
-        ),
-      )
+        ]
+      })
     },
     [nodes, updateEdges],
   )

@@ -49,8 +49,9 @@ import {
 import type { CustomNode, CustomEdge } from "@/lib/types"
 import { normalizeMitreTechniqueReferences } from "@/lib/mitre-attack"
 import {
-  createEdgeActionTypeUpdate,
+  createEdgeActionTypeChange,
   getEdgeActionTypes,
+  NAMED_EDGE_ACTION_TYPE,
 } from "@/lib/edge-action-types"
 import { withNodeDataDefaults } from "@/lib/node-defaults"
 
@@ -91,6 +92,7 @@ export default function PropertiesPanel({
   const [edgeData, setEdgeData] = useState<EdgeData | null>(null)
   const orderedActionPath = nodeData?.actionMode === "ordered-path"
   const edgeActionTypes = getEdgeActionTypes(edgeData)
+  const edgeIsNamed = edgeActionTypes.includes(NAMED_EDGE_ACTION_TYPE)
   const isSelfConnection =
     selectedElement?.type === "customEdge" &&
     "source" in selectedElement &&
@@ -220,7 +222,7 @@ export default function PropertiesPanel({
 
     const newData = {
       ...edgeData,
-      ...createEdgeActionTypeUpdate(actionTypes),
+      ...createEdgeActionTypeChange(edgeData, actionTypes),
     }
     setEdgeData(newData)
     updateEdge(selectedElement.id, newData)
@@ -2432,14 +2434,20 @@ export default function PropertiesPanel({
         <div className="space-y-4">
           <div>
             <Label htmlFor="edge-label" className="text-sm">
-              Label
+              {edgeIsNamed ? "Name" : "Label"}
             </Label>
             <Input
               id="edge-label"
               value={edgeData.label || ""}
               onChange={(e) => handleEdgeChange("label", e.target.value)}
+              placeholder={edgeIsNamed ? "e.g. AnyDesk session" : undefined}
               className="mt-1 bg-gray-800 text-white border-gray-700"
             />
+            {edgeIsNamed && (
+              <p className="mt-1 text-xs text-gray-400">
+                Shown as the title of this box. You can also double-click the title on the canvas.
+              </p>
+            )}
           </div>
           <div>
             <Label htmlFor={isSelfConnection ? undefined : "edge-action-type"} className="text-sm">
@@ -2642,7 +2650,7 @@ export default function PropertiesPanel({
             <div className="mt-2 space-y-2">
               <div className="flex items-center justify-between">
                 <Label htmlFor="show-label" className="text-xs text-gray-400">
-                  Show Label Box
+                  Show Technique Box
                 </Label>
                 <Switch
                   id="show-label"

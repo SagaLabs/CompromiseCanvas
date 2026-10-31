@@ -92,8 +92,8 @@ async function connect(page: Page, source: Locator, target: Locator) {
 test("renders a self-connection and its label outside the asset", async ({ page }) => {
   await seedDiagram(page)
   const node = page.locator('.react-flow__node[data-id="n1"]')
-  const source = node.locator(".react-flow__handle.source")
-  const target = node.locator(".react-flow__handle.target")
+  const source = node.locator('.react-flow__handle[data-handleid="right"]')
+  const target = node.locator('.react-flow__handle[data-handleid="left"]')
   const from = await handleCenter(source)
   const to = await handleCenter(target)
 
@@ -161,8 +161,8 @@ test("renders a self-connection and its label outside the asset", async ({ page 
 
 test("still allows a connection between different assets", async ({ page }) => {
   await seedDiagram(page)
-  const source = page.locator('.react-flow__node[data-id="n1"] .react-flow__handle.source')
-  const target = page.locator('.react-flow__node[data-id="n2"] .react-flow__handle.target')
+  const source = page.locator('.react-flow__node[data-id="n1"] .react-flow__handle[data-handleid="right"]')
+  const target = page.locator('.react-flow__node[data-id="n2"] .react-flow__handle[data-handleid="left"]')
   await connect(page, source, target)
   await expect(page.locator(".react-flow__edge")).toHaveCount(1)
 })

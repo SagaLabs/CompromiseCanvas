@@ -1,4 +1,7 @@
-import { getEdgeActionTypes } from "@/lib/edge-action-types"
+import {
+  getEdgeActionTypeDisplayName,
+  getEdgeActionTypes,
+} from "@/lib/edge-action-types"
 import { normalizeMitreTechniqueReferences } from "@/lib/mitre-attack"
 import type {
   ActionType,
@@ -18,6 +21,8 @@ export interface TimelineEvent {
   kind: "edge" | "node-action" | "incident"
   actionType?: TimelineActionType
   actionTypes?: TimelineActionType[]
+  // Edge label, used as the display name of an "Other" action.
+  edgeLabel?: string
   toolUsed?: string
   userUsed?: string
   technique?: string
@@ -48,6 +53,15 @@ const parseTimestamp = (timestamp?: string) => {
   return Number.isNaN(parsedDate.getTime()) ? null : parsedDate
 }
 
+/** Name to show for one of an event's action types (Other edges use their own name). */
+export const getTimelineActionTypeLabel = (
+  event: Pick<TimelineEvent, "kind" | "edgeLabel">,
+  actionType: TimelineActionType,
+): string =>
+  event.kind === "edge"
+    ? getEdgeActionTypeDisplayName(actionType as EdgeActionType, event.edgeLabel)
+    : actionType
+
 export const buildTimelineEvents = ({
   nodes,
   edges,
@@ -66,6 +80,7 @@ export const buildTimelineEvents = ({
       kind: "edge",
       actionType: edge.data.actionType,
       actionTypes: getEdgeActionTypes(edge.data),
+      edgeLabel: edge.data.label,
       toolUsed: edge.data.toolUsed,
       userUsed: edge.data.userUsed,
       mitreAttackId: edge.data.mitreAttackId,

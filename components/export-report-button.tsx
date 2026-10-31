@@ -7,8 +7,8 @@ import { FileText } from 'lucide-react';
 import { Button } from "@/components/ui/button";
 import type { CustomEdge, CustomNode, NodeData, EdgeData, IncidentLogEntry } from "@/lib/types";
 import { getMitreTechniqueLabel, normalizeMitreTechniqueReferences } from "@/lib/mitre-attack";
-import { getEdgeActionTypes } from "@/lib/edge-action-types";
-import { buildTimelineEvents } from "@/lib/timeline-events";
+import { getEdgeActionTypeDisplayName, getEdgeActionTypes } from "@/lib/edge-action-types";
+import { buildTimelineEvents, getTimelineActionTypeLabel } from "@/lib/timeline-events";
 
 interface ExportReportButtonProps {
   label?: string
@@ -127,7 +127,10 @@ export default function ExportReportButton({
         target: event.kind === "edge"
           ? canvasNodes.find(node => node.id === event.targetId)?.data.label || event.targetId || ""
           : "Asset-local",
-        action: event.actionTypes?.join("\n") || event.actionType || "",
+        action:
+          event.actionTypes?.map(actionType => getTimelineActionTypeLabel(event, actionType)).join("\n") ||
+          event.actionType ||
+          "",
         mitre: (event.mitreAttackTechniques || [])
           .map(technique => getMitreTechniqueLabel(technique.id, technique.name))
           .join("\n"),
@@ -220,7 +223,7 @@ export default function ExportReportButton({
       return [
         sourceNode?.data.label || e.source,
         targetNode?.data.label || e.target,
-        getEdgeActionTypes(d).join("\n"),
+        getEdgeActionTypes(d).map(actionType => getEdgeActionTypeDisplayName(actionType, d.label)).join("\n"),
         mitreTechniques.map(technique => getMitreTechniqueLabel(technique.id, technique.name)).join("\n") || '-',
         d.toolUsed || '-',
         d.description || ''

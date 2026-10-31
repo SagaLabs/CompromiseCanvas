@@ -22,6 +22,7 @@ import {
 } from "@/lib/mitre-attack"
 import {
   buildTimelineEvents,
+  getTimelineActionTypeLabel,
   type TimelineActionType,
   type TimelineEvent,
 } from "@/lib/timeline-events"
@@ -167,6 +168,7 @@ export default function TimelineModal({
 
       const haystack = [
         event.actionTypes?.join(" ") || event.actionType || "",
+        event.edgeLabel || "",
         event.toolUsed || "",
         event.userUsed || "",
         event.technique || "",
@@ -362,7 +364,7 @@ export default function TimelineModal({
                                     "text-gray-300 border-gray-400/40 bg-gray-500/10"
                                   }`}
                                 >
-                                  {actionType}
+                                  {getTimelineActionTypeLabel(event, actionType)}
                                 </span>
                               ))}
                             </span>
