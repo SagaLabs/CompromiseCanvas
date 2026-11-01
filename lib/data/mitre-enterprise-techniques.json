@@ -6846,6 +6846,17 @@
     "parentName": "Stage Capabilities"
   },
   {
+    "id": "T1608.007",
+    "name": "AI Result Poisoning",
+    "tactics": [
+      "resource-development"
+    ],
+    "isSubtechnique": true,
+    "url": "https://attack.mitre.org/techniques/T1608/007",
+    "parentId": "T1608",
+    "parentName": "Stage Capabilities"
+  },
+  {
     "id": "T1609",
     "name": "Container Administration Command",
     "tactics": [
@@ -7320,6 +7331,17 @@
     "parentName": "Disable or Modify Tools"
   },
   {
+    "id": "T1685.007",
+    "name": "Impair Autonomous Defenses",
+    "tactics": [
+      "defense-impairment"
+    ],
+    "isSubtechnique": true,
+    "url": "https://attack.mitre.org/techniques/T1685/007",
+    "parentId": "T1685",
+    "parentName": "Disable or Modify Tools"
+  },
+  {
     "id": "T1686",
     "name": "Disable or Modify System Firewall",
     "tactics": [
@@ -7396,5 +7418,72 @@
     ],
     "isSubtechnique": false,
     "url": "https://attack.mitre.org/techniques/T1690"
+  },
+  {
+    "id": "T1696",
+    "name": "Anti-Automation Evasion",
+    "tactics": [
+      "stealth"
+    ],
+    "isSubtechnique": false,
+    "url": "https://attack.mitre.org/techniques/T1696"
+  },
+  {
+    "id": "T1696.001",
+    "name": "Automate CAPTCHA Completion",
+    "tactics": [
+      "stealth"
+    ],
+    "isSubtechnique": true,
+    "url": "https://attack.mitre.org/techniques/T1696/001",
+    "parentId": "T1696",
+    "parentName": "Anti-Automation Evasion"
+  },
+  {
+    "id": "T1696.002",
+    "name": "Avoid CAPTCHA",
+    "tactics": [
+      "stealth"
+    ],
+    "isSubtechnique": true,
+    "url": "https://attack.mitre.org/techniques/T1696/002",
+    "parentId": "T1696",
+    "parentName": "Anti-Automation Evasion"
+  },
+  {
+    "id": "T1697",
+    "name": "Steal Application Specific Passwords",
+    "tactics": [
+      "credential-access"
+    ],
+    "isSubtechnique": false,
+    "url": "https://attack.mitre.org/techniques/T1697"
+  },
+  {
+    "id": "T1698",
+    "name": "Indirect Prompt Injection",
+    "tactics": [
+      "execution"
+    ],
+    "isSubtechnique": false,
+    "url": "https://attack.mitre.org/techniques/T1698"
+  },
+  {
+    "id": "T1699",
+    "name": "Direct Prompt Injection",
+    "tactics": [
+      "execution"
+    ],
+    "isSubtechnique": false,
+    "url": "https://attack.mitre.org/techniques/T1699"
+  },
+  {
+    "id": "T1700",
+    "name": "AI-Enabled Exfiltration",
+    "tactics": [
+      "exfiltration"
+    ],
+    "isSubtechnique": false,
+    "url": "https://attack.mitre.org/techniques/T1700"
   }
 ]
